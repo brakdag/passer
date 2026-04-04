@@ -9,7 +9,11 @@ AVAILABLE_TOOLS = {
     "listar_archivos": tf.listar_archivos,
     "buscar_en_internet": tf.buscar_en_internet,
     "leer_url": tf.leer_url,
-    "obtener_directorio_actual": tf.obtener_directorio_actual
+    "obtener_directorio_actual": tf.obtener_directorio_actual,
+    "leer_lineas": tf.leer_lineas,
+    "leer_cabecera": tf.leer_cabecera,
+    "modificar_linea": tf.modificar_linea,
+    "reemplazar_texto": tf.reemplazar_texto
 }
 
 TOOL_CATALOG = """
@@ -22,7 +26,11 @@ TOOL_CATALOG = """
     {"name": "listar_archivos", "description": "Lista archivos.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
     {"name": "buscar_en_internet", "description": "Busca en internet.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
     {"name": "leer_url", "description": "Lee URL.", "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}},
-    {"name": "obtener_directorio_actual", "description": "Obtiene el directorio actual de trabajo.", "parameters": {"type": "object", "properties": {}}}
+    {"name": "obtener_directorio_actual", "description": "Obtiene el directorio actual de trabajo.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "leer_lineas", "description": "Lee rango de líneas.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "inicio": {"type": "integer"}, "fin": {"type": "integer"}}, "required": ["path", "inicio", "fin"]}},
+    {"name": "leer_cabecera", "description": "Lee primeras líneas.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "cantidad_lineas": {"type": "integer"}}, "required": ["path", "cantidad_lineas"]}},
+    {"name": "modificar_linea", "description": "Modifica el contenido de una línea específica en un archivo indicando el número de línea (1-indexed).", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "numero_linea": {"type": "integer"}, "nuevo_contenido": {"type": "string"}}, "required": ["path", "numero_linea", "nuevo_contenido"]}},
+    {"name": "reemplazar_texto", "description": "Busca todas las ocurrencias de 'texto_buscar' en un archivo y las reemplaza por 'texto_reemplazar'.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "texto_buscar": {"type": "string"}, "texto_reemplazar": {"type": "string"}}, "required": ["path", "texto_buscar", "texto_reemplazar"]}}
 ]
 """
 

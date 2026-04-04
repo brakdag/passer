@@ -46,7 +46,9 @@ class ChatManager:
             "buscar_en_internet": "Buscando en internet...",
             "leer_url": "Consultando web...",
             "leer_lineas": "Leyendo archivo...",
-            "leer_cabecera": "Leyendo archivo..."
+            "leer_cabecera": "Leyendo archivo...",
+            "modificar_linea": "Modificando línea...",
+            "reemplazar_texto": "Reemplazando texto..."
         }
 
     def run(self):
