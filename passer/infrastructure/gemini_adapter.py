@@ -27,4 +27,5 @@ class GeminiAdapter(IAIAssistant):
         return self.chat.send_message(message)
 
     def get_available_models(self) -> list:
-        return [m.name for m in self.client.models.list() if hasattr(m, 'supported_generation_methods') and 'generateContent' in m.supported_generation_methods]
+        # Relaxed filtering to ensure models appear
+        return [m.name for m in self.client.models.list() if 'gemini' in m.name or 'gemma' in m.name]
