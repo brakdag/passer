@@ -12,7 +12,15 @@ class ChatManager:
 
     def run(self):
         self._initialize_chat()
-        print("--- Chat iniciado ---")
+        
+        # ASCII Box for connection info
+        model_name = self.assistant.current_model or "Desconocido"
+        msg = f" Conectado a: Google | Modelo: {model_name} "
+        border = "+" + "-" * len(msg) + "+"
+        print(f"\n{border}")
+        print(f"|{msg}|")
+        print(f"{border}\n")
+        
         while True:
             try:
                 user_input = input("Tú: ")

@@ -7,8 +7,10 @@ class GeminiAdapter(IAIAssistant):
     def __init__(self):
         self.client = genai.Client()
         self.chat = None
+        self.current_model = None
 
     def start_chat(self, model_name: str, system_instruction: str, temperature: float):
+        self.current_model = model_name
         self.chat = self.client.chats.create(
             model=model_name, 
             config=types.GenerateContentConfig(temperature=temperature)
