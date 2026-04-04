@@ -8,7 +8,8 @@ AVAILABLE_TOOLS = {
     "borrar_archivo": tf.borrar_archivo,
     "listar_archivos": tf.listar_archivos,
     "buscar_en_internet": tf.buscar_en_internet,
-    "leer_url": tf.leer_url
+    "leer_url": tf.leer_url,
+    "obtener_directorio_actual": tf.obtener_directorio_actual
 }
 
 TOOL_CATALOG = """
@@ -20,7 +21,8 @@ TOOL_CATALOG = """
     {"name": "borrar_archivo", "description": "Borra archivo.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
     {"name": "listar_archivos", "description": "Lista archivos.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
     {"name": "buscar_en_internet", "description": "Busca en internet.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
-    {"name": "leer_url", "description": "Lee URL.", "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}}
+    {"name": "leer_url", "description": "Lee URL.", "parameters": {"type": "object", "properties": {"url": {"type": "string"}}, "required": ["url"]}},
+    {"name": "obtener_directorio_actual", "description": "Obtiene el directorio actual de trabajo.", "parameters": {"type": "object", "properties": {}}}
 ]
 """
 

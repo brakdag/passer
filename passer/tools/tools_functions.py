@@ -29,6 +29,9 @@ def obtener_hora_actual(zona_horaria: str) -> str:
     except Exception as e:
         return f"Error: {e}"
 
+def obtener_directorio_actual() -> str:
+    return PROJECT_ROOT
+
 def calculadora_basica(operacion: str) -> str:
     try:
         result = eval(operacion) # nosec
