@@ -1,6 +1,35 @@
 import json
+import sys
+import time
+import itertools
+import threading
 from passer.core.interfaces import IAIAssistant
 from passer.tools import tools_functions as tf
+
+class Spinner:
+    def __init__(self, message="Procesando..."):
+        self.message = message
+        self.stop_running = threading.Event()
+        self.spin_thread = None
+
+    def _spin(self):
+        spinner = itertools.cycle(['|', '/', '-', '\\'])
+        while not self.stop_running.is_set():
+            sys.stdout.write(f"\r{next(spinner)} {self.message}")
+            sys.stdout.flush()
+            time.sleep(0.1)
+        sys.stdout.write("\r" + " " * (len(self.message) + 2) + "\r")
+        sys.stdout.flush()
+
+    def __enter__(self):
+        self.spin_thread = threading.Thread(target=self._spin)
+        self.spin_thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop_running.set()
+        if self.spin_thread:
+            self.spin_thread.join()
 
 class ChatManager:
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
@@ -9,6 +38,16 @@ class ChatManager:
         self.system_instruction = system_instruction
         self.thinking_enabled = True
         self.temperature = 0.7
+        self.tool_messages = {
+            "leer_archivo": "Leyendo archivo...",
+            "escribir_archivo": "Escribiendo archivo...",
+            "borrar_archivo": "Borrando archivo...",
+            "listar_archivos": "Listando archivos...",
+            "buscar_en_internet": "Buscando en internet...",
+            "leer_url": "Consultando web...",
+            "leer_lineas": "Leyendo archivo...",
+            "leer_cabecera": "Leyendo archivo..."
+        }
 
     def run(self):
         self._initialize_chat()
@@ -83,7 +122,9 @@ class ChatManager:
                             confirm = input(f"\n¿Borrar '{f_args.get('path')}'? (y/n): ")
                             res = self.tools[f_name](**f_args) if confirm == 'y' else "Cancelado."
                         else:
-                            res = self.tools[f_name](**f_args)
+                            msg = self.tool_messages.get(f_name, "Procesando...")
+                            with Spinner(msg):
+                                res = self.tools[f_name](**f_args)
                         # Enviar respuesta y obtener la siguiente del modelo
                         response = self.assistant.send_message(f"<TOOL_RESPONSE>{json.dumps({'status': 'success', 'data': res})}</TOOL_RESPONSE>")
                         
