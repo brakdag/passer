@@ -3,8 +3,8 @@ import re
 import logging
 from typing import Any
 
-from passer.core.repetition_detector import RepetitionDetector
-from passer.core.interfaces import IAIAssistant
+from paser.core.repetition_detector import RepetitionDetector
+from paser.core.interfaces import IAIAssistant
 
 logger = logging.getLogger(__name__)
 

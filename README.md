@@ -1,8 +1,8 @@
-# Passer (Sistema Autónomo de Function Calling - ReAct Pattern)
+# Paser (Sistema Autónomo de Function Calling - ReAct Pattern)
 
-Este proyecto implementa un agente autónomo utilizando el modelo Gemini de Google (vía `google-genai` SDK) que emplea el patrón **ReAct (Reasoning and Acting)** para ejecutar funciones locales de forma transparente para el usuario.
+**Paser** (originalmente llamado "Passer", por *Passer domesticus*) es un agente autónomo utilizando el modelo Gemini de Google (vía `google-genai` SDK) que emplea el patrón **ReAct (Reasoning and Acting)** para ejecutar funciones locales de forma transparente para el usuario.
 
-El nombre "Passer" hace referencia al *Passer domesticus* (gorrión), un ave muy común en el sur mendocino.
+El cambio de nombre de "Passer" a "Paser" simplifica la escritura en la terminal, manteniendo la raíz del nombre original y el significado vinculado al gorrión, un ave muy común en el sur mendocino.
 
 ## 🚀 Características Principales
 
@@ -22,7 +22,7 @@ El nombre "Passer" hace referencia al *Passer domesticus* (gorrión), un ave muy
 
 ## 📋 Seguimiento del Proyecto
 
-El seguimiento de tareas, errores y nuevas características se gestiona a través de los **Issues** de GitHub. Puedes ver el estado actual del desarrollo [aquí](https://github.com/brakdag/passer/issues).
+El seguimiento de tareas, errores y nuevas características se gestiona a través de los **Issues** de GitHub. Puedes ver el estado actual del desarrollo [aquí](https://github.com/brakdag/paser/issues).
 
 ## 🛠️ Comandos en la Consola
 
@@ -43,7 +43,7 @@ El seguimiento de tareas, errores y nuevas características se gestiona a travé
 Una vez instalado, puedes ejecutar la aplicación simplemente usando:
 
 ```bash
-passer
+paser
 ```
 
 ## 🛠️ Herramientas Disponibles

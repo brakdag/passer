@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install script for 'passer'
+# Install script for 'paser'
 set -e
 
 # Get project root from where the script is executed
@@ -16,14 +16,14 @@ echo "Installing package and dependencies..."
 "$PROJECT_ROOT/venv/bin/pip" install -e .
 
 # 3. Add to local bin
-echo "Setting up 'passer' command link..."
+echo "Setting up 'paser' command link..."
 mkdir -p "$HOME/bin"
-ln -sf "$PROJECT_ROOT/venv/bin/passer" "$HOME/bin/passer"
+ln -sf "$PROJECT_ROOT/venv/bin/paser" "$HOME/bin/paser"
 
 # 4. Check PATH
 if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     echo "Warning: \$HOME/bin is not in your PATH."
     echo "Add 'export PATH=\"\$HOME/bin:\$PATH\"' to your ~/.zshrc or ~/.bashrc"
 else
-    echo "Successfully installed! You can now run 'passer' from anywhere."
+    echo "Successfully installed! You can now run 'paser' from anywhere."
 fi

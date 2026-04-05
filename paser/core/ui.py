@@ -1,5 +1,5 @@
 """
-passer/core/ui.py
+paser/core/ui.py
 Interfaz de consola con Rich: paneles, markdown, estilos.
 """
 

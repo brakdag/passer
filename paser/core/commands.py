@@ -1,8 +1,8 @@
 import json
 from rich.table import Table
-from passer.core.ui import get_input, console, print_panel
-import passer.tools.file_tools as tf
-import passer.tools.tools_functions as tfunc
+from paser.core.ui import get_input, console, print_panel
+import paser.tools.file_tools as tf
+import paser.tools.tools_functions as tfunc
 
 class CommandHandler:
     def __init__(self, chat_manager):

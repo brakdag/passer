@@ -3,7 +3,7 @@ import os
 # Add the project root to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from passer.tools import tools_functions as tf
+from paser.tools import tools_functions as tf
 
 def test_surgical_tools():
     # Setup test file

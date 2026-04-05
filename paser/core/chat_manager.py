@@ -1,10 +1,10 @@
 import json
 import re
 import os
-from passer.core.interfaces import IAIAssistant
-from passer.core.ui import console, print_panel, get_input, print_model_response, SpinnerContext
-from passer.core.commands import CommandHandler
-from passer.core.executor import AutonomousExecutor
+from paser.core.interfaces import IAIAssistant
+from paser.core.ui import console, print_panel, get_input, print_model_response, SpinnerContext
+from paser.core.commands import CommandHandler
+from paser.core.executor import AutonomousExecutor
 from prompt_toolkit.history import FileHistory
 from rich.box import ROUNDED
 

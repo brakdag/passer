@@ -1,7 +1,7 @@
 from typing import Generator, Optional, Any
 from google import genai
 from google.genai import types
-from passer.core.interfaces import IAIAssistant
+from paser.core.interfaces import IAIAssistant
 
 class GeminiAdapter(IAIAssistant):
     def __init__(self):

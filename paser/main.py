@@ -1,6 +1,6 @@
-from passer.infrastructure.gemini_adapter import GeminiAdapter
-from passer.core.chat_manager import ChatManager
-from passer.tools.registry import AVAILABLE_TOOLS, SYSTEM_INSTRUCTION
+from paser.infrastructure.gemini_adapter import GeminiAdapter
+from paser.core.chat_manager import ChatManager
+from paser.tools.registry import AVAILABLE_TOOLS, SYSTEM_INSTRUCTION
 
 def main():
     assistant = GeminiAdapter()

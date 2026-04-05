@@ -23,4 +23,4 @@ El proyecto Passer es un sistema autónomo de Function Calling basado en el patr
 - **Orquestación de Agentes**: Permitir que Passer pueda delegar tareas a otros agentes especializados.
 
 ## 5. Seguimiento
-Para ver el estado actual de las tareas, errores y nuevas características, consulta los **[GitHub Issues del proyecto](https://github.com/brakdag/passer/issues)**.
+Para ver el estado actual de las tareas, errores y nuevas características, consulta los **[GitHub Issues del proyecto](https://github.com/brakdag/paser/issues)**.

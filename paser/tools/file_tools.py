@@ -1,5 +1,5 @@
 """
-# passer/tools/file_tools.py
+# paser/tools/file_tools.py
 # Simple utilities for project root management used by commands.
 # Exposes PROJECT_ROOT and set_project_root.
 """

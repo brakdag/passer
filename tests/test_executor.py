@@ -1,5 +1,5 @@
 """
-passer/tests/test_executor.py
+paser/tests/test_executor.py
 Pruebas del bucle ReAct (AutonomousExecutor).
 """
 
@@ -11,10 +11,10 @@ import unittest
 # Agregar la raíz del proyecto al path para importaciones
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from passer.core.executor import AutonomousExecutor
-from passer.core.repetition_detector import RepetitionDetector
-from passer.tools import tools_functions as tf
-from passer.tools.registry import AVAILABLE_TOOLS
+from paser.core.executor import AutonomousExecutor
+from paser.core.repetition_detector import RepetitionDetector
+from paser.tools import tools_functions as tf
+from paser.tools.registry import AVAILABLE_TOOLS
 
 
 class DummyAssistant:

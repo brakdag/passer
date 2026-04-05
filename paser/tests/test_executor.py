@@ -1,5 +1,5 @@
 import pytest
-from passer.core.executor import AutonomousExecutor
+from paser.core.executor import AutonomousExecutor
 
 def test_executor_multiple_tool_calls():
     """Test multiple tool calls in one response."""

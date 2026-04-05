@@ -1,4 +1,4 @@
-from passer.tools import tools_functions as tf
+from paser.tools import tools_functions as tf
 
 AVAILABLE_TOOLS = {
     "obtener_hora_actual": tf.obtener_hora_actual,
