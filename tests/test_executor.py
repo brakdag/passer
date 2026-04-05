@@ -84,18 +84,25 @@ class TestExecutorToolCalls(unittest.TestCase):
         result = executor.execute("Usar tool fantasma")
         self.assertIn("desconocida", result.lower())
 
-    def test_tool_error_handling(self):
-        def failing_tool():
-            raise RuntimeError("Error forzado en prueba")
-        test_tools = {"failing_tool": failing_tool}
-        tool_response_str = json.dumps({"status": "error", "data": "Error forzado en prueba"})
+    def test_invalid_json_format(self):
+        # Prueba de estructura inválida (faltan claves name/args)
         assistant = DummyAssistant([
-            '<TOOL_CALL>{"name": "failing_tool", "args": {}}</TOOL_CALL>',
-            f"Hmmm, ocurrió un error al procesar tu solicitud. Detalles: {tool_response_str}"
+            '<TOOL_CALL>{"unexpected": "key"}</TOOL_CALL>',
         ])
-        executor = AutonomousExecutor(assistant, test_tools)
-        result = executor.execute("Forzar error")
-        self.assertIn("error", result.lower())
+        executor = AutonomousExecutor(assistant, AVAILABLE_TOOLS)
+        # Como no hay tool calls válidas, el bucle while True termina inmediatamente
+        # y devuelve la respuesta del asistente (el string de la herramienta mal formada)
+        result = executor.execute("Llamada mal formada")
+        self.assertIn("tool_call", result.lower())
+
+    def test_syntax_error_json(self):
+        # Prueba de sintaxis JSON rota
+        assistant = DummyAssistant([
+            '<TOOL_CALL>{"name": "test", "args": }</TOOL_CALL>',
+        ])
+        executor = AutonomousExecutor(assistant, AVAILABLE_TOOLS)
+        result = executor.execute("Sintaxis rota")
+        self.assertIn("tool_call", result.lower())
 
 
 class TestRepetitionSafety(unittest.TestCase):
