@@ -15,7 +15,8 @@ AVAILABLE_TOOLS = {
     "modificar_linea": tf.modificar_linea,
     "reemplazar_texto": tf.reemplazar_texto,
     "reemplazar_bloque_texto": tf.reemplazar_bloque_texto,
-    "analizar_codigo_con_pyright": tf.analizar_codigo_con_pyright
+    "analizar_codigo_con_pyright": tf.analizar_codigo_con_pyright,
+    "buscar_reemplazar_global": tf.buscar_reemplazar_global
 }
 
 TOOL_CATALOG = """
@@ -34,7 +35,8 @@ TOOL_CATALOG = """
     {"name": "modificar_linea", "description": "Modifica el contenido de una línea específica en un archivo indicando el número de línea (1-indexed).", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "numero_linea": {"type": "integer"}, "nuevo_contenido": {"type": "string"}}, "required": ["path", "numero_linea", "nuevo_contenido"]}},
     {"name": "reemplazar_texto", "description": "Busca todas las ocurrencias de 'texto_buscar' en un archivo y las reemplaza por 'texto_reemplazar'.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "texto_buscar": {"type": "string"}, "texto_reemplazar": {"type": "string"}}, "required": ["path", "texto_buscar", "texto_reemplazar"]}},
     {"name": "reemplazar_bloque_texto", "description": "Busca un bloque de texto exacto y lo reemplaza por otro. Útil para cambios quirúrgicos de varias líneas.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "texto_buscar": {"type": "string"}, "texto_reemplazar": {"type": "string"}}, "required": ["path", "texto_buscar", "texto_reemplazar"]}},
-    {"name": "analizar_codigo_con_pyright", "description": "Analiza código con pyright y devuelve errores si existen.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": []}}
+    {"name": "analizar_codigo_con_pyright", "description": "Analiza código con pyright y devuelve errores si existen.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": []}},
+    {"name": "buscar_reemplazar_global", "description": "Busca y reemplaza una cadena de texto en múltiples archivos dentro de un directorio.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "texto_buscar": {"type": "string"}, "texto_reemplazar": {"type": "string"}, "extensiones": {"type": "array", "items": {"type": "string"}}}, "required": ["path", "texto_buscar", "texto_reemplazar"]}}
 ]
 """
 

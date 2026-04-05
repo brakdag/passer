@@ -349,3 +349,60 @@ def analizar_codigo_con_pyright(path: str = ".") -> str:
         logger.error(f"Error ejecutando pyright: {e}")
         return f"Error ejecutando pyright: {e}"
 
+def buscar_reemplazar_global(path: str, texto_buscar: str, texto_reemplazar: str, extensiones: list = None) -> str:
+    try:
+        safe_base_path = get_safe_path(path)
+        if not os.path.isdir(safe_base_path):
+             return f"Error: '{path}' no es un directorio válido."
+        
+        modificados = []
+        
+        # Extensiones por defecto si no se especifican (seguridad extra)
+        if extensiones is None:
+            extensiones = [".py", ".md", ".txt", ".json"]
+        
+        for root, dirs, files in os.walk(safe_base_path):
+            # Evitar directorios sensibles
+            if any(part in root.split(os.sep) for part in ['.git', 'venv', '__pycache__']):
+                continue
+                
+            for file in files:
+                if extensiones and not any(file.endswith(ext) for ext in extensiones):
+                    continue
+                
+                file_path = os.path.join(root, file)
+                
+                # Verificar tamaño de archivo
+                if os.path.getsize(file_path) > FILE_SIZE_LIMIT:
+                    logger.warning(f"Saltando archivo grande: {file_path}")
+                    continue
+                
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    if texto_buscar in content:
+                        new_content = content.replace(texto_buscar, texto_reemplazar)
+                        
+                        # Escritura atómica
+                        fd, temp_path = tempfile.mkstemp(dir=root, text=True)
+                        try:
+                            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
+                                temp_file.write(new_content)
+                                temp_file.flush()
+                                os.fsync(temp_file.fileno())
+                            os.replace(temp_path, file_path)
+                            modificados.append(file_path)
+                            logger.info(f"Reemplazo global en {file_path}")
+                        except Exception:
+                            if os.path.exists(temp_path):
+                                os.remove(temp_path)
+                            raise
+                except Exception as e:
+                    logger.error(f"Error procesando {file_path}: {e}")
+                    
+        return f"Reemplazo global completado en {len(modificados)} archivos: {json.dumps(modificados)}"
+    except Exception as e:
+        logger.error(f"Error en buscar_reemplazar_global: {e}")
+        return f"Error: {e}"
+
