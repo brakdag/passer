@@ -2,7 +2,7 @@ import os
 import json
 import tempfile
 import logging
-from .core_tools import get_safe_path
+from .core_tools import context
 
 logger = logging.getLogger("tools")
 
@@ -10,7 +10,7 @@ FILE_SIZE_LIMIT = 5 * 1024 * 1024
 
 def leer_archivo(path: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         if not os.path.isfile(safe_path):
             return f"Error: Archivo no encontrado en '{path}'."
         
@@ -29,7 +29,7 @@ def leer_archivo(path: str) -> str:
 
 def escribir_archivo(path: str, contenido: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
         if directorio:
             os.makedirs(directorio, exist_ok=True)
@@ -59,7 +59,7 @@ def escribir_archivo(path: str, contenido: str) -> str:
 
 def borrar_archivo(path: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         if not os.path.isfile(safe_path):
             return f"Error: Archivo no encontrado."
         os.remove(safe_path)
@@ -71,7 +71,7 @@ def borrar_archivo(path: str) -> str:
 
 def listar_archivos(path: str = ".") -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         if not os.path.isdir(safe_path):
             return f"Error: '{path}' no es un directorio válido."
         return json.dumps(os.listdir(safe_path))
@@ -81,7 +81,7 @@ def listar_archivos(path: str = ".") -> str:
 
 def leer_lineas(path: str, inicio: int, fin: int) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         resultado = []
         with open(safe_path, 'r', encoding='utf-8') as f:
             for i, linea in enumerate(f, 1):
@@ -99,7 +99,7 @@ def leer_cabecera(path: str, cantidad_lineas: int) -> str:
 
 def modificar_linea(path: str, numero_linea: int, nuevo_contenido: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
         fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
         linea_encontrada = False
@@ -128,7 +128,7 @@ def modificar_linea(path: str, numero_linea: int, nuevo_contenido: str) -> str:
 
 def reemplazar_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
         fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
         try:
@@ -148,7 +148,7 @@ def reemplazar_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str
 
 def reemplazar_bloque_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
     try:
-        safe_path = get_safe_path(path)
+        safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
         with open(safe_path, 'r', encoding='utf-8') as f:
             content = f.read()
@@ -173,7 +173,7 @@ def reemplazar_bloque_texto(path: str, texto_buscar: str, texto_reemplazar: str)
 
 def buscar_reemplazar_global(path: str, texto_buscar: str, texto_reemplazar: str, extensiones: list = None) -> str:
     try:
-        safe_base_path = get_safe_path(path)
+        safe_base_path = context.get_safe_path(path)
         if not os.path.isdir(safe_base_path):
              return f"Error: '{path}' no es un directorio válido."
         modificados = []

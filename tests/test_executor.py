@@ -13,7 +13,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from paser.core.executor import AutonomousExecutor
 from paser.core.repetition_detector import RepetitionDetector
-from paser.tools import tools_functions as tf
+from paser.tools import core_tools as ct
+from paser.tools import util_tools as ut
 from paser.tools.registry import AVAILABLE_TOOLS
 
 
@@ -142,42 +143,42 @@ class TestSafePath(unittest.TestCase):
     """Pruebas de seguridad de rutas."""
 
     def test_path_traversal_blocked(self):
-        original_root = tf.PROJECT_ROOT
-        tf.set_project_root("/tmp")
+        original_root = ct.context.root
+        ct.context.set_root("/tmp")
         try:
             # Intentar escapar de /tmp
-            tf.get_safe_path("../../etc/passwd")
+            ct.context.get_safe_path("../../etc/passwd")
             self.fail("Expected ValueError for path traversal")
         except ValueError:
             pass  # éxito
         finally:
-            tf.set_project_root(original_root)
+            ct.context.set_root(original_root)
 
     def test_valid_path(self):
-        original_root = tf.PROJECT_ROOT
+        original_root = ct.context.root
         # Usar el directorio raíz del proyecto
-        tf.set_project_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+        ct.context.set_root(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
         try:
-            safe = tf.get_safe_path("tests")
-            self.assertTrue(safe.startswith(tf.PROJECT_ROOT))
+            safe = ct.context.get_safe_path("tests")
+            self.assertTrue(safe.startswith(ct.context.root))
         finally:
-            tf.set_project_root(original_root)
+            ct.context.set_root(original_root)
 
 
 class TestCalculatorSafety(unittest.TestCase):
     """Pruebas de seguridad de la calculadora."""
 
     def test_arithmetic(self):
-        result = tf.calculadora_basica("2 + 3 * 4")
+        result = ut.calculadora_basica("2 + 3 * 4")
         self.assertIn("14", result)
 
     def test_nested_parentheses(self):
-        result = tf.calculadora_basica("(2 + 3) * (4 - 1)")
+        result = ut.calculadora_basica("(2 + 3) * (4 - 1)")
         self.assertIn("15", result)
 
     def test_malicious_input(self):
         # Intentar inyección de código
-        result = tf.calculadora_basica("__import__('os').system('ls')")
+        result = ut.calculadora_basica("__import__('os').system('ls')")
         self.assertIn("Error", result)
 
 

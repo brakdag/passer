@@ -25,18 +25,26 @@ if not logger.handlers:
     logger.setLevel(logging.DEBUG)
 
 # Gestión de PROJECT_ROOT
-PROJECT_ROOT = os.getcwd()
+class ProjectContext:
+    def __init__(self, root: str = None):
+        self._root = os.path.abspath(root or os.getcwd())
 
-def set_project_root(new_root: str):
-    global PROJECT_ROOT
-    PROJECT_ROOT = os.path.abspath(new_root)
-    logger.info(f"Project root set to: {PROJECT_ROOT}")
+    @property
+    def root(self):
+        return self._root
 
-def get_safe_path(path: str) -> str:
-    """Resuelve la ruta de forma segura dentro del directorio del proyecto."""
-    base = os.path.abspath(PROJECT_ROOT)
-    target = os.path.abspath(os.path.join(base, path))
-    if not target.startswith(base):
-        logger.warning(f"Path traversal attempt: {path}")
-        raise ValueError("Acceso fuera del directorio permitido.")
-    return target
+    def set_root(self, new_root: str):
+        self._root = os.path.abspath(new_root)
+        logger.info(f"Project root set to: {self._root}")
+
+    def get_safe_path(self, path: str) -> str:
+        """Resuelve la ruta de forma segura dentro del directorio del proyecto."""
+        base = os.path.abspath(self._root)
+        target = os.path.abspath(os.path.join(base, path))
+        if not target.startswith(base):
+            logger.warning(f"Path traversal attempt: {path}")
+            raise ValueError("Acceso fuera del directorio permitido.")
+        return target
+
+# Singleton para compatibilidad (podemos evolucionar hacia inyección completa)
+context = ProjectContext()

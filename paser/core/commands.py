@@ -17,8 +17,8 @@ class CommandHandler:
         if input_stripped.startswith('/cd '):
             path = input_stripped[4:]
             try:
-                core_tools.set_project_root(path)
-                console.print(f"Directorio cambiado a: {core_tools.PROJECT_ROOT}", style="green")
+                core_tools.context.set_root(path)
+                console.print(f"Directorio cambiado a: {core_tools.context.root}", style="green")
             except FileNotFoundError as e:
                 console.print(str(e), style="red")
             return True
