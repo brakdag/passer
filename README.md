@@ -9,7 +9,7 @@ El nombre "Passer" hace referencia al *Passer domesticus* (gorrión), un ave muy
 1.  **Function Calling Local (Manual):**
     *   No utiliza herramientas nativas de la SDK de Google.
     *   Utiliza *System Instruction* para obligar al modelo a emitir llamadas estructuradas (`<TOOL_CALL>`).
-    *   El script actúa como un *middleware* que intercepta estas llamadas, ejecuta la función local, y devuelve el resultado en formato `<TOOL_RESPONSE>` al historial del modelo.
+    *   El script actóa como un *middleware* que intercepta estas llamadas, ejecuta la función local, y devuelve el resultado en formato `<TOOL_RESPONSE>` al historial del modelo.
 
 2.  **Seguridad y Control de Archivos:**
     *   Todas las operaciones de archivo (leer, escribir, borrar) están restringidas al directorio de trabajo actual definido por `PROJECT_ROOT` mediante una función de validación de rutas segura (`get_safe_path`).
@@ -19,6 +19,10 @@ El nombre "Passer" hace referencia al *Passer domesticus* (gorrión), un ave muy
     *   **Temperatura:** Permite ajustar la creatividad del modelo al seleccionar un modelo (`/models`).
     *   **Pensamientos:** Permite alternar la visibilidad de los pensamientos del modelo (líneas que comienzan con `*`) mediante el comando `/thinking`.
     *   **Directorio de Trabajo:** Permite cambiar el directorio de trabajo del agente mediante `/cd <ruta>`.
+
+## 📋 Hoja de Ruta
+
+Para ver el estado actual del desarrollo, las tareas completadas y los pendientes, consulta el archivo [TODO.md](TODO.md).
 
 ## 🛠️ Comandos en la Consola
 

@@ -7,6 +7,8 @@ import urllib.request
 import urllib.parse
 import html2text
 import subprocess
+import ast
+import operator
 
 # Esta variable será gestionada por el ChatManager
 PROJECT_ROOT = os.getcwd()
@@ -38,7 +40,28 @@ def obtener_directorio_actual() -> str:
 
 def calculadora_basica(operacion: str) -> str:
     try:
-        result = eval(operacion) # nosec
+        # Definición de operadores permitidos para evitar RCE
+        operators = {
+            ast.Add: operator.add, 
+            ast.Sub: operator.sub, 
+            ast.Mult: operator.mul,
+            ast.Div: operator.truediv, 
+            ast.Pow: operator.pow, 
+            ast.USub: operator.neg
+        }
+
+        def _eval(node):
+            if isinstance(node, ast.Constant): # Python 3.8+
+                return node.value
+            elif isinstance(node, ast.BinOp):
+                return operators[type(node.op)](_eval(node.left), _eval(node.right))
+            elif isinstance(node, ast.UnaryOp):
+                return operators[type(node.op)](_eval(node.operand))
+            else:
+                raise TypeError(f"Operación no soportada: {type(node)}")
+
+        tree = ast.parse(operacion, mode='eval')
+        result = _eval(tree.body)
         return f"Resultado: {result}"
     except Exception as e:
         return f"Error: {e}"
@@ -58,19 +81,21 @@ def leer_archivo(path: str) -> str:
 
 
 def escribir_archivo(path: str, contenido: str) -> str:
-
     try:
-        print(f"DEBUG: Intentando escribir en {path}")
         safe_path = get_safe_path(path)
-        print(f"DEBUG: Ruta segura: {safe_path}")
-        with open(safe_path, 'w') as f:
+        directorio = os.path.dirname(safe_path)
+        if directorio:
+            os.makedirs(directorio, exist_ok=True)
+        with open(safe_path, 'w', encoding='utf-8') as f:
             f.write(contenido)
             f.flush()
-        print(f"DEBUG: Escritura completada en {path}")
         return f"Archivo '{path}' creado/actualizado exitosamente."
+    except PermissionError:
+        return f"Error: No tengo permisos para escribir en '{path}'. El archivo puede estar bloqueado por otro proceso o ser de solo lectura."
+    except OSError as e:
+        return f"Error de sistema al escribir en '{path}': {e}"
     except Exception as e:
-        print(f"DEBUG: Error escribiendo archivo: {e}")
-        return f"Error: {e}"
+        return f"Error inesperado: {e}"
 
 def borrar_archivo(path: str) -> str:
     try:
@@ -175,7 +200,8 @@ def analizar_codigo_con_pyright(path: str = ".") -> str:
         if not os.path.exists(pyright_path):
             pyright_path = "pyright"
             
-        result = subprocess.run([pyright_path, "--outputjson", path], capture_output=True, text=True)
+        safe_path = get_safe_path(path)
+        result = subprocess.run([pyright_path, "--outputjson", safe_path], capture_output=True, text=True)
         if result.returncode == 0:
             return "No se encontraron errores de tipo."
         return result.stdout

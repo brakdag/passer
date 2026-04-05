@@ -3,6 +3,7 @@ import sys
 import time
 import itertools
 import threading
+import re
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.live import Live
@@ -43,6 +44,7 @@ class ChatManager:
         self.system_instruction = system_instruction
         self.thinking_enabled = True
         self.temperature = 0.7
+        self.max_turns = 10  # Límite para evitar bucles infinitos (ID-004)
         self.tool_messages = {
             "leer_archivo": "Leyendo archivo...",
             "escribir_archivo": "Escribiendo archivo...",
@@ -104,7 +106,9 @@ class ChatManager:
 
     def _autonomous_loop(self, user_input):
         current_input = user_input
-        while True:
+        turn_count = 0
+        while turn_count < self.max_turns:
+            turn_count += 1
             full_response_text = ""
             visible_response_text = ""
             in_tool_block = False
@@ -151,13 +155,9 @@ class ChatManager:
                             with Spinner(msg):
                                 res = self.tools[f_name](**f_args)
                         
-                        # Enviar respuesta y obtener la siguiente del modelo
-                        response = self.assistant.send_message(f"<TOOL_RESPONSE>{json.dumps({'status': 'success', 'data': res})}</TOOL_RESPONSE>")
-                        
-                        # Si hay un nuevo paso, procesarlo
-                        if response and response.text:
-                            current_input = response.text 
-                        current_input = "" 
+                        # Seteamos la respuesta de la herramienta como el siguiente input
+                        # para que el send_message_stream al inicio del bucle la procese y la muestre.
+                        current_input = f"<TOOL_RESPONSE>{json.dumps({'status': 'success', 'data': res})}</TOOL_RESPONSE>"
                         continue
 
                 except Exception as e: print(f"Error: {e}")
