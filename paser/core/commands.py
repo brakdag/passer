@@ -56,7 +56,7 @@ class CommandHandler:
                 new_temp = float(temp_input or self.chat_manager.temperature)
                 
                 # commands.py está en paser/core/, subimos dos niveles para llegar a la raíz
-                config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config.json')
+                config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
                 try:
                     with open(config_path, "r") as f:
                         config = json.load(f)

@@ -34,12 +34,14 @@ def escribir_archivo(path: str, contenido: str) -> str:
         if directorio:
             os.makedirs(directorio, exist_ok=True)
         
-        fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
+        # Usamos NamedTemporaryFile para un manejo más seguro de encoding y archivos temporales
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            tf.write(contenido)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
-                f.write(contenido)
-                f.flush()
-                os.fsync(f.fileno())
             os.replace(temp_path, safe_path)
             logger.info(f"Archivo '{path}' escrito exitosamente.")
         except Exception:
@@ -101,25 +103,29 @@ def modificar_linea(path: str, numero_linea: int, nuevo_contenido: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
-        fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
         linea_encontrada = False
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
+            with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+                temp_path = tf.name
                 with open(safe_path, 'r', encoding='utf-8') as original_file:
                     for i, line in enumerate(original_file, 1):
                         if i == numero_linea:
-                            temp_file.write(nuevo_contenido + "\n")
+                            tf.write(nuevo_contenido + "\n")
                             linea_encontrada = True
                         else:
-                            temp_file.write(line)
+                            tf.write(line)
+                tf.flush()
+                os.fsync(tf.fileno())
+            
             if linea_encontrada:
                 os.replace(temp_path, safe_path)
                 return f"Línea {numero_linea} modificada."
             else:
-                os.remove(temp_path)
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
                 return "Error: Número de línea fuera de rango."
         except Exception:
-            if os.path.exists(temp_path):
+            if 'temp_path' in locals() and os.path.exists(temp_path):
                 os.remove(temp_path)
             raise
     except Exception as e:
@@ -130,16 +136,19 @@ def reemplazar_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
-        fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
+            with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+                temp_path = tf.name
                 with open(safe_path, 'r', encoding='utf-8') as original_file:
                     for line in original_file:
-                        temp_file.write(line.replace(texto_buscar, texto_reemplazar))
+                        tf.write(line.replace(texto_buscar, texto_reemplazar))
+                tf.flush()
+                os.fsync(tf.fileno())
+            
             os.replace(temp_path, safe_path)
             return "Reemplazo completado."
         except Exception:
-            if os.path.exists(temp_path):
+            if 'temp_path' in locals() and os.path.exists(temp_path):
                 os.remove(temp_path)
             raise
     except Exception as e:
@@ -155,12 +164,13 @@ def reemplazar_bloque_texto(path: str, texto_buscar: str, texto_reemplazar: str)
         if texto_buscar not in content:
             return f"Error: El bloque de texto no se encontró."
         new_content = content.replace(texto_buscar, texto_reemplazar, 1)
-        fd, temp_path = tempfile.mkstemp(dir=directorio, text=True)
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            tf.write(new_content)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
-                temp_file.write(new_content)
-                temp_file.flush()
-                os.fsync(temp_file.fileno())
             os.replace(temp_path, safe_path)
         except Exception:
             if os.path.exists(temp_path):
@@ -193,12 +203,13 @@ def buscar_reemplazar_global(path: str, texto_buscar: str, texto_reemplazar: str
                         content = f.read()
                     if texto_buscar in content:
                         new_content = content.replace(texto_buscar, texto_reemplazar)
-                        fd, temp_path = tempfile.mkstemp(dir=root, text=True)
+                        with tempfile.NamedTemporaryFile('w', dir=root, delete=False, encoding='utf-8') as tf:
+                            temp_path = tf.name
+                            tf.write(new_content)
+                            tf.flush()
+                            os.fsync(tf.fileno())
+                        
                         try:
-                            with os.fdopen(fd, 'w', encoding='utf-8') as temp_file:
-                                temp_file.write(new_content)
-                                temp_file.flush()
-                                os.fsync(temp_file.fileno())
                             os.replace(temp_path, file_path)
                             modificados.append(file_path)
                         except Exception:
