@@ -8,12 +8,34 @@
 
 El cambio de nombre de "Passer" a "Paser" simplifica la escritura en la terminal, manteniendo la raíz del nombre original y el significado vinculado al gorrión, un ave muy común en el sur mendocino.
 
-## 🚀 Características Principales
+## ⚙️ Instalación
+
+1.  Clona el repositorio.
+2.  Crea un entorno virtual e instala las dependencias:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -e .
+    ```
+3.  Configura tu clave de API:
+    ```bash
+    export GEMINI_API_KEY="tu_clave_api_aquí"
+    ```
+
+## 💻 Ejecución
+
+Una vez instalado, puedes ejecutar la aplicación simplemente usando:
+
+```bash
+paser
+```
+
+## ✨ Características Principales
 
 1.  **Function Calling Local (Manual):**
     *   No utiliza herramientas nativas de la SDK de Google.
     *   Utiliza *System Instruction* para obligar al modelo a emitir llamadas estructuradas (`<TOOL_CALL>`).
-    *   El script actóa como un *middleware* que intercepta estas llamadas, ejecuta la función local, y devuelve el resultado en formato `<TOOL_RESPONSE>` al historial del modelo.
+    *   El script actúa como un *middleware* que intercepta estas llamadas, ejecuta la función local, y devuelve el resultado en formato `<TOOL_RESPONSE>` al historial del modelo.
 
 2.  **Seguridad y Control de Archivos:**
     *   Todas las operaciones de archivo (leer, escribir, borrar) están restringidas al directorio de trabajo actual definido por `PROJECT_ROOT` mediante una función de validación de rutas segura (`get_safe_path`).
@@ -23,32 +45,6 @@ El cambio de nombre de "Passer" a "Paser" simplifica la escritura en la terminal
     *   **Temperatura:** Permite ajustar la creatividad del modelo al seleccionar un modelo (`/models`).
     *   **Pensamientos:** Permite alternar la visibilidad de los pensamientos del modelo (líneas que comienzan con `*`) mediante el comando `/thinking`.
     *   **Directorio de Trabajo:** Permite cambiar el directorio de trabajo del agente mediante `/cd <ruta>`.
-
-## 📋 Seguimiento del Proyecto
-
-El seguimiento de tareas, errores y nuevas características se gestiona a través de los **Issues** de GitHub. Puedes ver el estado actual del desarrollo [aquí](https://github.com/brakdag/paser/issues).
-
-## 🛠️ Comandos en la Consola
-
-*   `:q` - Salir de la sesión.
-*   `/models` - Listar modelos disponibles, cambiar modelo y configurar temperatura.
-*   `/thinking` - Alternar la visibilidad de los pensamientos del modelo (inicia activado).
-*   `/cd <ruta>` - Cambiar el directorio de trabajo del agente.
-
-## ⚙️ Requisitos
-
-*   Python 3.x
-*   Librería `google-genai`
-*   Librería `html2text`
-*   Variable de entorno `GEMINI_API_KEY` configurada con tu clave de API de Google AI Studio.
-
-## 💻 Ejecución
-
-Una vez instalado, puedes ejecutar la aplicación simplemente usando:
-
-```bash
-paser
-```
 
 ## 🛠️ Herramientas Disponibles
 
