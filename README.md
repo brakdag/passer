@@ -1,7 +1,7 @@
 # Paser (Sistema Autónomo de Function Calling - ReAct Pattern)
 
 <div align="center">
-  <img src="https://via.placeholder.com/200x200.png?text=Gorrión+Mascota" alt="Paser Mascot" width="200"/>
+  <img src="assets/mascot.svg" alt="Paser Mascot" width="200"/>
 </div>
 
 **Paser** (originalmente llamado "Passer", por *Passer domesticus*) es un agente autónomo utilizando el modelo Gemini de Google (vía `google-genai` SDK) que emplea el patrón **ReAct (Reasoning and Acting)** para ejecutar funciones locales de forma transparente para el usuario.
