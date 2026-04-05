@@ -16,17 +16,25 @@ class AutonomousExecutor:
         self.on_tool_used = on_tool_used
 
     def _extract_tool_calls(self, text: str) -> list[dict[str, Any]]:
-        # Regex mejorado para capturar JSON incluso si hay saltos de línea o texto alrededor
-        pattern = r"<TOOL_CALL>\s*(.*?)\s*</TOOL_CALL>"
-        matches = re.findall(pattern, text, re.DOTALL)
+        # Regex mejorado para capturar JSON
+        pattern = r"<TOOL_CALL>(.*?)</TOOL_CALL>"
         calls: list[dict[str, Any]] = []
-        for m in matches:
+        
+        for match in re.finditer(pattern, text, re.DOTALL):
+            raw_content = match.group(1).strip()
             try:
-                # Limpiar y parsear JSON
-                calls.append(json.loads(m.strip()))
+                data = json.loads(raw_content)
+                
+                # Validación de estructura básica: 'name' y 'args' deben estar presentes
+                if not isinstance(data, dict) or "name" not in data or "args" not in data:
+                    logger.error(f"Estructura de TOOL_CALL inválida. Se requiere 'name' y 'args'. Contenido: {raw_content}")
+                    continue
+                    
+                calls.append(data)
             except json.JSONDecodeError as e:
-                logger.error(f"Error parseando TOOL_CALL JSON: {e}, Content: {m}")
+                logger.error(f"Error de sintaxis JSON en TOOL_CALL: {e}. Contenido: {raw_content}")
                 continue
+                
         return calls
 
     def _format_tool_response(self, data: Any, success: bool = True) -> str:
