@@ -1,0 +1,4 @@
+google-genai
+html2text
+rich
+prompt_toolkit

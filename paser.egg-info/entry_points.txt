@@ -1,0 +1,2 @@
+[console_scripts]
+paser = paser.main:main
