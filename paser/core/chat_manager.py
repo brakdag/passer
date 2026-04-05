@@ -39,7 +39,9 @@ class ChatManager:
 
     def _load_config(self):
         try:
-            with open("config.json", "r") as f:
+            # chat_manager.py está en paser/core/, subimos dos niveles a paser/
+            config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
+            with open(config_path, "r") as f:
                 return json.load(f)
         except Exception:
             return {}
