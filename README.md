@@ -20,7 +20,7 @@ chmod +x install.sh
 ./install.sh
 
 # 3. Configura tu clave de API
-export GEMINI_API_KEY="tu_clave_api_aquí"
+export GOOGLE_API_KEY="tu_clave_api_aquí"
 ```
 
 ## 💻 Ejecución
