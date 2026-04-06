@@ -29,6 +29,10 @@ class ChatManager:
         "notify_user": ("Notificación", "󱔗"),
     }
 
+    SYSTEM_TOOLS = {
+        "is_window_in_focus": ("Verificando foco", ""),
+    }
+
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
         self.assistant = assistant
         self.tools = tools
@@ -81,6 +85,11 @@ class ChatManager:
             status_icon = "" if success else ""
             mensaje = args.get("mensaje", "")
             console.print(f"  {icon} {verb}: {mensaje} {status_icon}", style="dim yellow")
+        
+        elif tool_name in self.SYSTEM_TOOLS:
+            verb, icon = self.SYSTEM_TOOLS[tool_name]
+            status_icon = "" if success else ""
+            console.print(f"  {icon} {verb} {status_icon}", style="dim yellow")
     
     def run(self):
         self._initialize_chat()

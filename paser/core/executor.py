@@ -2,7 +2,7 @@ import json
 import re
 import logging
 import ast
-from typing import Any
+from typing import Any, Optional
 
 from paser.core.repetition_detector import RepetitionDetector
 from paser.core.interfaces import IAIAssistant
@@ -16,37 +16,56 @@ class AutonomousExecutor:
         self.repetition_detector = RepetitionDetector(n=3, max_repeats=3)
         self.on_tool_used = on_tool_used
 
+    def _parse_call_content(self, raw_content: str) -> Optional[dict[str, Any]]:
+        """Intenta parsear el contenido de un TOOL_CALL usando múltiples estrategias."""
+        try:
+            data = json.loads(raw_content)
+        except json.JSONDecodeError:
+            try:
+                # Fallback: intentar convertir comillas simples a dobles para JSON
+                s_double = raw_content.replace("'", '"')
+                data = json.loads(s_double)
+            except json.JSONDecodeError:
+                # Fallback extra: intentar evaluar como literal de Python
+                try:
+                    data = ast.literal_eval(raw_content)
+                except (ValueError, SyntaxError, TypeError):
+                    logger.error(f"No se pudo parsear el TOOL_CALL: {raw_content}")
+                    return None
+        
+        if not isinstance(data, dict) or "name" not in data:
+            logger.error(f"Estructura de TOOL_CALL inválida. Se requiere al menos 'name'. Contenido: {raw_content}")
+            return None
+        
+        # Asegurar que 'args' siempre exista para evitar errores de KeyError
+        if "args" not in data:
+            data["args"] = {}
+            
+        return data
+
     def _extract_tool_calls(self, text: str) -> list[dict[str, Any]]:
         # Regex para capturar <TOOL_CALL> o <tool_call>, manejando espacios
         pattern = r"<(?:TOOL_CALL|tool_call)\s*>(.*?)</(?:TOOL_CALL|tool_call)>"
         calls: list[dict[str, Any]] = []
         
+        # 1. Capturar llamadas completas
         for match in re.finditer(pattern, text, re.IGNORECASE | re.DOTALL):
-            raw_content = match.group(1).strip()
-            
-            # Intentar cargar como JSON estándar
-            try:
-                data = json.loads(raw_content)
-            except json.JSONDecodeError:
-                # Fallback: intentar convertir comillas simples a dobles para JSON
-                try:
-                    s_double = raw_content.replace("'", '"')
-                    data = json.loads(s_double)
-                except json.JSONDecodeError:
-                    # Fallback extra: intentar evaluar como literal de Python (maneja single quotes)
-                    try:
-                        data = ast.literal_eval(raw_content)
-                    except (ValueError, SyntaxError, TypeError):
-                        logger.error(f"No se pudo parsear el TOOL_CALL: {raw_content}")
-                        continue
-            
-            # Validación de estructura básica: 'name' y 'args' deben estar presentes
-            if not isinstance(data, dict) or "name" not in data or "args" not in data:
-                logger.error(f"Estructura de TOOL_CALL inválida. Se requiere 'name' y 'args'. Contenido: {raw_content}")
-                continue
-                
-            calls.append(data)
-                
+            data = self._parse_call_content(match.group(1).strip())
+            if data:
+                calls.append(data)
+        
+        # 2. Capturar llamada truncada al final (sin etiqueta de cierre)
+        # Buscamos la última apertura de etiqueta
+        all_opens = list(re.finditer(r"<(?:TOOL_CALL|tool_call)\s*>", text, re.IGNORECASE))
+        if all_opens:
+            last_open = all_opens[-1]
+            remaining = text[last_open.end():]
+            # Si no hay etiqueta de cierre después de la última apertura, es truncada
+            if not re.search(r"</(?:TOOL_CALL|tool_call)>", remaining, re.IGNORECASE):
+                data = self._parse_call_content(remaining.strip())
+                if data:
+                    calls.append(data)
+                    
         return calls
 
     def _format_tool_response(self, data: Any, success: bool = True) -> str:
