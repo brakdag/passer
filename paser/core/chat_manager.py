@@ -12,16 +12,20 @@ class ChatManager:
     # Herramientas que producen feedback de archivo
     # Usando glifos de Meslo Nerd Font
     FILE_TOOLS = {
-        "leer_archivo": ("Leyó", ""),       # nf-fa-file_text_o
+        "leer_archivo": ("Leyó", ""),
         "escribir_archivo": ("Escribió", ""),
-        "borrar_archivo": ("Borró", ""),      # nf-fa-trash_o
+        "borrar_archivo": ("Borró", ""),
         "modificar_linea": ("Modificó", ""),
-        "reemplazar_texto": ("Reemplazó", ""),    # nf-fa-refresh
+        "reemplazar_texto": ("Reemplazó", ""),
         "reemplazar_bloque_texto": ("Reemplazó (bloque)", ""),
         "leer_cabecera": ("Leyó (cabecera)", ""),
         "leer_lineas": ("Leyó (rango)", ""),
-        "mover_archivo": ("Movió", ""),       # nf-fa-arrows_h (o similar para mover)
-        "crear_carpeta": ("Creó", ""),       # nf-fa-folder
+        "mover_archivo": ("Movió", ""),
+        "crear_carpeta": ("Creó", ""),
+    }
+
+    NOTIFICATION_TOOLS = {
+        "notificar_usuario": ("Notificación", "󰂚"),
     }
 
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
@@ -67,6 +71,12 @@ class ChatManager:
                 msg = os.path.basename(path) if path else "archivo desconocido"
                 
             console.print(f"  {icon} {verb}: {msg} {status_icon}", style="dim yellow")
+        
+        elif tool_name in self.NOTIFICATION_TOOLS:
+            verb, icon = self.NOTIFICATION_TOOLS[tool_name]
+            status_icon = "✅" if success else "❌"
+            mensaje = args.get("mensaje", "")
+            console.print(f"  {icon} {verb}: {mensaje} {status_icon}", style="dim yellow")
     
     def run(self):
         self._initialize_chat()
