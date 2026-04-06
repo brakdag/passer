@@ -18,7 +18,7 @@ def analyze_pyright(path: str = ".") -> str:
     return result.stdout
 
 def notify_user(mensaje: str = "") -> str:
-    """Triggers a system notification with a Nerd Font bell icon and a specific sound alert."""
+    """Triggers a system notification. Note: Use Nerd Font glyphs compatible with JetBrains Mono for any visual cues."""
     import platform
     import subprocess
     import os

@@ -17,3 +17,6 @@
 {"timestamp": "2026-04-06T03:29:54.947158", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
 {"timestamp": "2026-04-06T11:32:03.054147", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
 {"timestamp": "2026-04-06T11:32:05.761363", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
+{"timestamp": "2026-04-06T12:27:47.772815", "level": "INFO", "logger": "tools", "message": "Archivo 'ISSUES.md' escrito exitosamente."}
+{"timestamp": "2026-04-06T12:39:02.394768", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/paser/config/config.json' escrito exitosamente."}
+{"timestamp": "2026-04-06T12:39:29.545810", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/paser/tools/mqtt_tools.py' escrito exitosamente."}

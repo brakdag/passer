@@ -2,6 +2,7 @@ from paser.tools import file_tools as ft
 from paser.tools import web_tools as wt
 from paser.tools import system_tools as st
 from paser.tools import util_tools as ut
+from paser.tools import mqtt_tools as mt
 
 AVAILABLE_TOOLS = {
     "get_time": ut.get_time,
@@ -26,7 +27,8 @@ AVAILABLE_TOOLS = {
     "rename_path": ft.rename_path,
     "make_dir": ft.make_dir,
     "notify_user": st.notify_user,
-    "is_window_in_focus": st.is_window_in_focus
+    "is_window_in_focus": st.is_window_in_focus,
+    "notify_mobile": mt.notify_mobile
 }
 
 TOOL_CATALOG = """
