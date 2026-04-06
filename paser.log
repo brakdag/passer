@@ -33,3 +33,11 @@
 {"timestamp": "2026-04-06T19:23:56.169490", "level": "INFO", "logger": "tools", "message": "Project root set to: /mnt/DataSD/sandbox/charla"}
 {"timestamp": "2026-04-06T19:23:56.177651", "level": "INFO", "logger": "tools", "message": "Project root set to: /mnt/DataSD/sandbox/charla"}
 {"timestamp": "2026-04-06T19:23:56.178387", "level": "INFO", "logger": "tools", "message": "Project root set to: /mnt/DataSD/sandbox/charla"}
+{"timestamp": "2026-04-06T20:35:02.804574", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO.md' escrito exitosamente."}
+{"timestamp": "2026-04-06T20:35:23.232006", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_tool_direct.py' to 'tests/test_tool_direct.py'."}
+{"timestamp": "2026-04-06T20:35:30.245891", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_running.py' to 'tests/test_running.py'."}
+{"timestamp": "2026-04-06T20:35:32.860512", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_executor_loop.py' to 'tests/test_executor_loop.py'."}
+{"timestamp": "2026-04-06T20:35:36.118455", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_timer_fix.py' to 'tests/test_timer_fix.py'."}
+{"timestamp": "2026-04-06T20:35:38.672276", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_tool_params.py' to 'tests/test_tool_params.py'."}
+{"timestamp": "2026-04-06T20:35:41.154378", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_registry.py' to 'tests/test_registry.py'."}
+{"timestamp": "2026-04-06T20:35:59.515005", "level": "INFO", "logger": "tools", "message": "Path moved from 'test_file.txt' to 'tests/test_file.txt'."}
