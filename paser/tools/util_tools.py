@@ -22,46 +22,34 @@ def retry_request(func):
     return wrapper
 
 def get_time(zona_horaria: str) -> str:
-    try:
-        now_utc = datetime.datetime.now(datetime.timezone.utc)
-        return f"La hora actual en {zona_horaria} (simulado UTC) es: {now_utc.strftime('%H:%M:%S')}"
-    except Exception as e:
-        logger.error(f"Error en get_time: {e}")
-        return f"Error: {e}"
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    return f"La hora actual en {zona_horaria} (simulado UTC) es: {now_utc.strftime('%H:%M:%S')}"
 
 def get_cwd() -> str:
-    try:
-        import os
-        return os.getcwd()
-    except Exception as e:
-        logger.error(f"Error en get_cwd: {e}")
-        return f"Error: {e}"
+    import os
+    return os.getcwd()
 
 def calculate(operacion: str) -> str:
-    try:
-        logger.debug(f"Calculando: {operacion}")
-        operators = {
-            ast.Add: operator.add, 
-            ast.Sub: operator.sub, 
-            ast.Mult: operator.mul,
-            ast.Div: operator.truediv, 
-            ast.Pow: operator.pow, 
-            ast.USub: operator.neg
-        }
+    logger.debug(f"Calculando: {operacion}")
+    operators = {
+        ast.Add: operator.add, 
+        ast.Sub: operator.sub, 
+        ast.Mult: operator.mul,
+        ast.Div: operator.truediv, 
+        ast.Pow: operator.pow, 
+        ast.USub: operator.neg
+    }
 
-        def _eval(node):
-            if isinstance(node, ast.Constant): # Python 3.8+
-                return node.value
-            elif isinstance(node, ast.BinOp):
-                return operators[type(node.op)](_eval(node.left), _eval(node.right))
-            elif isinstance(node, ast.UnaryOp):
-                return operators[type(node.op)](_eval(node.operand))
-            else:
-                raise TypeError(f"Operación no soportada: {type(node)}")
+    def _eval(node):
+        if isinstance(node, ast.Constant): # Python 3.8+
+            return node.value
+        elif isinstance(node, ast.BinOp):
+            return operators[type(node.op)](_eval(node.left), _eval(node.right))
+        elif isinstance(node, ast.UnaryOp):
+            return operators[type(node.op)](_eval(node.operand))
+        else:
+            raise TypeError(f"Operación no soportada: {type(node)}")
 
-        tree = ast.parse(operacion, mode='eval')
-        result = _eval(tree.body)
-        return f"Resultado: {result}"
-    except Exception as e:
-        logger.error(f"Error en calculate: {e}")
-        return f"Error: {e}"
+    tree = ast.parse(operacion, mode='eval')
+    result = _eval(tree.body)
+    return f"Resultado: {result}"

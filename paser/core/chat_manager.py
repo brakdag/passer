@@ -23,6 +23,8 @@ class ChatManager:
         "read_lines": ("Leyó (rango)", ""),
         "rename_path": ("Movió", ""),
         "make_dir": ("Creó", ""),
+        "glob_search": ("Buscó archivos", ""),
+        "global_search": ("Buscó texto", ""),
     }
 
     NOTIFICATION_TOOLS = {
@@ -74,6 +76,10 @@ class ChatManager:
             elif tool_name == "read_files":
                 paths = args.get("paths", [])
                 msg = f"{len(paths)} archivos" if paths else "sin archivos"
+            elif tool_name == "glob_search":
+                msg = args.get("pattern", "patrón desconocido")
+            elif tool_name == "global_search":
+                msg = args.get("query", "consulta desconocida")
             else:
                 path = args.get("path", "archivo desconocido")
                 msg = os.path.basename(path) if path else "archivo desconocido"

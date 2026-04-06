@@ -21,6 +21,8 @@ AVAILABLE_TOOLS = {
     "replace_block": ft.replace_block,
     "analyze_pyright": st.analyze_pyright,
     "global_replace": ft.global_replace,
+    "global_search": ft.global_search,
+    "glob_search": ft.glob_search,
     "rename_path": ft.rename_path,
     "make_dir": ft.make_dir,
     "notify_user": st.notify_user,
@@ -48,6 +50,8 @@ TOOL_CATALOG = """
     {"name": "global_replace", "description": "Busca y reemplaza una cadena de texto en múltiples archivos dentro de un directorio.", "parameters": {"type": "object", "properties": {"path": {"type": "string"}, "texto_buscar": {"type": "string"}, "texto_reemplazar": {"type": "string"}, "extensiones": {"type": "array", "items": {"type": "string"}}}, "required": ["path", "texto_buscar", "texto_reemplazar"]}},
     {"name": "rename_path", "description": "Mueve o renombra un archivo o directorio de 'origen' a 'destino'. Si el directorio destino no existe, se crea.", "parameters": {"type": "object", "properties": {"origen": {"type": "string"}, "destino": {"type": "string"}}, "required": ["origen", "destino"]}},
     {"name": "make_dir", "description": "Crea un directorio (incluyendo directorios padres si es necesario).", "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
+    {"name": "glob_search", "description": "Busca archivos que coincidan con un patrón glob recursivo (ej: **/*.py) en el directorio de trabajo.", "parameters": {"type": "object", "properties": {"pattern": {"type": "string"}}, "required": ["pattern"]}},
+    {"name": "global_search", "description": "Busca una cadena de texto en todos los archivos del proyecto, devolviendo archivo, línea y contenido.", "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}},
     {"name": "notify_user", "description": "Triggers a system notification with a Nerd Font bell icon and a specific sound alert.", "parameters": {"type": "object", "properties": {"mensaje": {"type": "string", "description": "The notification text to be displayed to the user."}}, "required": ["mensaje"]}},
     {"name": "is_window_in_focus", "description": "Verifica si la ventana de la terminal tiene el foco actual del sistema. Útil para saber si el usuario está viendo la consola antes de enviar una notificación.", "parameters": {"type": "object", "properties": {"action": {"type": "string", "description": "Argumento dummy para asegurar el cierre del tag (ej: 'verificar')"}}, "required": ["action"]}}
 ]

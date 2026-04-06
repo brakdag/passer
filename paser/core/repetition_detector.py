@@ -15,6 +15,9 @@ class RepetitionDetector:
         Procesa un fragmento de texto, lo tokeniza y verifica si hay bucles.
         Retorna True si el texto es aceptable, False si se detectó una repetición infinita.
         """
+        if text is None:
+            return True
+
         # Tokenizamos el texto manteniendo palabras y puntuación básica
         tokens = re.findall(r'\w+|[\s\W]', text)
         

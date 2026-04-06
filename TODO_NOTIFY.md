@@ -69,6 +69,7 @@ def notify_user(mensaje):
 
 # Pending Tasks / Roadmap
 
+- [x] **Fix TypeError in RepetitionDetector**: Handle `NoneType` input in `add_text` and ensure `_extract_text` returns a string. (Fixed)
 - [ ] **Implement `read_files` tool**: Create a tool to read multiple files in a single call to reduce agent turns.
     - [ ] Implement `read_files(paths: list[str])` in `paser/tools/file_tools.py` with safe path validation.
     - [ ] Register tool in `paser/tools/registry.py` (Dictionary and JSON Catalog).

@@ -51,18 +51,17 @@ class AutonomousExecutor:
         # 1. Capturar llamadas completas
         for match in re.finditer(pattern, text, re.IGNORECASE | re.DOTALL):
             data = self._parse_call_content(match.group(1).strip())
-            if data:
-                calls.append(data)
+            calls.append(data)
         
         # 2. Capturar llamada truncada al final (sin etiqueta de cierre)
         # Buscamos la última apertura de etiqueta
         all_opens = list(re.finditer(r"<(?:TOOL_CALL|tool_call)\s*>", text, re.IGNORECASE))
         if all_opens:
             last_open = all_opens[-1]
-            remaining = text[last_open.end():]
-            # Si no hay etiqueta de cierre después de la última apertura, es truncada
-            if not re.search(r"</(?:TOOL_CALL|tool_call)>", remaining, re.IGNORECASE):
-                data = self._parse_call_content(remaining.strip())
+            remaining = text[last_open.end():].strip()
+            # Si no hay etiqueta de cierre y el contenido comienza con '{', es probablemente una llamada truncada
+            if not re.search(r"</(?:TOOL_CALL|tool_call)>", remaining, re.IGNORECASE) and remaining.startswith('{'):
+                data = self._parse_call_content(remaining)
                 if data:
                     calls.append(data)
                     
@@ -92,6 +91,11 @@ class AutonomousExecutor:
 
             combined_tool_responses = []
             for call in calls:
+                if call is None:
+                    tr = self._format_tool_response("Error de sintaxis: El TOOL_CALL no es un JSON válido o está mal formado.", success=False)
+                    combined_tool_responses.append(tr)
+                    continue
+
                 name = call.get("name")
                 args = call.get("args", {})
                 
@@ -121,5 +125,5 @@ class AutonomousExecutor:
 
     def _extract_text(self, response) -> str:
         if hasattr(response, "text"):
-            return response.text
+            return response.text or ""
         return str(response)
