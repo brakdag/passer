@@ -5,7 +5,7 @@ from .core_tools import context
 
 logger = logging.getLogger("tools")
 
-def analizar_codigo_con_pyright(path: str = ".") -> str:
+def analyze_pyright(path: str = ".") -> str:
     """Analiza código usando pyright y devuelve errores si existen."""
     try:
         pyright_path = os.path.join(context.root, "venv", "bin", "pyright")

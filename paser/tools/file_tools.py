@@ -8,7 +8,7 @@ logger = logging.getLogger("tools")
 
 FILE_SIZE_LIMIT = 5 * 1024 * 1024
 
-def leer_archivo(path: str) -> str:
+def read_file(path: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         if not os.path.isfile(safe_path):
@@ -24,10 +24,10 @@ def leer_archivo(path: str) -> str:
                 return f"El archivo '{path}' está vacío."
             return content
     except Exception as e:
-        logger.error(f"Error en leer_archivo {path}: {e}")
+        logger.error(f"Error en read_file {path}: {e}")
         return f"Error: {e}"
 
-def escribir_archivo(path: str, contenido: str) -> str:
+def write_file(path: str, contenido: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
@@ -59,7 +59,7 @@ def escribir_archivo(path: str, contenido: str) -> str:
         logger.error(f"Error inesperado al escribir en '{path}': {e}")
         return f"Error inesperado: {e}"
 
-def borrar_archivo(path: str) -> str:
+def remove_file(path: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         if not os.path.isfile(safe_path):
@@ -71,7 +71,7 @@ def borrar_archivo(path: str) -> str:
         logger.error(f"Error al borrar archivo {path}: {e}")
         return f"Error: {e}"
 
-def listar_archivos(path: str = ".") -> str:
+def list_dir(path: str = ".") -> str:
     try:
         safe_path = context.get_safe_path(path)
         if not os.path.isdir(safe_path):
@@ -81,7 +81,7 @@ def listar_archivos(path: str = ".") -> str:
         logger.error(f"Error al listar archivos en {path}: {e}")
         return f"Error: {e}"
 
-def leer_lineas(path: str, inicio: int, fin: int) -> str:
+def read_lines(path: str, inicio: int, fin: int) -> str:
     try:
         safe_path = context.get_safe_path(path)
         resultado = []
@@ -93,13 +93,13 @@ def leer_lineas(path: str, inicio: int, fin: int) -> str:
                     break
         return "".join(resultado)
     except Exception as e:
-        logger.error(f"Error en leer_lineas {path}: {e}")
+        logger.error(f"Error en read_lines {path}: {e}")
         return f"Error: {e}"
 
-def leer_cabecera(path: str, cantidad_lineas: int) -> str:
-    return leer_lineas(path, 1, cantidad_lineas)
+def read_head(path: str, cantidad_lineas: int) -> str:
+    return read_lines(path, 1, cantidad_lineas)
 
-def modificar_linea(path: str, numero_linea: int, nuevo_contenido: str) -> str:
+def update_line(path: str, numero_linea: int, nuevo_contenido: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
@@ -129,10 +129,10 @@ def modificar_linea(path: str, numero_linea: int, nuevo_contenido: str) -> str:
                 os.remove(temp_path)
             raise
     except Exception as e:
-        logger.error(f"Error en modificar_linea {path}: {e}")
+        logger.error(f"Error en update_line {path}: {e}")
         return f"Error: {e}"
 
-def reemplazar_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
+def replace_text(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
@@ -152,10 +152,10 @@ def reemplazar_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str
                 os.remove(temp_path)
             raise
     except Exception as e:
-        logger.error(f"Error en reemplazar_texto {path}: {e}")
+        logger.error(f"Error en replace_text {path}: {e}")
         return f"Error: {e}"
 
-def reemplazar_bloque_texto(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
+def replace_block(path: str, texto_buscar: str, texto_reemplazar: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         directorio = os.path.dirname(safe_path)
@@ -178,10 +178,10 @@ def reemplazar_bloque_texto(path: str, texto_buscar: str, texto_reemplazar: str)
             raise
         return "Bloque de texto reemplazado exitosamente."
     except Exception as e:
-        logger.error(f"Error en reemplazar_bloque_texto {path}: {e}")
+        logger.error(f"Error en replace_block {path}: {e}")
         return f"Error: {e}"
 
-def buscar_reemplazar_global(path: str, texto_buscar: str, texto_reemplazar: str, extensiones: list = None) -> str:
+def global_replace(path: str, texto_buscar: str, texto_reemplazar: str, extensiones: list = None) -> str:
     try:
         safe_base_path = context.get_safe_path(path)
         if not os.path.isdir(safe_base_path):
@@ -220,10 +220,10 @@ def buscar_reemplazar_global(path: str, texto_buscar: str, texto_reemplazar: str
                     logger.error(f"Error procesando {file_path}: {e}")
         return f"Reemplazo global completado en {len(modificados)} archivos: {json.dumps(modificados)}"
     except Exception as e:
-        logger.error(f"Error en buscar_reemplazar_global: {e}")
+        logger.error(f"Error en global_replace: {e}")
         return f"Error: {e}"
 
-def mover_archivo(origen: str, destino: str) -> str:
+def rename_path(origen: str, destino: str) -> str:
     try:
         safe_origen = context.get_safe_path(origen)
         safe_destino = context.get_safe_path(destino)
@@ -239,7 +239,7 @@ def mover_archivo(origen: str, destino: str) -> str:
         logger.error(f"Error al mover archivo de '{origen}' a '{destino}': {e}")
         return f"Error: {e}"
 
-def crear_carpeta(path: str) -> str:
+def make_dir(path: str) -> str:
     try:
         safe_path = context.get_safe_path(path)
         os.makedirs(safe_path, exist_ok=True)

@@ -21,23 +21,23 @@ def retry_request(func):
                 time.sleep(sleep_time)
     return wrapper
 
-def obtener_hora_actual(zona_horaria: str) -> str:
+def get_time(zona_horaria: str) -> str:
     try:
         now_utc = datetime.datetime.now(datetime.timezone.utc)
         return f"La hora actual en {zona_horaria} (simulado UTC) es: {now_utc.strftime('%H:%M:%S')}"
     except Exception as e:
-        logger.error(f"Error en obtener_hora_actual: {e}")
+        logger.error(f"Error en get_time: {e}")
         return f"Error: {e}"
 
-def obtener_directorio_actual() -> str:
+def get_cwd() -> str:
     try:
         import os
         return os.getcwd()
     except Exception as e:
-        logger.error(f"Error en obtener_directorio_actual: {e}")
+        logger.error(f"Error en get_cwd: {e}")
         return f"Error: {e}"
 
-def calculadora_basica(operacion: str) -> str:
+def calculate(operacion: str) -> str:
     try:
         logger.debug(f"Calculando: {operacion}")
         operators = {
@@ -63,5 +63,5 @@ def calculadora_basica(operacion: str) -> str:
         result = _eval(tree.body)
         return f"Resultado: {result}"
     except Exception as e:
-        logger.error(f"Error en calculadora_basica: {e}")
+        logger.error(f"Error en calculate: {e}")
         return f"Error: {e}"

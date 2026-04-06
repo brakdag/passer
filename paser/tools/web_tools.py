@@ -14,7 +14,7 @@ def _fetch_url(url: str):
     with urllib.request.urlopen(req, timeout=10) as response:
         return response.read().decode('utf-8', errors='ignore')
 
-def buscar_en_internet(query: str) -> str:
+def web_search(query: str) -> str:
     encoded_query = urllib.parse.quote(query)
     url = f"https://lite.duckduckgo.com/lite/?q={encoded_query}"
     try:
@@ -32,10 +32,10 @@ def buscar_en_internet(query: str) -> str:
                 results.append({"title": clean_title, "link": link})
         return json.dumps(results)
     except Exception as e:
-        logger.error(f"Error en buscar_en_internet: {e}")
+        logger.error(f"Error en web_search: {e}")
         return f"Error: {e}"
 
-def leer_url(url: str) -> str:
+def fetch_url(url: str) -> str:
     try:
         html = _fetch_url(url)
         h = html2text.HTML2Text()

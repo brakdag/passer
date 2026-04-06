@@ -12,16 +12,16 @@ class ChatManager:
     # Herramientas que producen feedback de archivo
     # Usando glifos de Meslo Nerd Font
     FILE_TOOLS = {
-        "leer_archivo": ("Leyó", ""),
-        "escribir_archivo": ("Escribió", ""),
-        "borrar_archivo": ("Borró", ""),
-        "modificar_linea": ("Modificó", ""),
-        "reemplazar_texto": ("Reemplazó", ""),
-        "reemplazar_bloque_texto": ("Reemplazó (bloque)", ""),
-        "leer_cabecera": ("Leyó (cabecera)", ""),
-        "leer_lineas": ("Leyó (rango)", ""),
-        "mover_archivo": ("Movió", ""),
-        "crear_carpeta": ("Creó", ""),
+        "read_file": ("Leyó", ""),
+        "write_file": ("Escribió", ""),
+        "remove_file": ("Borró", ""),
+        "update_line": ("Modificó", ""),
+        "replace_text": ("Reemplazó", ""),
+        "replace_block": ("Reemplazó (bloque)", ""),
+        "read_head": ("Leyó (cabecera)", ""),
+        "read_lines": ("Leyó (rango)", ""),
+        "rename_path": ("Movió", ""),
+        "make_dir": ("Creó", ""),
     }
 
     NOTIFICATION_TOOLS = {
@@ -60,11 +60,11 @@ class ChatManager:
             status_icon = "✅" if success else "❌"
             
             # Personalización de mensaje según herramienta
-            if tool_name == "mover_archivo":
+            if tool_name == "rename_path":
                 origen = os.path.basename(args.get("origen", "desconocido"))
                 destino = os.path.basename(args.get("destino", "desconocido"))
                 msg = f"{origen} -> {destino}"
-            elif tool_name == "crear_carpeta":
+            elif tool_name == "make_dir":
                 msg = args.get("path", "desconocido")
             else:
                 path = args.get("path", "archivo desconocido")
