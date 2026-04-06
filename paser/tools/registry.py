@@ -27,6 +27,7 @@ AVAILABLE_TOOLS = {
     "rename_path": ft.rename_path,
     "make_dir": ft.make_dir,
     "notify_user": st.notify_user,
+    "set_timer": st.set_timer,
     "is_window_in_focus": st.is_window_in_focus,
     "notify_mobile": mt.notify_mobile
 }

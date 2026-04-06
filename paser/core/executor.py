@@ -30,11 +30,9 @@ class AutonomousExecutor:
                 try:
                     data = ast.literal_eval(raw_content)
                 except (ValueError, SyntaxError, TypeError):
-                    logger.error(f"No se pudo parsear el TOOL_CALL: {raw_content}")
                     return None
         
         if not isinstance(data, dict) or "name" not in data:
-            logger.error(f"Estructura de TOOL_CALL inválida. Se requiere al menos 'name'. Contenido: {raw_content}")
             return None
         
         # Asegurar que 'args' siempre exista para evitar errores de KeyError
@@ -111,7 +109,7 @@ class AutonomousExecutor:
                         if self.on_tool_used:
                             self.on_tool_used(name, args, result, True)
                     except Exception as exc:
-                        logger.error(f"Error ejecutando {name}: {exc}")
+                        # Eliminamos logger.error para evitar fugas de detalles técnicos en la consola
                         tr = self._format_tool_response(str(exc), success=False)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, str(exc), False)

@@ -55,14 +55,50 @@ def notify_user(mensaje: str = "") -> str:
 def is_window_in_focus(**kwargs) -> str:
     """Verifica si la ventana de la terminal tiene el foco actual del sistema."""
     # Intentamos obtener el nombre de la ventana activa usando xdotool
-    result = subprocess.run(["xdotool", "getactivewindow", "getwindowname"], 
-                            capture_output=True, text=True, check=True)
-    window_name = result.stdout.strip().lower()
+    try:
+        result = subprocess.run(["xdotool", "getactivewindow", "getwindowname"], 
+                                capture_output=True, text=True, check=True)
+        window_name = result.stdout.strip().lower()
+        
+        # Palabras clave comunes de terminales
+        terminal_keywords = ["terminal", "console", "kitty", "alacritty", "konsole", "gnome-terminal", "iterm", "hyper"]
+        
+        if any(kw in window_name for kw in terminal_keywords):
+            return "True: The terminal is in focus."
+        else:
+            return f"False: The active window is '{window_name}'."
+    except Exception:
+        return "False: Could not determine window focus (xdotool missing?)."
+
+def set_timer(seconds: int, mensaje: str = "Timer finished") -> str:
+    """Sets a timer that will trigger a system notification after 'seconds' seconds in the background."""
+    import platform
+    import subprocess
+    import os
+    import sys
+
+    # We'll use a small python one-liner to run in the background.
+    # It will sleep and then try to use system commands to notify.
     
-    # Palabras clave comunes de terminales
-    terminal_keywords = ["terminal", "console", "kitty", "alacritty", "konsole", "gnome-terminal", "iterm", "hyper"]
+    python_exe = sys.executable
     
-    if any(kw in window_name for kw in terminal_keywords):
-        return "True: The terminal is in focus."
+    # Constructing the command to run in background
+    # We want to: sleep(seconds) -> notify
+    
+    if platform.system() == "Linux":
+        # Use notify-send if available, otherwise just print bell
+        cmd = f"import time; time.sleep({seconds}); import subprocess; subprocess.run(['notify-send', '{mensaje}'])"
+    elif platform.system() == "Darwin":
+        # Use osascript for macOS
+        cmd = f"import time; time.sleep({seconds}); import subprocess; subprocess.run(['osascript', '-e', 'display notification \"{mensaje}\" with title \"Paser Timer\"'])"
+    elif platform.system() == "Windows":
+        # Use PowerShell for Windows
+        cmd = f"import time; time.sleep({seconds}); import subprocess; subprocess.run(['powershell', '-Command', 'Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show(\"{mensaje}\", \"Paser Timer\")'])"
     else:
-        return f"False: The active window is '{window_name}'."
+        cmd = f"import time; time.sleep({seconds}); print('\a')"
+
+    try:
+        subprocess.Popen([python_exe, "-c", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return f"Timer set for {seconds} seconds: {mensaje}"
+    except Exception as e:
+        return f"Failed to set timer: {str(e)}"
