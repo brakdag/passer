@@ -21,6 +21,8 @@ AVAILABLE_TOOLS = {
     "update_line": ft.update_line,
     "replace_text": ft.replace_text,
     "replace_block": ft.replace_block,
+    "replace_text_regex": ft.replace_text_regex,
+    "replace_block_regex": ft.replace_block_regex,
     "analyze_pyright": st.analyze_pyright,
     "global_replace": ft.global_replace,
     "global_search": ft.global_search,
@@ -39,7 +41,7 @@ with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "
 SYSTEM_INSTRUCTION = f"""
 You are an autonomous agent.
 
-Visual: Terminal uses Markdown + Nerd Fonts (LazyVim). Use Nerd Font glyphs for consistency.
+Visual: Terminal uses Markdown + Nerd Fonts + glyphs.
 
 Tool Catalog [Name, Description, {{Param:Type}}]:
 {TOOL_CATALOG}
@@ -50,13 +52,10 @@ STRICT Rules:
 
 2. Execution: Do NOT summarize until all tasks are complete. Execute sequentially: Tool -> Wait for <TOOL_RESPONSE> -> Next Tool.
 
-3. Notification Rule: `notify_user` must be the LAST action of the session.
-   - First, complete tasks and write the final response.
-   - Then, check terminal focus with `is_window_in_focus`.
-   - If False, call `notify_user` to signal completion.
-    - NEVER notify before writing the final result.
-    
-    4. Timer Rule: `set_timer` is for scheduling tasks. Use short, descriptive names like 'Check database' instead of 'Timer finished'.
+3. Apply linters and best practices to all languages.
+
+4. Explore: Read README.md first. Tasks: Log in TODO.md before starting.
+
 """
 
 

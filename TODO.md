@@ -1,0 +1,2 @@
+- [x] Review API error handling and implement improvements
+- [x] Fix triple notification output issue

@@ -2,6 +2,7 @@ import os
 import json
 import tempfile
 import logging
+import re
 from .core_tools import context
 
 logger = logging.getLogger("tools")
@@ -139,6 +140,43 @@ def replace_block(path: str, search_text: str, replace_text: str) -> str:
     
     os.replace(temp_path, safe_path)
     return "Text block replaced successfully."
+
+def replace_text_regex(path: str, pattern: str, replace_text: str) -> str:
+    """Reemplaza texto usando expresiones regulares linea por linea."""
+    safe_path = context.get_safe_path(path)
+    directorio = os.path.dirname(safe_path)
+    
+    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+        temp_path = tf.name
+        with open(safe_path, 'r', encoding='utf-8') as original_file:
+            for line in original_file:
+                tf.write(re.sub(pattern, replace_text, line))
+        tf.flush()
+        os.fsync(tf.fileno())
+    
+    os.replace(temp_path, safe_path)
+    return "Regex replacement completed."
+
+def replace_block_regex(path: str, pattern: str, replace_text: str) -> str:
+    """Reemplaza un bloque de texto usando expresiones regulares (multilinea)."""
+    safe_path = context.get_safe_path(path)
+    directorio = os.path.dirname(safe_path)
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    if not re.search(pattern, content, re.DOTALL):
+        raise ValueError(f"The regex pattern was not found in {path}.")
+    
+    new_content = re.sub(pattern, replace_text, content, count=1, flags=re.DOTALL)
+    
+    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+        temp_path = tf.name
+        tf.write(new_content)
+        tf.flush()
+        os.fsync(tf.fileno())
+    
+    os.replace(temp_path, safe_path)
+    return "Regex block replaced successfully."
 
 def global_replace(path: str, search_text: str, replace_text: str, extensions: list = None) -> str:
     safe_base_path = context.get_safe_path(path)

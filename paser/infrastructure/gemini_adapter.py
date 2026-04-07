@@ -1,3 +1,4 @@
+import logging
 from typing import Generator, Optional, Any
 import time
 import json
@@ -5,6 +6,8 @@ from google import genai
 from google.genai import types
 from google.genai.errors import ClientError
 from paser.core.interfaces import IAIAssistant
+
+logger = logging.getLogger(__name__)
 
 class GeminiAdapter(IAIAssistant):
     def __init__(self):
@@ -18,8 +21,23 @@ class GeminiAdapter(IAIAssistant):
     def current_model(self) -> Optional[str]:
         return self._current_model
 
-    def _get_retry_delay(self, error: ClientError) -> float:
-        """Extrae el retryDelay del error si está disponible, sino retorna el default."""
+    def _is_retryable_error(self, e: Exception) -> bool:
+        """Determina si un error es transitorio y amerita un reintento."""
+        error_msg = str(e).lower()
+        # Errores de cuota/TPM (429)
+        if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429:
+            return True
+        if '429' in error_msg or 'quota' in error_msg or 'resource exhausted' in error_msg or 'tpm' in error_msg:
+            return True
+        # Errores de servidor (500, 503, 504)
+        if getattr(e, 'status_code', None) in [500, 503, 504]:
+            return True
+        if any(code in error_msg for code in ['500', '503', '504']) or 'internal error' in error_msg or 'service unavailable' in error_msg:
+            return True
+        return False
+
+    def _get_retry_delay(self, error: Exception, retries: int) -> float:
+        """Extrae el retryDelay del error o calcula un backoff exponencial."""
         try:
             error_msg = str(error)
             # Intentamos parsear como JSON primero para una extracción más robusta
@@ -51,7 +69,8 @@ class GeminiAdapter(IAIAssistant):
                 return float(match.group(1))
         except Exception:
             pass
-        return self.default_retry_delay
+        # Backoff exponencial: default * (2 ^ retries)
+        return self.default_retry_delay * (2 ** retries)
 
     def start_chat(self, model_name: str, system_instruction: str, temperature: float):
         self._current_model = model_name
@@ -100,29 +119,21 @@ class GeminiAdapter(IAIAssistant):
                 for chunk in response:
                     if hasattr(chunk, 'text') and chunk.text:
                         yield chunk.text
-                return # Éxito, salimos del loop
+                return
             except Exception as e:
-                # Capturamos Exception general para analizar si es un error de cuota/TPM
-                error_msg = str(e)
-                is_quota_error = (
-                    isinstance(e, ClientError) or 
-                    getattr(e, 'status_code', None) == 429 or 
-                    '429' in error_msg or 
-                    'quota' in error_msg.lower() or 
-                    'resource exhausted' in error_msg.lower() or
-                    'tpm' in error_msg.lower()
-                )
-
-                if is_quota_error:
+                if self._is_retryable_error(e):
                     retries += 1
                     if retries > self.max_retries:
-                        yield f"\n⚠️ Error: Cuota de API excedida tras {self.max_retries} reintentos. {e}"
+                        logger.error(f"API Error: Max retries reached. {e}")
+                        yield f"\n⚠️ Error: Error de API persistente tras {self.max_retries} reintentos. {e}"
                         return
                     
-                    delay = self._get_retry_delay(e)
+                    delay = self._get_retry_delay(e, retries - 1)
+                    logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
                     time.sleep(delay)
                     continue
                 else:
+                    logger.exception(f"Non-retryable API error: {e}")
                     raise e
 
     def send_message(self, message: str) -> Any:
@@ -134,24 +145,18 @@ class GeminiAdapter(IAIAssistant):
             try:
                 return self.chat.send_message(message)
             except Exception as e:
-                error_msg = str(e)
-                is_quota_error = (
-                    isinstance(e, ClientError) or 
-                    getattr(e, 'status_code', None) == 429 or 
-                    '429' in error_msg or 
-                    'quota' in error_msg.lower() or 
-                    'resource exhausted' in error_msg.lower() or
-                    'tpm' in error_msg.lower()
-                )
-
-                if is_quota_error:
+                if self._is_retryable_error(e):
                     retries += 1
                     if retries > self.max_retries:
-                        return f"⚠️ Error: Cuota de API excedida tras {self.max_retries} reintentos. {e}"
+                        logger.error(f"API Error: Max retries reached. {e}")
+                        return f"⚠️ Error: Error de API persistente tras {self.max_retries} reintentos. {e}"
                     
-                    delay = self._get_retry_delay(e)
+                    delay = self._get_retry_delay(e, retries - 1)
+                    logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
                     time.sleep(delay)
                     continue
+                
+                logger.exception(f"Non-retryable API error: {e}")
                 raise e
 
     def get_history(self) -> list:

@@ -25,9 +25,6 @@ def notify_user(message: str = "") -> str:
 
     if not message:
         message = "Task completed"
-    else:
-        # Si hay mensaje, lo imprimimos además del sonido
-        print(f"\n🔔 {message}\n")
 
     system = platform.system()
     current_file = os.path.abspath(__file__)

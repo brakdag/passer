@@ -98,7 +98,7 @@ class ChatManager:
         elif tool_name in self.NOTIFICATION_TOOLS:
             verb, icon = self.NOTIFICATION_TOOLS[tool_name]
             status_icon = "󰄵" if success else "󰅚"
-            mensaje = args.get("mensaje", "")
+            mensaje = args.get("message", "")
             console.print(f"  {icon} {verb}: {mensaje} {status_icon}", style="dim yellow")
         
         elif tool_name in self.TIMER_TOOLS:
