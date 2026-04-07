@@ -17,14 +17,11 @@ def analyze_pyright(path: str = ".") -> str:
         return "No se encontraron errores de tipo."
     return result.stdout
 
-def notify_user(message: str = "") -> str:
-    """Triggers a system notification. Note: Use Nerd Font glyphs compatible with JetBrains Mono for any visual cues."""
+def notify_user() -> str:
+    """Triggers a system notification with a sound alert."""
     import platform
     import subprocess
     import os
-
-    if not message:
-        message = "Task completed"
 
     system = platform.system()
     current_file = os.path.abspath(__file__)
@@ -50,7 +47,7 @@ def notify_user(message: str = "") -> str:
     else:
         print('\a', end='', flush=True)
 
-    return "Notification delivered"
+    return "Notificación enviada con éxito. El usuario ha sido alertado. No es necesario repetir esta acción."
 
 def is_window_in_focus(**kwargs) -> str:
     """Verifica si la ventana de la terminal tiene el foco actual del sistema."""
