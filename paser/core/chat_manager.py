@@ -132,12 +132,8 @@ class ChatManager:
                     with SpinnerContext("Procesando evento", "magenta"):
                         res = self.executor.execute(user_input=sys_msg, thinking_enabled=self.thinking_enabled, get_confirmation_callback=get_input)
                     if res:
-                        # Limpieza simple para evitar conflictos con el parser del sistema
-                        op = '<' + 'TOOL_CALL' + '>'
-                        cl = '</' + 'TOOL_CALL' + '>'
-                        rop = '<' + 'TOOL_RESPONSE' + '>'
-                        rcl = '</' + 'TOOL_RESPONSE' + '>'
-                        cleaned = res.replace(op, '').replace(cl, '').replace(rop, '').replace(rcl, '')
+                        # Limpieza de etiquetas de herramientas
+                        cleaned = re.sub(r'<(?:TOOL_CALL|TOOL_RESPONSE)>.*?</(?:TOOL_CALL|TOOL_RESPONSE)>', '', res, flags=re.DOTALL)
                         if cleaned.strip(): print_model_response(cleaned)
                 time.sleep(1) # Cambiado de 5 a 1 para mayor frecuencia de chequeo
             except Exception as e:
