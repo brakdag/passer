@@ -1,3 +1,0 @@
-line 1
-modified line 2
-line 3

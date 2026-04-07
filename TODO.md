@@ -1,1 +1,0 @@
-- [x] Modernizar y hacer más creativo el sitio website/index.html

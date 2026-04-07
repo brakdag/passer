@@ -113,16 +113,24 @@ def replace_text(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
     directorio = os.path.dirname(safe_path)
     
+    replaced = False
     with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
         temp_path = tf.name
         with open(safe_path, 'r', encoding='utf-8') as original_file:
             for line in original_file:
-                tf.write(line.replace(search_text, replace_text))
+                new_line = line.replace(search_text, replace_text)
+                if new_line != line:
+                    replaced = True
+                tf.write(new_line)
         tf.flush()
         os.fsync(tf.fileno())
     
-    os.replace(temp_path, safe_path)
-    return "Replacement completed."
+    if replaced:
+        os.replace(temp_path, safe_path)
+        return "Replacement completed."
+    else:
+        os.remove(temp_path)
+        return f"No occurrences of '{search_text}' were found. No changes made."
 
 def replace_block(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
