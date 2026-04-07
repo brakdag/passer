@@ -56,21 +56,33 @@ class GeminiAdapter(IAIAssistant):
                             if res: return res
                     return None
                 
-                delay = find_key(data, 'retryDelay')
-                if delay is not None:
-                    return float(delay)
+                delay_val = find_key(data, 'retryDelay')
+                if delay_val is not None:
+                    if isinstance(delay_val, str):
+                        # Manejar formatos como "38s"
+                        delay_val = delay_val.rstrip('s')
+                    return float(delay_val)
             except Exception:
                 pass
 
             # Fallback: Búsqueda con regex en el mensaje de error
             import re
-            match = re.search(r'"retryDelay":\s*(\d+)', error_msg)
+            # Busca "retryDelay": "38s" o "retryDelay": 38
+            match = re.search(r'"retryDelay":\s*"?(\d+)(?:s)?"?', error_msg)
             if match:
                 return float(match.group(1))
         except Exception:
             pass
         # Backoff exponencial: default * (2 ^ retries)
         return self.default_retry_delay * (2 ** retries)
+
+    def _format_api_error(self, e: Exception) -> str:
+        """Formatea el error de la API para que sea más amable, especialmente para el 429."""
+        error_msg = str(e).lower()
+        if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in error_msg:
+            delay = self._get_retry_delay(e, 0)
+            return f"Cuota de API excedida. Por favor, espera {delay}s antes de intentar nuevamente."
+        return str(e)
 
     def start_chat(self, model_name: str, system_instruction: str, temperature: float):
         self._current_model = model_name
@@ -124,12 +136,18 @@ class GeminiAdapter(IAIAssistant):
                 if self._is_retryable_error(e):
                     retries += 1
                     if retries > self.max_retries:
-                        logger.error(f"API Error: Max retries reached. {e}")
-                        yield f"\n⚠️ Error: Error de API persistente tras {self.max_retries} reintentos. {e}"
+                        formatted_error = self._format_api_error(e)
+                        logger.error(f"API Error: Max retries reached. {formatted_error}")
+                        yield f"\n⚠️ Error: {formatted_error}"
                         return
                     
                     delay = self._get_retry_delay(e, retries - 1)
-                    logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
+                    # Log more discreetly for 429s
+                    if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in str(e).lower():
+                        logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s (Quota exceeded)")
+                    else:
+                        logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
+                    
                     time.sleep(delay)
                     continue
                 else:
@@ -148,11 +166,17 @@ class GeminiAdapter(IAIAssistant):
                 if self._is_retryable_error(e):
                     retries += 1
                     if retries > self.max_retries:
-                        logger.error(f"API Error: Max retries reached. {e}")
-                        return f"⚠️ Error: Error de API persistente tras {self.max_retries} reintentos. {e}"
+                        formatted_error = self._format_api_error(e)
+                        logger.error(f"API Error: Max retries reached. {formatted_error}")
+                        return f"⚠️ Error: {formatted_error}"
                     
                     delay = self._get_retry_delay(e, retries - 1)
-                    logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
+                    # Log more discreetly for 429s
+                    if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in str(e).lower():
+                        logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s (Quota exceeded)")
+                    else:
+                        logger.warning(f"API Retry {retries}/{self.max_retries} in {delay}s due to: {e}")
+                    
                     time.sleep(delay)
                     continue
                 
