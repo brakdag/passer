@@ -108,5 +108,18 @@ class CommandHandler:
             except Exception as e:
                 console.print(f"Error: {e}", style="red")
             return True
+
+        elif input_stripped == '/t':
+            try:
+                # Obtenemos el historial a través de la interfaz del adaptador
+                history = self.chat_manager.assistant.get_chat_history()
+                if history:
+                    tokens = self.chat_manager.assistant.count_tokens(history)
+                    console.print(f"[bold cyan]󰋃 Contexto actual:[/bold cyan] {tokens} tokens", style="yellow")
+                else:
+                    console.print("No hay una sesión de chat activa.", style="red")
+            except Exception as e:
+                console.print(f"Error estimando tokens: {e}", style="red")
+            return True
             
         return False

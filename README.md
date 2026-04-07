@@ -59,6 +59,11 @@ paser
 * `list_dir(path)`, `make_dir(path)`, `rename_path(origen, destino)`, `remove_file(path)`: Gestión de rutas.
 * `global_search(query)`, `glob_search(pattern)`, `global_replace(path, search_text, replace_text, extensiones)`: Búsqueda y reemplazo masivo.
 
+### 🔡 Navegación de Código
+* `list_symbols(file_path)`: Lista todas las clases y funciones definidas en un archivo.
+* `get_definition(symbol_name, file_path)`: Localiza la línea y columna donde se define un símbolo.
+* `get_references(symbol_name, file_path)`: Busca todas las referencias a un símbolo en el archivo.
+
 ### 🌐 Utilidades y Web
 * `web_search(query)`, `fetch_url(url)`: Acceso a información externa.
 * `get_time(zona_horaria)`, `calculate(operacion)`, `get_cwd()`: Herramientas básicas.

@@ -4,6 +4,9 @@ from paser.tools import web_tools as wt
 from paser.tools import system_tools as st
 from paser.tools import util_tools as ut
 from paser.tools import mqtt_tools as mt
+from paser.tools import code_navigator as cn
+
+nav = cn.CodeNavigator()
 
 AVAILABLE_TOOLS = {
     "get_time": ut.get_time,
@@ -32,7 +35,10 @@ AVAILABLE_TOOLS = {
     "notify_user": st.notify_user,
     "set_timer": st.set_timer,
     "is_window_in_focus": st.is_window_in_focus,
-    "notify_mobile": mt.notify_mobile
+    "notify_mobile": mt.notify_mobile,
+    "list_symbols": nav.list_symbols,
+    "get_definition": nav.get_definition,
+    "get_references": nav.get_references
 }
 
 with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "r") as f:

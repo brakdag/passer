@@ -24,5 +24,8 @@
 ["global_search","Search string in all files",{"query":"string"}],
 ["notify_user","System notification",{}],
 ["is_window_in_focus","Check terminal focus",{"action":"string"}],
-["set_timer","Set a timer that triggers a notification after N seconds",{"seconds":"int","message":"string"}]
+["set_timer","Set a timer that triggers a notification after N seconds",{"seconds":"int","message":"string"}],
+["list_symbols","List all classes and functions in a file",{"file_path":"string"}],
+["get_definition","Find the definition of a symbol",{"symbol_name":"string","file_path":"string"}],
+["get_references","Find all references to a symbol",{"symbol_name":"string","file_path":"string"}]
 ]

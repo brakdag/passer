@@ -22,3 +22,11 @@ class IAIAssistant(ABC):
     @abstractmethod
     def get_available_models(self) -> list:
         pass
+
+    @abstractmethod
+    def get_chat_history(self) -> Any:
+        pass
+
+    @abstractmethod
+    def count_tokens(self, contents: Any) -> int:
+        pass

@@ -183,6 +183,10 @@ class GeminiAdapter(IAIAssistant):
                 logger.exception(f"Non-retryable API error: {e}")
                 raise e
 
+    def get_chat_history(self) -> Any:
+        """Devuelve el objeto de historial bruto para el conteo de tokens."""
+        return self.chat.history if self.chat else None
+
     def get_history(self) -> list:
         if not self.chat:
             return []
@@ -209,3 +213,17 @@ class GeminiAdapter(IAIAssistant):
         # Relaxed filtering to ensure models appear
         models = self.client.models.list()
         return [m.name for m in models if m.name and ('gemini' in m.name.lower() or 'gemma' in m.name.lower())]
+
+    def count_tokens(self, contents: Any) -> int:
+        """Cuenta los tokens de un contenido dado utilizando la API de Gemini."""
+        if not self._current_model:
+            return 0
+        try:
+            response = self.client.models.count_tokens(
+                model=self._current_model,
+                contents=contents
+            )
+            return response.total_tokens
+        except Exception as e:
+            logger.error(f"Error counting tokens: {e}")
+            return 0
