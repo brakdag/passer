@@ -31,6 +31,7 @@
 ["execute_python","Execute Python code in a secure sandbox",{"code":"string"}],
 ["see_image","See an image with 112p optimization and zoom",{"path":"string","crop":"list"}],
 ["git_diff","Get current git diff",{}],
+["get_remote_repo","Get the current repository name (user/repo)",{}],
 ["list_issues","List open issues in a repo",{"repo":"string"}],
 ["create_issue","Create a new issue",{"repo":"string","title":"string","body":"string"}],
 ["close_issue","Close an issue",{"repo":"string","issue_number":"int"}]

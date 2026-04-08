@@ -124,3 +124,31 @@
 {"timestamp": "2026-04-08T13:54:01.749402", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/tests/images/parrilla.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
 {"timestamp": "2026-04-08T13:54:01.749866", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/tests/images/parrilla2.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
 {"timestamp": "2026-04-08T13:54:01.753774", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
+{"timestamp": "2026-04-08T15:05:13.530702", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T15:24:22.590129", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T15:31:32.005171", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\n\ntry:\n    result = subprocess.ru..."}
+{"timestamp": "2026-04-08T15:38:11.546655", "level": "INFO", "logger": "tools", "message": "Archivo 'paser/tools/registry_positional.json' escrito exitosamente."}
+{"timestamp": "2026-04-08T15:38:56.625152", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T16:22:31.472038", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T16:30:33.410516", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\nimport sys\n\ntry:\n    subprocess...."}
+{"timestamp": "2026-04-08T16:31:04.368865", "level": "INFO", "logger": "tools", "message": "Carpeta 'paser/core/validation' creada."}
+{"timestamp": "2026-04-08T16:31:17.021270", "level": "INFO", "logger": "tools", "message": "Archivo 'paser/core/validation/__init__.py' escrito exitosamente."}
+{"timestamp": "2026-04-08T16:31:24.226302", "level": "INFO", "logger": "tools", "message": "Archivo 'paser/tools/vision.py' escrito exitosamente."}
+{"timestamp": "2026-04-08T16:32:40.684010", "level": "INFO", "logger": "tools", "message": "Carpeta 'tests/core' creada."}
+{"timestamp": "2026-04-08T16:32:40.703252", "level": "INFO", "logger": "tools", "message": "Path moved from 'paser/tests/test_executor.py' to 'tests/core/test_executor.py'."}
+{"timestamp": "2026-04-08T16:32:40.729747", "level": "INFO", "logger": "tools", "message": "Archivo 'pytest.ini' escrito exitosamente."}
+{"timestamp": "2026-04-08T16:32:51.245906", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import pytest; import sys; import os; sys.path.ins..."}
+{"timestamp": "2026-04-08T16:34:52.524986", "level": "INFO", "logger": "tools", "message": "Carpeta 'paser/core/logging' creada."}
+{"timestamp": "2026-04-08T16:34:54.025833", "level": "INFO", "logger": "tools", "message": "Archivo 'paser/core/logging/__init__.py' escrito exitosamente."}
+{"timestamp": "2026-04-08T17:00:45.592243", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:03:38.442174", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:03:54.392592", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:08:01.994937", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:08:56.976414", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:14:35.592489", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:16:50.945943", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:20:09.691960", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:21:05.381546", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:22:43.600048", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:24:04.892772", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T17:25:23.951540", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}

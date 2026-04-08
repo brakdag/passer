@@ -21,10 +21,11 @@ dependencies = [
     "wasmer",
     "Pillow",
     "requests",
+    "pydantic",
 ]
 
 [project.scripts]
-paser = "paser.main:main"
+paser = "paser.main:cli"
 
 [tool.setuptools]
 packages = ["paser"]

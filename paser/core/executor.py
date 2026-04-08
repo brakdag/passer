@@ -10,11 +10,13 @@ from paser.core.interfaces import IAIAssistant
 logger = logging.getLogger(__name__)
 
 class AutonomousExecutor:
-    def __init__(self, assistant: IAIAssistant, tools: dict, on_tool_used=None):
+    def __init__(self, assistant: IAIAssistant, tools: dict, on_tool_used=None, max_turns: int = 10):
         self.assistant = assistant
         self.tools = tools
         self.repetition_detector = RepetitionDetector(n=3, max_repeats=3)
         self.on_tool_used = on_tool_used
+        self.max_turns = max_turns
+        self.turn_count = 0
 
     def _parse_call_content(self, raw_content: str) -> Optional[dict[str, Any]]:
         """Intenta parsear el contenido de un TOOL_CALL usando múltiples estrategias."""
@@ -71,6 +73,10 @@ class AutonomousExecutor:
         return f"<TOOL_RESPONSE>{json.dumps(payload)}</TOOL_RESPONSE>"
 
     def execute(self, user_input: str, thinking_enabled: bool = True, get_confirmation_callback=None) -> str:
+        self.turn_count += 1
+        if self.turn_count > self.max_turns:
+            return "Límite de turnos excedido"
+            
         if not self.repetition_detector.add_text(user_input):
             return "Detección de texto repetitivo: posible bucle infinito."
 
@@ -87,6 +93,10 @@ class AutonomousExecutor:
             calls = self._extract_tool_calls(response_text)
             if not calls:
                 break
+            
+            self.turn_count += 1
+            if self.turn_count > self.max_turns:
+                return "Límite de turnos excedido"
 
             combined_tool_responses = []
             for call_data, raw_content in calls:

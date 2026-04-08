@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 from rich.text import Text
 from rich.box import ROUNDED
 from rich.live import Live
-from prompt_toolkit import prompt
+from prompt_toolkit import PromptSession
 from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.styles import Style
 from contextlib import contextmanager
@@ -60,13 +60,20 @@ def print_tool_result(tool_name: str, result: str):
     )
 
 
-def get_input(prompt_text: str, history=None) -> str:
+async def get_input(prompt_text: str, history=None) -> str:
     style = Style.from_dict({
         '': '#00FF00',
         'prompt': '#00FF00 bold',
     })
-    return prompt(prompt_text, history=history, style=style)
+    session = PromptSession(history=history)
+    return await session.prompt_async(prompt_text, style=style)
 
+
+@contextmanager
+def SpinnerContext(message: str = "", color: str = "cyan"):
+    """Muestra un spinner profesional usando rich.console.status."""
+    with console.status(f"[{color}]{message}[/{color}]", spinner="dots"):
+        yield
 
 
 

@@ -3,10 +3,14 @@ import re
 import os
 import datetime
 import logging
-from paser.core.interfaces import IAIAssistant
+import asyncio
+from paser.core.logging import setup_logger
+
+logger = setup_logger()
 from paser.core.ui import console, print_panel, get_input, print_model_response, SpinnerContext
 from paser.core.commands import CommandHandler
 from paser.core.executor import AutonomousExecutor
+from paser.core.interfaces import IAIAssistant
 from prompt_toolkit.history import FileHistory
 from rich.box import ROUNDED
 from rich.live import Live
@@ -123,7 +127,7 @@ class ChatManager:
             status_icon = "󰄵" if success else "󰅚"
             console.print(f"  {icon} {verb} {status_icon}", style="dim yellow")
     
-    def _event_monitor_loop(self):
+    async def _event_monitor_loop(self):
         """Hilo de fondo que revisa eventos expirados e inyecta mensajes al agente."""
         while True:
             try:
@@ -141,33 +145,31 @@ class ChatManager:
                         # Limpieza de etiquetas de herramientas
                         cleaned = re.sub(r'<(?:TOOL_CALL|TOOL_RESPONSE)>.*?</(?:TOOL_CALL|TOOL_RESPONSE)>', '', res, flags=re.DOTALL)
                         if cleaned.strip(): print_model_response(cleaned)
-                time.sleep(1) # Cambiado de 5 a 1 para mayor frecuencia de chequeo
+                await asyncio.sleep(1)
             except Exception as e:
                 # Logging más detallado
                 import traceback
-                print(f"DEBUG: Event loop error: {e}")
+                logger.error("Event loop error", extra={"error": str(e)})
                 traceback.print_exc()
-                time.sleep(10)
+                await asyncio.sleep(10)
 
-    def run(self):
+    async def run(self):
         # Iniciar inicialización en segundo plano (Lazy Loading)
-        init_thread = threading.Thread(target=self._initialize_chat, daemon=True)
-        init_thread.start()
+        asyncio.create_task(asyncio.to_thread(self._initialize_chat))
         
-        # Iniciar hilo de monitoreo de eventos
-        monitor_thread = threading.Thread(target=self._event_monitor_loop, daemon=True)
-        monitor_thread.start()
-        
-
+        # Iniciar monitoreo de eventos como tarea de asyncio
+        asyncio.create_task(self._event_monitor_loop())
         
         # La sincronización ahora ocurre dentro del loop para permitir el prompt inmediato
+
         initialized_notified = False
+
 
         history = FileHistory(".chat_history")
         
         while True:
             try:
-                user_input = get_input("│  ", history=history)
+                user_input = await get_input("│  ", history=history)
             except (EOFError, KeyboardInterrupt):
                 break
                 
@@ -236,7 +238,7 @@ class ChatManager:
             self._initialized_event.set()
         except Exception as e:
             self._init_error = e
-            logging.error(f"Background initialization failed: {e}")
+            logger.info("Background initialization failed", extra={"error": str(e)})
     
     def save_session(self, name: str = None):
         if not name:
