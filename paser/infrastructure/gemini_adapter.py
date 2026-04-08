@@ -13,6 +13,7 @@ class GeminiAdapter(IAIAssistant):
     def __init__(self):
         self.client = genai.Client()
         self.chat: Any = None
+        self.history: list = []
         self._current_model: Optional[str] = None
         self.max_retries = 5
         self.default_retry_delay = 5
@@ -93,13 +94,13 @@ class GeminiAdapter(IAIAssistant):
             raise ValueError(f"Modelo no disponible: {model_name}. Use /models para ver los disponibles.")
         
         config_params = {"temperature": temperature}
-        history = []
+        self.history = []
         
         # Determinar si usar system_instruction en la config o en el historial
         if 'gemini' in model_name.lower():
             config_params["system_instruction"] = system_instruction
         else:
-            history = [
+            self.history = [
                 types.Content(
                     role="user",
                     parts=[types.Part.from_text(text=f"System Instructions: {system_instruction}")]
@@ -114,7 +115,7 @@ class GeminiAdapter(IAIAssistant):
             self.chat = self.client.chats.create(
                 model=model_name,
                 config=types.GenerateContentConfig(**config_params),
-                history=history
+                history=self.history
             )
         except ClientError as e:
             raise RuntimeError(f"Error al iniciar chat con el modelo {model_name}: {e}")
@@ -128,9 +129,15 @@ class GeminiAdapter(IAIAssistant):
         while retries <= self.max_retries:
             try:
                 response = self.chat.send_message_stream(message)
+                full_text = ""
                 for chunk in response:
                     if hasattr(chunk, 'text') and chunk.text:
+                        full_text += chunk.text
                         yield chunk.text
+                
+                # Actualizar historial manualmente
+                self.history.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+                self.history.append(types.Content(role="model", parts=[types.Part.from_text(text=full_text)]))
                 return
             except Exception as e:
                 if self._is_retryable_error(e):
@@ -161,7 +168,14 @@ class GeminiAdapter(IAIAssistant):
         retries = 0
         while retries <= self.max_retries:
             try:
-                return self.chat.send_message(message)
+                response = self.chat.send_message(message)
+                
+                # Actualizar historial
+                self.history.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+                if hasattr(response, 'text') and response.text:
+                    self.history.append(types.Content(role="model", parts=[types.Part.from_text(text=response.text)]))
+                
+                return response
             except Exception as e:
                 if self._is_retryable_error(e):
                     retries += 1
@@ -185,7 +199,7 @@ class GeminiAdapter(IAIAssistant):
 
     def get_chat_history(self) -> Any:
         """Devuelve el objeto de historial bruto para el conteo de tokens."""
-        return self.chat.history if self.chat else None
+        return self.history if self.chat else None
 
     def get_history(self) -> list:
         if not self.chat:
@@ -193,12 +207,12 @@ class GeminiAdapter(IAIAssistant):
         # Convertir objetos de historial a diccionarios serializables
         return [
             {"role": content.role, "parts": [part.text for part in content.parts if part.text]}
-            for content in self.chat.history
+            for content in self.history
         ]
 
     def load_history(self, history_data: list, model_name: str, temperature: float):
         self._current_model = model_name
-        history = [
+        self.history = [
             types.Content(role=item["role"], parts=[types.Part.from_text(text=text) for text in item["parts"]])
             for item in history_data
         ]
@@ -206,7 +220,7 @@ class GeminiAdapter(IAIAssistant):
         self.chat = self.client.chats.create(
             model=model_name,
             config=types.GenerateContentConfig(temperature=temperature),
-            history=history
+            history=self.history
         )
 
     def get_available_models(self) -> list:

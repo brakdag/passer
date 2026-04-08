@@ -24,7 +24,9 @@ Implementar un sistema de navegación de código que permita a la IA realizar sa
 - [ ] Mostrar un mensaje claro al usuario: "⚠ Error: No se ha detectado conexión a internet. Por favor, verifica tu red."
 - [ ] 
 
-### ✅ Implementación de Comando `/t` (Contexto)
+### 🛠️ Bug: Error en comando `/t`
+- [x] Corregir `AttributeError: 'Chat' object has no attribute 'history'` al estimar tokens.
+
 - [x] Investigar si la API de Gemini permite obtener el conteo de tokens actual.
 - [x] Implementar la lógica del comando `/t` en `commands.py`.
 - [x] Validar la salida del comando.
