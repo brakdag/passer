@@ -8,6 +8,13 @@ class CodeNavigator:
     def __init__(self, root_dir="."):
         self.root_dir = root_dir
 
+    def _is_binary(self, path):
+        try:
+            with open(path, 'rb') as f:
+                return b'\0' in f.read(1024)
+        except Exception:
+            return True
+
     def _get_python_files(self):
         python_files = []
         for root, _, files in os.walk(self.root_dir):
@@ -18,6 +25,8 @@ class CodeNavigator:
 
     def list_symbols(self, file_path):
         """Lists all classes and functions defined in a file."""
+        if self._is_binary(file_path):
+            return {"error": "Binary file detected. Cannot list symbols."}
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
@@ -42,7 +51,7 @@ class CodeNavigator:
         files_to_search = [file_path] if file_path else self._get_python_files()
         
         for path in files_to_search:
-            if not path or not os.path.exists(path):
+            if not path or not os.path.exists(path) or self._is_binary(path):
                 continue
             try:
                 with open(path, "r", encoding="utf-8") as f:

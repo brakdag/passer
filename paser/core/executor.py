@@ -10,13 +10,15 @@ from paser.core.interfaces import IAIAssistant
 logger = logging.getLogger(__name__)
 
 class AutonomousExecutor:
-    def __init__(self, assistant: IAIAssistant, tools: dict, on_tool_used=None, max_turns: int = 100):
+    def __init__(self, assistant: IAIAssistant, tools: dict, on_tool_used=None, on_tool_start=None, max_turns: int = 100):
         self.assistant = assistant
         self.tools = tools
         self.repetition_detector = RepetitionDetector(n=3, max_repeats=3)
         self.on_tool_used = on_tool_used
+        self.on_tool_start = on_tool_start
         self.max_turns = max_turns
         self.turn_count = 0
+        self.stop_requested = False
 
     def _parse_call_content(self, raw_content: str) -> Optional[dict[str, Any]]:
         """Intenta parsear el contenido de un TOOL_CALL usando múltiples estrategias."""
@@ -73,6 +75,10 @@ class AutonomousExecutor:
         return f"<TOOL_RESPONSE>{json.dumps(payload)}</TOOL_RESPONSE>"
 
     def execute(self, user_input: str, thinking_enabled: bool = True, get_confirmation_callback=None) -> str:
+        self.stop_requested = False  # Reset al inicio de cada ejecución
+        if self.stop_requested:
+            return "Ejecución interrumpida por el usuario."
+
         self.turn_count += 1
         if self.turn_count > self.max_turns:
             return "Límite de turnos excedido"
@@ -87,6 +93,8 @@ class AutonomousExecutor:
             response_text = user_input
 
         while True:
+            if self.stop_requested:
+                return "Ejecución interrumpida por el usuario."
             if not self.repetition_detector.add_text(response_text):
                 return "Detección de texto repetitivo: posible bucle infinito."
 
@@ -144,8 +152,16 @@ class AutonomousExecutor:
                     tr = self._format_tool_response(f"Herramienta desconocida: {name}", success=False)
                 else:
                     try:
-                        result = self.tools[name](**args)
-                        # Si la función retorna sin lanzar una excepción, se considera éxito
+                        ctx = None
+                        if self.on_tool_start:
+                            ctx = self.on_tool_start(name, args)
+                        
+                        if ctx:
+                            with ctx:
+                                result = self.tools[name](**args)
+                        else:
+                            result = self.tools[name](**args)
+                        
                         tr = self._format_tool_response(result, success=True)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, result, True)

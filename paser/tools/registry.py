@@ -4,6 +4,7 @@ from paser.tools import web_tools as wt
 from paser.tools import system_tools as st
 from paser.tools import util_tools as ut
 from paser.tools import mqtt_tools as mt
+from paser.tools import discovery as disc
 from paser.tools import code_navigator as cn
 from paser.tools import wasm_tools as wt_wasm
 from paser.tools import vision as vt
@@ -14,6 +15,7 @@ nav = cn.CodeNavigator()
 
 AVAILABLE_TOOLS = {
     "get_time": ut.get_time,
+    "list_tools": disc.list_tools,
     
     "read_file": ft.read_file,
     "read_files": ft.read_files,
@@ -44,16 +46,22 @@ AVAILABLE_TOOLS = {
     "get_remote_repo": gt.get_remote_repo,
     "get_definition": nav.get_definition,
     "get_references": nav.get_references,
+    "list_symbols": nav.list_symbols,
     "execute_python": wt_wasm.execute_python,
     "see_image": vt.see_image,
-    "git_diff": gt.git_diff,
     "list_issues": gh.list_issues,
     "create_issue": gh.create_issue,
     "close_issue": gh.close_issue
 }
 
+import json
+
 with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "r") as f:
-    TOOL_CATALOG = f.read()
+    full_catalog = json.load(f)
+
+CORE_TOOLS = ["read_file", "write_file", "execute_python", "list_tools", "list_dir"]
+core_catalog_list = [tool for tool in full_catalog if tool[0] in CORE_TOOLS]
+TOOL_CATALOG = json.dumps(core_catalog_list, indent=2)
 
 SYSTEM_INSTRUCTION = f"""
 You are an autonomous agent.

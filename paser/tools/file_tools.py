@@ -9,6 +9,14 @@ logger = logging.getLogger("tools")
 
 FILE_SIZE_LIMIT = 5 * 1024 * 1024
 
+def is_binary_file(path: str) -> bool:
+    """Detects if a file is binary by checking for null bytes in the first 1024 bytes."""
+    try:
+        with open(path, 'rb') as f:
+            return b'\0' in f.read(1024)
+    except Exception:
+        return True
+
 def read_file(path: str) -> str:
     safe_path = context.get_safe_path(path)
     if not os.path.isfile(safe_path):
@@ -17,6 +25,9 @@ def read_file(path: str) -> str:
     file_size = os.path.getsize(safe_path)
     if file_size > FILE_SIZE_LIMIT:
         raise ValueError(f"El archivo '{path}' es demasiado grande ({file_size / 1024 / 1024:.2f} MB). El límite es {FILE_SIZE_LIMIT / 1024 / 1024:.2f} MB.")
+    
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser leído como texto.")
     
     with open(safe_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -30,8 +41,11 @@ def read_files(paths: list[str]) -> str:
     
     results = []
     for path in paths:
-        content = read_file(path)
-        results.append(f"--- ARCHIVO: {path} ---\n{content}\n--- FIN ARCHIVO ---")
+        try:
+            content = read_file(path)
+            results.append(f"--- ARCHIVO: {path} ---\n{content}\n--- FIN ARCHIVO ---")
+        except Exception as e:
+            results.append(f"--- ARCHIVO: {path} ---\nError: {str(e)}\n--- FIN ARCHIVO ---")
 
     files_str = " ".join(paths)
     if len(paths) > 5 or len(files_str) > 60:
@@ -40,20 +54,6 @@ def read_files(paths: list[str]) -> str:
         summary = f"Archivos leídos: {files_str}"
         
     return f"{summary}\n\n" + "\n\n".join(results)
-    files_str = " ".join(paths)
-    if len(paths) > 5 or len(files_str) > 60:
-        summary = f"Se han leído {len(paths)} archivos."
-    else:
-        summary = f"Archivos leídos: {files_str}"
-        
-    return f"{summary}\n\n" + "\n\n".join(results)
-    
-    results = []
-    for path in paths:
-        content = read_file(path)
-        results.append(f"--- ARCHIVO: {path} ---\n{content}\n--- FIN ARCHIVO ---")
-        
-    return "\n\n".join(results)
 
 def write_file(path: str, contenido: str) -> str:
     safe_path = context.get_safe_path(path)
@@ -92,6 +92,8 @@ def list_dir(path: str = ".") -> str:
 
 def read_lines(path: str, inicio: int, fin: int) -> str:
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser leído como texto.")
     resultado = []
     with open(safe_path, 'r', encoding='utf-8') as f:
         for i, linea in enumerate(f, 1):
@@ -106,6 +108,8 @@ def read_head(path: str, cantidad_lineas: int) -> str:
 
 def update_line(path: str, line_number: int, new_content: str) -> str:
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     linea_encontrada = False
     
@@ -131,6 +135,8 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
 
 def replace_text(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     
     replaced = False
@@ -154,6 +160,8 @@ def replace_text(path: str, search_text: str, replace_text: str) -> str:
 
 def replace_block(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     with open(safe_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -172,6 +180,8 @@ def replace_block(path: str, search_text: str, replace_text: str) -> str:
 def replace_text_regex(path: str, pattern: str, replace_text: str) -> str:
     """Reemplaza texto usando expresiones regulares linea por linea."""
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     
     with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
@@ -188,6 +198,8 @@ def replace_text_regex(path: str, pattern: str, replace_text: str) -> str:
 def replace_block_regex(path: str, pattern: str, replace_text: str) -> str:
     """Reemplaza un bloque de texto usando expresiones regulares (multilinea)."""
     safe_path = context.get_safe_path(path)
+    if is_binary_file(safe_path):
+        raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     with open(safe_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -221,6 +233,8 @@ def global_replace(path: str, search_text: str, replace_text: str, extensiones: 
                 continue
             file_path = os.path.join(root, file)
             if os.path.getsize(file_path) > FILE_SIZE_LIMIT:
+                continue
+            if is_binary_file(file_path):
                 continue
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
@@ -290,6 +304,8 @@ def global_search(query: str) -> str:
         for file in files:
             file_path = os.path.join(root, file)
             if os.path.getsize(file_path) > FILE_SIZE_LIMIT:
+                continue
+            if is_binary_file(file_path):
                 continue
                 
             try:

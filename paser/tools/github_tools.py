@@ -1,6 +1,7 @@
 import os
 import requests
 from paser.tools.git_tools import get_remote_repo
+from paser.tools.system_tools import notify_user
 
 GITHUB_API_URL = "https://api.github.com"
 
@@ -33,6 +34,10 @@ def create_issue(title: str, body: str, repo: str = ""):
     data = {"title": title, "body": body}
     response = requests.post(url, headers=headers, json=data)
     response.raise_for_status()
+    
+    # Notificar al usuario sobre la creación del issue
+    notify_user()
+    
     return response.json()
 
 def close_issue(issue_number: int, repo: str = ""):
@@ -43,4 +48,8 @@ def close_issue(issue_number: int, repo: str = ""):
     data = {"state": "closed"}
     response = requests.patch(url, headers=headers, json=data)
     response.raise_for_status()
+    
+    # Notificar al usuario sobre el cierre del issue
+    notify_user()
+    
     return response.json()

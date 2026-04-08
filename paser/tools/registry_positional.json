@@ -34,5 +34,6 @@
 ["get_remote_repo","Get the current repository name (user/repo)",{}],
 ["list_issues","List open issues in a repo",{"repo":"string"}],
 ["create_issue","Create a new issue",{"repo":"string","title":"string","body":"string"}],
-["close_issue","Close an issue",{"repo":"string","issue_number":"int"}]
+["close_issue","Close an issue",{"repo":"string","issue_number":"int"}],
+["list_tools","List available tools by category",{"category":"string (optional)"}]
 ]

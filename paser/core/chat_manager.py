@@ -50,6 +50,11 @@ class ChatManager:
         "is_window_in_focus": ("Verificando foco", "󰇄"),
     }
 
+    COMPUTE_TOOLS = {
+        "see_image": ("Analizando imagen", "󰍃"),
+        "execute_python": ("Ejecutando Python", "󰈚"),
+    }
+
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
         self.assistant = assistant
         self.tools = tools
@@ -65,6 +70,7 @@ class ChatManager:
             self.assistant,
             self.tools,
             on_tool_used=self._on_tool_used,
+            on_tool_start=self._on_tool_start,
         )
         
         # Lazy loading synchronization
@@ -79,6 +85,17 @@ class ChatManager:
                 return json.load(f)
         except Exception:
             return {}
+
+    def _on_tool_start(self, tool_name: str, args: dict):
+        """Callback ejecutado por el executor justo antes de iniciar una herramienta."""
+        if tool_name in self.COMPUTE_TOOLS:
+            verb, icon = self.COMPUTE_TOOLS[tool_name]
+            if tool_name == "see_image":
+                path = args.get("path", "desconocido")
+                filename = os.path.basename(path)
+                return SpinnerContext(f"{icon} {verb} {filename}...", color="yellow")
+            return SpinnerContext(f"{icon} {verb}...", color="yellow")
+        return None
 
     def _on_tool_used(self, tool_name: str, args: dict, result: str, success: bool):
         """Callback ejecutado por el executor cuando se usa una herramienta."""
@@ -222,13 +239,27 @@ class ChatManager:
                 continue
             
             # Ejecución autónoma con spinner
-            with SpinnerContext("", "cyan"):
-                result = await asyncio.to_thread(
-                    self.executor.execute,
-                    user_input=user_input,
-                    thinking_enabled=self.thinking_enabled,
-                    get_confirmation_callback=get_input
-                )
+            execution_task = None
+            try:
+                with SpinnerContext("", "cyan"):
+                    execution_task = asyncio.create_task(asyncio.to_thread(
+                        self.executor.execute,
+                        user_input=user_input,
+                        thinking_enabled=self.thinking_enabled,
+                        get_confirmation_callback=get_input
+                    ))
+                    result = await execution_task
+            except (KeyboardInterrupt, asyncio.CancelledError):
+                self.executor.stop_requested = True
+                console.print("\n[bold red]⚠ Interrumpiendo ejecución...[/bold red] Esperando a que termine la tarea actual.", style="red")
+                if execution_task:
+                    try:
+                        await execution_task
+                    except Exception:
+                        pass
+                result = "Ejecución interrumpida por el usuario."
+            except Exception as e:
+                result = f"Error durante la ejecución: {str(e)}"
             
             # Mostrar respuesta del modelo (filtrando bloques internos)
             if result:
