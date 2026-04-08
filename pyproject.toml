@@ -20,6 +20,7 @@ dependencies = [
     "paho-mqtt",
     "wasmer",
     "Pillow",
+    "requests",
 ]
 
 [project.scripts]

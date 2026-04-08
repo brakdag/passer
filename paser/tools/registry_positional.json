@@ -29,5 +29,9 @@
 ["get_definition","Find the definition of a symbol",{"symbol_name":"string","file_path":"string"}],
 ["get_references","Find all references to a symbol",{"symbol_name":"string","file_path":"string"}],
 ["execute_python","Execute Python code in a secure sandbox",{"code":"string"}],
-["see_image","See an image with 112p optimization and zoom",{"path":"string","crop":"list"}]
+["see_image","See an image with 112p optimization and zoom",{"path":"string","crop":"list"}],
+["git_diff","Get current git diff",{}],
+["list_issues","List open issues in a repo",{"repo":"string"}],
+["create_issue","Create a new issue",{"repo":"string","title":"string","body":"string"}],
+["close_issue","Close an issue",{"repo":"string","issue_number":"int"}]
 ]

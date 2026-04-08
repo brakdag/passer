@@ -81,4 +81,5 @@ paser
 - `notify_user()`: Notificación simple al usuario.
 - `set_timer(seconds, message)`: Programación de tareas.
 - `is_window_in_focus(action)`: Verificación de estado de la terminal.
+- `list_issues(repo)`, `create_issue(repo, title, body)`, `close_issue(repo, issue_number)`: Gestión de GitHub Issues.
 

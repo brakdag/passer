@@ -7,6 +7,8 @@ from paser.tools import mqtt_tools as mt
 from paser.tools import code_navigator as cn
 from paser.tools import wasm_tools as wt_wasm
 from paser.tools import vision as vt
+from paser.tools import git_tools as gt
+from paser.tools import github_tools as gh
 
 nav = cn.CodeNavigator()
 
@@ -42,7 +44,11 @@ AVAILABLE_TOOLS = {
     "get_definition": nav.get_definition,
     "get_references": nav.get_references,
     "execute_python": wt_wasm.execute_python,
-    "see_image": vt.see_image
+    "see_image": vt.see_image,
+    "git_diff": gt.git_diff,
+    "list_issues": gh.list_issues,
+    "create_issue": gh.create_issue,
+    "close_issue": gh.close_issue
 }
 
 with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "r") as f:
