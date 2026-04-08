@@ -1,28 +1,15 @@
-{"timestamp": "2026-04-07T19:44:46.502316", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T19:45:31.127005", "level": "INFO", "logger": "tools", "message": "Archivo 'code_navigator.py' escrito exitosamente."}
-{"timestamp": "2026-04-07T19:46:39.431066", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T19:51:57.531216", "level": "INFO", "logger": "tools", "message": "Path moved from 'code_navigator.py' to 'scripts/code_navigator.py'."}
-{"timestamp": "2026-04-07T19:53:43.077397", "level": "INFO", "logger": "tools", "message": "Path moved from 'scripts/code_navigator.py' to 'paser/code_navigator.py'."}
-{"timestamp": "2026-04-07T19:54:51.306256", "level": "INFO", "logger": "tools", "message": "Path moved from 'paser/code_navigator.py' to 'paser/tools/code_navigator.py'."}
-{"timestamp": "2026-04-07T20:12:31.285804", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/test_nav.py' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:13:56.489759", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/utils.py' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:15:33.792044", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/main.py' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:21:27.690543", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/paser/tools/registry_positional.json' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:28:56.581366", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:31:53.934551", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/README.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T20:41:47.747935", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
-{"timestamp": "2026-04-07T20:41:50.152477", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
-{"timestamp": "2026-04-07T21:54:55.012499", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T21:58:34.637563", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T22:24:09.507069", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/TODO.md' escrito exitosamente."}
-{"timestamp": "2026-04-07T22:40:55.540571", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
-{"timestamp": "2026-04-07T22:40:58.581202", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
-{"timestamp": "2026-04-07T22:58:31.403520", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
-{"timestamp": "2026-04-07T22:58:31.644450", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
-{"timestamp": "2026-04-07T23:58:50.501065", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/paser/tools/wasm_tools.py' escrito exitosamente."}
-{"timestamp": "2026-04-08T00:07:25.883310", "level": "INFO", "logger": "tools", "message": "Archivo '/mnt/DataSD/sandbox/charla/paser/tools/wasm_tools.py' escrito exitosamente."}
-{"timestamp": "2026-04-08T00:09:36.669819", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
-{"timestamp": "2026-04-08T00:09:39.498161", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
-{"timestamp": "2026-04-08T00:19:03.535306", "level": "WARNING", "logger": "tools", "message": "Wasmer CLI not found in PATH. Using restricted Python fallback."}
-{"timestamp": "2026-04-08T00:19:43.675397", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: def fibonacci(n):\n    a, b = 0, 1\n    for _ in ran..."}
-{"timestamp": "2026-04-08T01:00:37.197335", "level": "WARNING", "logger": "tools", "message": "Wasmer CLI not found in PATH. Using restricted Python fallback."}
+{"timestamp": "2026-04-08T08:45:06.524665", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T08:46:16.250242", "level": "INFO", "logger": "tools", "message": "Carpeta '/mnt/DataSD/sandbox/charla/tests/images' creada."}
+{"timestamp": "2026-04-08T08:46:30.155437", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import urllib.request\nimport os\n\nimages = {\n    't..."}
+{"timestamp": "2026-04-08T08:46:48.217368", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: print('Hello World')..."}
+{"timestamp": "2026-04-08T08:47:07.763121", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 1 seconds. Attempt 1/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T08:47:08.878523", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 2 seconds. Attempt 2/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T08:48:04.203084", "level": "WARNING", "logger": "tools", "message": "Path traversal attempt: ../etc/passwd"}
+{"timestamp": "2026-04-08T08:48:04.203644", "level": "ERROR", "logger": "tools", "message": "Error procesando imagen ../etc/passwd: Acceso fuera del directorio permitido.", "exception": "Traceback (most recent call last):\n  File \"/mnt/DataSD/sandbox/charla/paser/tools/vision.py\", line 25, in see_image\n    safe_path = context.get_safe_path(path)\n  File \"/mnt/DataSD/sandbox/charla/paser/tools/core_tools.py\", line 47, in get_safe_path\n    raise ValueError(\"Acceso fuera del directorio permitido.\")\nValueError: Acceso fuera del directorio permitido."}
+{"timestamp": "2026-04-08T08:48:46.450562", "level": "ERROR", "logger": "tools", "message": "Error procesando imagen tests/images/test_chart.png: cannot identify image file '/mnt/DataSD/sandbox/charla/tests/images/test_chart.png'", "exception": "Traceback (most recent call last):\n  File \"/mnt/DataSD/sandbox/charla/paser/tools/vision.py\", line 30, in see_image\n    with Image.open(safe_path) as img:\n         ~~~~~~~~~~^^^^^^^^^^^\n  File \"/mnt/DataSD/sandbox/charla/venv/lib/python3.13/site-packages/PIL/Image.py\", line 3711, in open\n    raise UnidentifiedImageError(msg)\nPIL.UnidentifiedImageError: cannot identify image file '/mnt/DataSD/sandbox/charla/tests/images/test_chart.png'"}
+{"timestamp": "2026-04-08T08:50:37.421934", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T09:07:48.349859", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T09:12:30.447938", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
+{"timestamp": "2026-04-08T09:12:30.820041", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
+{"timestamp": "2026-04-08T09:13:02.376259", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
+{"timestamp": "2026-04-08T09:13:02.589049", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}

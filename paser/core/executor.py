@@ -2,7 +2,7 @@ import json
 import re
 import logging
 import ast
-from typing import Any, Optional, get_type_hints, get_origin, get_args
+from typing import Any, Optional, Union, get_type_hints, get_origin, get_args
 
 from paser.core.repetition_detector import RepetitionDetector
 from paser.core.interfaces import IAIAssistant
@@ -108,9 +108,11 @@ class AutonomousExecutor:
                             origin = get_origin(expected_type)
                             
                             # Determinar el tipo contra el cual validar
-                            if origin is not None:
-                                # Para genéricos como list[str] o dict[str, Any], validamos contra el origen (list, dict)
+                            if origin is Union:
                                 # Para Union/Optional, validamos contra la tupla de tipos permitidos
+                                check_type = get_args(expected_type)
+                            elif origin is not None:
+                                # Para genéricos como list[str] o dict[str, Any], validamos contra el origen (list, dict)
                                 check_type = origin
                             else:
                                 check_type = expected_type

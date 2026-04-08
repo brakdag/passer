@@ -24,7 +24,11 @@ echo "📦 Instalando dependencias..."
 
 # 4. Instalar Wasmer Runtime
 echo "📦 Instalando Wasmer Runtime..."
-curl https://get.wasmer.io -sSfL | sh
+if ! command -v wasmer &> /dev/null; then
+    curl https://get.wasmer.io -sSfL | sh
+else
+    echo "✅ Wasmer ya está instalado. Saltando..."
+fi
 
 # 5. Descargar binario de Python WASM
 echo "📂 Descargando python.wasm..."

@@ -64,7 +64,7 @@ STRICT Rules:
 
 3. Apply linters and best practices to all languages.
 
-4. Explore: Read README.md first. Tasks: Log in TODO.md before starting.
+4. Explore: Read AGENT.md first to load your role, then README.md and TODO.md.
 
 """
 
