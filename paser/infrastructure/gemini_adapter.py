@@ -1,4 +1,6 @@
 import logging
+import re
+import base64
 from typing import Generator, Optional, Any
 import time
 import json
@@ -21,6 +23,51 @@ class GeminiAdapter(IAIAssistant):
     @property
     def current_model(self) -> Optional[str]:
         return self._current_model
+
+    def _prepare_message_parts(self, message: str) -> list[types.Part]:
+        """
+        Convierte un mensaje de texto en una lista de partes multimodales.
+        Si detecta un <TOOL_RESPONSE> con datos de imagen, lo convierte en un Part de imagen.
+        """
+        parts = []
+        # Regex para encontrar bloques de TOOL_RESPONSE
+        pattern = r'<(TOOL_RESPONSE)>(.*?)</\1>'
+        last_pos = 0
+        
+        for match in re.finditer(pattern, message, re.DOTALL):
+            # Agregar el texto antes del tag
+            text_before = message[last_pos:match.start()]
+            if text_before:
+                parts.append(types.Part.from_text(text=text_before))
+            
+            # Procesar el contenido del TOOL_RESPONSE
+            content = match.group(2).strip()
+            try:
+                data = json.loads(content)
+                # Verificar si es una respuesta de imagen (tiene mime_type y data base64)
+                if data.get("status") == "success" and isinstance(data.get("data"), dict) and "mime_type" in data["data"]:
+                    img_data = data["data"]
+                    parts.append(
+                        types.Part.from_bytes(
+                            data=base64.b64decode(img_data["data"]),
+                            mime_type=img_data["mime_type"]
+                        )
+                    )
+                else:
+                    # Respuesta de herramienta normal, mantener como texto
+                    parts.append(types.Part.from_text(text=match.group(0)))
+            except json.JSONDecodeError:
+                # Si no es JSON, mantener el tag como texto
+                parts.append(types.Part.from_text(text=match.group(0)))
+            
+            last_pos = match.end()
+        
+        # Agregar el resto del texto
+        text_after = message[last_pos:]
+        if text_after:
+            parts.append(types.Part.from_text(text=text_after))
+            
+        return parts
 
     def _is_retryable_error(self, e: Exception) -> bool:
         """Determina si un error es transitorio y amerita un reintento."""
@@ -144,7 +191,9 @@ class GeminiAdapter(IAIAssistant):
         retries = 0
         while retries <= self.max_retries:
             try:
-                response = self.chat.send_message_stream(message)
+                # Convert string message to multimodal parts if necessary
+                parts = self._prepare_message_parts(message)
+                response = self.chat.send_message_stream(parts)
                 full_text = ""
                 for chunk in response:
                     if hasattr(chunk, 'text') and chunk.text:
@@ -152,7 +201,7 @@ class GeminiAdapter(IAIAssistant):
                         yield chunk.text
                 
                 # Actualizar historial manualmente
-                self.history.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+                self.history.append(types.Content(role="user", parts=parts))
                 self.history.append(types.Content(role="model", parts=[types.Part.from_text(text=full_text)]))
                 return
             except Exception as e:
@@ -184,10 +233,12 @@ class GeminiAdapter(IAIAssistant):
         retries = 0
         while retries <= self.max_retries:
             try:
-                response = self.chat.send_message(message)
+                # Convert string message to multimodal parts if necessary
+                parts = self._prepare_message_parts(message)
+                response = self.chat.send_message(parts)
                 
                 # Actualizar historial
-                self.history.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+                self.history.append(types.Content(role="user", parts=parts))
                 if hasattr(response, 'text') and response.text:
                     self.history.append(types.Content(role="model", parts=[types.Part.from_text(text=response.text)]))
                 

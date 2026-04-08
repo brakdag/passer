@@ -6,6 +6,7 @@ from paser.tools import util_tools as ut
 from paser.tools import mqtt_tools as mt
 from paser.tools import code_navigator as cn
 from paser.tools import wasm_tools as wt_wasm
+from paser.tools import vision as vt
 
 nav = cn.CodeNavigator()
 
@@ -40,7 +41,8 @@ AVAILABLE_TOOLS = {
     "list_symbols": nav.list_symbols,
     "get_definition": nav.get_definition,
     "get_references": nav.get_references,
-    "execute_python": wt_wasm.execute_python
+    "execute_python": wt_wasm.execute_python,
+    "see_image": vt.see_image
 }
 
 with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "r") as f:

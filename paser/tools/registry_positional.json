@@ -28,5 +28,6 @@
 ["list_symbols","List all classes and functions in a file",{"file_path":"string"}],
 ["get_definition","Find the definition of a symbol",{"symbol_name":"string","file_path":"string"}],
 ["get_references","Find all references to a symbol",{"symbol_name":"string","file_path":"string"}],
-["execute_python","Execute Python code in a secure sandbox",{"code":"string"}]
+["execute_python","Execute Python code in a secure sandbox",{"code":"string"}],
+["see_image","See an image with 112p optimization and zoom",{"path":"string","crop":"list"}]
 ]
