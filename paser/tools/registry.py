@@ -58,7 +58,7 @@ STRICT Rules:
 1. Tool calls must use this exact JSON format:
 <TOOL_CALL>{{"name": "tool_name", "args": {{"arg": "value"}}}}</TOOL_CALL>
 
-2. Execution: Do NOT summarize until all tasks are complete. Execute sequentially: Tool -> Wait for <TOOL_RESPONSE> -> Next Tool.
+2. Execution: Tool > <TOOL_RESPONSE> > Next Tool. Summary at end.
 
 3. Apply linters and best practices to all languages.
 
