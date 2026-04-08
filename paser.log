@@ -13,3 +13,37 @@
 {"timestamp": "2026-04-08T09:12:30.820041", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
 {"timestamp": "2026-04-08T09:13:02.376259", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/assets/mascot.png: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte"}
 {"timestamp": "2026-04-08T09:13:02.589049", "level": "ERROR", "logger": "tools", "message": "Error leyendo /mnt/DataSD/sandbox/charla/paser/assets/type.wav: 'utf-8' codec can't decode byte 0xe8 in position 4: invalid continuation byte"}
+{"timestamp": "2026-04-08T09:16:27.805115", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T09:19:07.975595", "level": "INFO", "logger": "tools", "message": "Carpeta 'tests/images' creada."}
+{"timestamp": "2026-04-08T09:19:23.262093", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import urllib.request\nimport os\n\nimages = {\n    \"t..."}
+{"timestamp": "2026-04-08T09:19:38.272731", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 1 seconds. Attempt 1/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T09:19:39.391559", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 2 seconds. Attempt 2/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T09:21:26.617703", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T09:23:31.328516", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}
+{"timestamp": "2026-04-08T09:25:38.739581", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\nos.makedirs('tests/im..."}
+{"timestamp": "2026-04-08T09:27:10.864364", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\n\nurl = 'https://github.com/vmwar..."}
+{"timestamp": "2026-04-08T09:27:36.767678", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\n\n# Intentar descargar el archivo..."}
+{"timestamp": "2026-04-08T09:27:43.095762", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\n# 1. Eliminar el arch..."}
+{"timestamp": "2026-04-08T09:27:58.720826", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\n# 1. Descargar en la ..."}
+{"timestamp": "2026-04-08T09:28:03.092220", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\n# 1. Eliminar el arch..."}
+{"timestamp": "2026-04-08T09:28:11.958227", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport shutil\n\n# Intentar renombrar el d..."}
+{"timestamp": "2026-04-08T09:28:15.944101", "level": "INFO", "logger": "tools", "message": "Archivo 'assets/python.wasm' borrado."}
+{"timestamp": "2026-04-08T09:28:18.819519", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\nos.makedirs('tests/im..."}
+{"timestamp": "2026-04-08T09:28:23.241844", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\n\n# Descargar el binario real de ..."}
+{"timestamp": "2026-04-08T09:28:28.002224", "level": "INFO", "logger": "tools", "message": "Archivo 'assets/python.wasm' escrito exitosamente."}
+{"timestamp": "2026-04-08T09:28:33.848599", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\nimport subprocess\n\nos.makedirs('tests/im..."}
+{"timestamp": "2026-04-08T09:28:38.237283", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import shutil\nimport os\n\nif os.path.exists('assets..."}
+{"timestamp": "2026-04-08T09:34:31.123362", "level": "INFO", "logger": "tools", "message": "Carpeta 'tests/images' creada."}
+{"timestamp": "2026-04-08T09:34:31.542529", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 1 seconds. Attempt 1/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T09:34:32.663939", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 2 seconds. Attempt 2/3. Error: HTTP Error 404: Not Found"}
+{"timestamp": "2026-04-08T09:34:35.017938", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 1 seconds. Attempt 1/3. Error: HTTP Error 429: Use thumbnail steps listed on https://w.wiki/GHai. Please contact noc@wikimedia.org for further information (a765913)"}
+{"timestamp": "2026-04-08T09:34:36.223536", "level": "WARNING", "logger": "tools", "message": "Error in _fetch_url, retrying in 2 seconds. Attempt 2/3. Error: HTTP Error 429: Use thumbnail steps listed on https://w.wiki/GHai. Please contact noc@wikimedia.org for further information (a765913)"}
+{"timestamp": "2026-04-08T09:34:38.447483", "level": "INFO", "logger": "tools", "message": "Archivo 'tests/images/test_chart.png' escrito exitosamente."}
+{"timestamp": "2026-04-08T09:34:38.466468", "level": "INFO", "logger": "tools", "message": "Archivo 'tests/images/test_detail.jpg' escrito exitosamente."}
+{"timestamp": "2026-04-08T09:34:57.587043", "level": "ERROR", "logger": "tools", "message": "Error procesando imagen tests/images/test_chart.png: cannot identify image file '/mnt/DataSD/sandbox/charla/tests/images/test_chart.png'", "exception": "Traceback (most recent call last):\n  File \"/mnt/DataSD/sandbox/charla/paser/tools/vision.py\", line 30, in see_image\n    with Image.open(safe_path) as img:\n         ~~~~~~~~~~^^^^^^^^^^^\n  File \"/mnt/DataSD/sandbox/charla/venv/lib/python3.13/site-packages/PIL/Image.py\", line 3711, in open\n    raise UnidentifiedImageError(msg)\nPIL.UnidentifiedImageError: cannot identify image file '/mnt/DataSD/sandbox/charla/tests/images/test_chart.png'"}
+{"timestamp": "2026-04-08T09:35:07.648553", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import subprocess\n\n# Intentar descargar im\u00e1genes r..."}
+{"timestamp": "2026-04-08T09:39:13.776542", "level": "DEBUG", "logger": "tools", "message": "Executing Python code: import os\n\n# Verificar el tama\u00f1o de los archivos p..."}
+{"timestamp": "2026-04-08T09:40:11.804902", "level": "INFO", "logger": "tools", "message": "Archivo 'tests/images/test_chart.png' borrado."}
+{"timestamp": "2026-04-08T09:40:11.807450", "level": "INFO", "logger": "tools", "message": "Archivo 'tests/images/test_detail.jpg' borrado."}
+{"timestamp": "2026-04-08T12:06:29.108876", "level": "WARNING", "logger": "tools", "message": "python.wasm not found at assets/python.wasm. Using fallback."}
+{"timestamp": "2026-04-08T12:12:12.146865", "level": "WARNING", "logger": "tools", "message": "python.wasm not found at assets/python.wasm. Using fallback."}

@@ -108,16 +108,18 @@ class AutonomousExecutor:
                             origin = get_origin(expected_type)
                             
                             # Determinar el tipo contra el cual validar
+                            is_valid = True
                             if origin is Union:
-                                # Para Union/Optional, validamos contra la tupla de tipos permitidos
+                                # Para Union/Optional, validamos si es instancia de alguno de los tipos
                                 check_type = get_args(expected_type)
+                                is_valid = isinstance(arg_value, check_type)
                             elif origin is not None:
-                                # Para genéricos como list[str] o dict[str, Any], validamos contra el origen (list, dict)
-                                check_type = origin
+                                # Para genéricos, validamos contra el origen (list, dict, etc)
+                                is_valid = isinstance(arg_value, origin)
                             else:
-                                check_type = expected_type
+                                is_valid = isinstance(arg_value, expected_type)
                             
-                            if not isinstance(arg_value, check_type):
+                            if not is_valid:
                                 try:
                                     # Intentar conversión solo si no es un genérico complejo
                                     conversion_type = expected_type if origin is None else origin

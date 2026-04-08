@@ -236,7 +236,7 @@ class ChatManager:
             self._initialized_event.set()
         except Exception as e:
             self._init_error = e
-            logger.error(f"Background initialization failed: {e}")
+            logging.error(f"Background initialization failed: {e}")
     
     def save_session(self, name: str = None):
         if not name:
