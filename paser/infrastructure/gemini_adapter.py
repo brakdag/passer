@@ -89,53 +89,54 @@ class GeminiAdapter(IAIAssistant):
 
     def _get_retry_delay(self, error: Exception, retries: int) -> float:
         """Extrae el retryDelay del error o calcula un backoff exponencial."""
+        error_msg = str(error)
         try:
-            error_msg = str(error)
-            # Intentamos parsear como JSON primero para una extracción más robusta
-            try:
-                import json
-                data = json.loads(error_msg)
-                def find_key(obj, key):
-                    if isinstance(obj, dict):
-                        if key in obj: return obj[key]
-                        for v in obj.values():
-                            res = find_key(v, key)
-                            if res: return res
-                    elif isinstance(obj, list):
-                        for item in obj:
-                            res = find_key(item, key)
-                            if res: return res
-                    return None
-                
-                delay_val = find_key(data, 'retryDelay')
-                if delay_val is not None:
-                    if isinstance(delay_val, str):
-                        # Manejar formatos como "38s"
-                        delay_val = delay_val.rstrip('s')
-                    return float(delay_val)
-            except Exception:
-                pass
+            # 1. Intento de parseo JSON rápido
+            import json
+            data = json.loads(error_msg)
+            if isinstance(data, dict):
+                # Búsqueda recursiva simple de retryDelay
+                stack = [data]
+                while stack:
+                    curr = stack.pop()
+                    if isinstance(curr, dict):
+                        if 'retryDelay' in curr:
+                            val = curr['retryDelay']
+                            return float(str(val).rstrip('s'))
+                        stack.extend(curr.values())
+                    elif isinstance(curr, list):
+                        stack.extend(curr)
+        except Exception:
+            pass
 
-            # Fallback: Búsqueda con regex en el mensaje de error
+        try:
+            # 2. Fallback: Regex robusto
             import re
-            # Busca "retryDelay": "38s" o "retryDelay": 38
             match = re.search(r'"retryDelay":\s*"?(\d+)(?:s)?"?', error_msg)
             if match:
                 return float(match.group(1))
         except Exception:
             pass
-        # Backoff exponencial: default * (2 ^ retries)
+
+        # 3. Backoff exponencial
         return self.default_retry_delay * (2 ** retries)
 
     def _format_api_error(self, e: Exception) -> str:
-        """Formatea el error de la API para que sea más amable, especialmente para el 429."""
+        """Formatea el error de la API para que sea más amable."""
         error_msg = str(e).lower()
-        if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in error_msg:
-            delay = self._get_retry_delay(e, 0)
-            return f"Cuota de API excedida. Por favor, espera {delay}s antes de intentar nuevamente."
         
-        if any(kw in error_msg for kw in ['connection', 'network', 'unreachable', 'timeout', 'dns', 'socket']):
-            return "No se ha detectado conexión a internet. Por favor, verifica tu red."
+        # Errores de Cuota (429)
+        if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in error_msg or 'quota' in error_msg:
+            delay = self._get_retry_delay(e, 0)
+            return f"Cuota de API excedida (429). Por favor, espera {delay}s antes de intentar nuevamente."
+        
+        # Errores de Conectividad/DNS
+        if any(kw in error_msg for kw in ['connection', 'network', 'unreachable', 'timeout', 'dns', 'socket', 'resolution']):
+            return "Error de conectividad: No se pudo contactar con los servidores de Google. Verifica tu conexión a internet y DNS."
+            
+        # Errores de Servidor (500, 503)
+        if any(code in error_msg for code in ['500', '503', 'internal error', 'unavailable']):
+            return "El servidor de la API está experimentando problemas temporales (500/503). Reintentando..."
             
         return str(e)
 
@@ -311,5 +312,9 @@ class GeminiAdapter(IAIAssistant):
             )
             return response.total_tokens
         except Exception as e:
-            logger.error(f"Error counting tokens: {e}")
+            error_msg = str(e).lower()
+            if '404' in error_msg or 'not found' in error_msg:
+                logger.warning(f"Model {self._current_model} not found for token counting. Returning 0.")
+            else:
+                logger.error(f"Error counting tokens: {e}")
             return 0

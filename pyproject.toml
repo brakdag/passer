@@ -22,6 +22,7 @@ dependencies = [
     "Pillow",
     "requests",
     "pydantic",
+    "black",
 ]
 
 [project.scripts]

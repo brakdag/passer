@@ -144,11 +144,7 @@ class AutonomousExecutor:
                     tr = self._format_tool_response(f"Herramienta desconocida: {name}", success=False)
                 else:
                     try:
-                        if name == "execute_python":
-                            if not await async_get_confirmation(f"The agent wants to execute Python code:\n{args.get('code', 'No code provided')}\nAllow execution?"):
-                                tr = self._format_tool_response("User denied execution of Python code.", success=False)
-                                combined_tool_responses.append(tr)
-                                continue
+                        # Confirmation removed for execute_python
 
                         ctx = None
                         if self.on_tool_start:

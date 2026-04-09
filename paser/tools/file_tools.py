@@ -119,25 +119,28 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
     directorio = os.path.dirname(safe_path)
     linea_encontrada = False
     
-    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
-        temp_path = tf.name
-        with open(safe_path, 'r', encoding='utf-8') as original_file:
-            for i, line in enumerate(original_file, 1):
-                if i == line_number:
-                    tf.write(new_content + "\n")
-                    linea_encontrada = True
-                else:
-                    tf.write(line)
-        tf.flush()
-        os.fsync(tf.fileno())
-    
-    if linea_encontrada:
-        os.replace(temp_path, safe_path)
-        return f"Line {line_number} modified."
-    else:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise IndexError(f"Line number {line_number} out of range in {path}.")
+    try:
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            with open(safe_path, 'r', encoding='utf-8') as original_file:
+                for i, line in enumerate(original_file, 1):
+                    if i == line_number:
+                        tf.write(new_content + "\n")
+                        linea_encontrada = True
+                    else:
+                        tf.write(line)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
+        if linea_encontrada:
+            os.replace(temp_path, safe_path)
+            return f"Line {line_number} modified."
+        else:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            raise IndexError(f"Line number {line_number} out of range in {path}.")
+    except UnicodeDecodeError:
+        raise ValueError(f"El archivo '{path}' contiene caracteres no compatibles con UTF-8 y no puede ser editado.")
 
 def replace_string(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
@@ -145,43 +148,50 @@ def replace_string(path: str, search_text: str, replace_text: str) -> str:
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     
-    replaced = False
-    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
-        temp_path = tf.name
-        with open(safe_path, 'r', encoding='utf-8') as original_file:
-            for line in original_file:
-                new_line = line.replace(search_text, replace_text)
-                if new_line != line:
-                    replaced = True
-                tf.write(new_line)
-        tf.flush()
-        os.fsync(tf.fileno())
-    
-    if replaced:
-        os.replace(temp_path, safe_path)
-        return "Replacement completed."
-    else:
-        os.remove(temp_path)
-        return f"No occurrences of '{search_text}' were found. No changes made."
+    try:
+        replaced = False
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            with open(safe_path, 'r', encoding='utf-8') as original_file:
+                for line in original_file:
+                    new_line = line.replace(search_text, replace_text)
+                    if new_line != line:
+                        replaced = True
+                    tf.write(new_line)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
+        if replaced:
+            os.replace(temp_path, safe_path)
+            return "Replacement completed."
+        else:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            return f"No occurrences of '{search_text}' were found. No changes made."
+    except UnicodeDecodeError:
+        raise ValueError(f"El archivo '{path}' contiene caracteres no compatibles con UTF-8 y no puede ser editado.")
 
 def replace_code_block(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
     if is_binary_file(safe_path):
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
-    with open(safe_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    if search_text not in content:
-        raise ValueError(f"The text block was not found in {path}.")
-    new_content = content.replace(search_text, replace_text, 1)
-    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
-        temp_path = tf.name
-        tf.write(new_content)
-        tf.flush()
-        os.fsync(tf.fileno())
-    
-    os.replace(temp_path, safe_path)
-    return "Text block replaced successfully."
+    try:
+        with open(safe_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        if search_text not in content:
+            raise ValueError(f"The text block was not found in {path}.")
+        new_content = content.replace(search_text, replace_text, 1)
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            tf.write(new_content)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
+        os.replace(temp_path, safe_path)
+        return "Text block replaced successfully."
+    except UnicodeDecodeError:
+        raise ValueError(f"El archivo '{path}' contiene caracteres no compatibles con UTF-8 y no puede ser editado.")
 
 def replace_text_regex(path: str, pattern: str, replace_text: str) -> str:
     """Reemplaza texto usando expresiones regulares linea por linea."""
@@ -190,16 +200,19 @@ def replace_text_regex(path: str, pattern: str, replace_text: str) -> str:
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
     
-    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
-        temp_path = tf.name
-        with open(safe_path, 'r', encoding='utf-8') as original_file:
-            for line in original_file:
-                tf.write(re.sub(pattern, replace_text, line))
-        tf.flush()
-        os.fsync(tf.fileno())
-    
-    os.replace(temp_path, safe_path)
-    return "Regex replacement completed."
+    try:
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            with open(safe_path, 'r', encoding='utf-8') as original_file:
+                for line in original_file:
+                    tf.write(re.sub(pattern, replace_text, line))
+            tf.flush()
+            os.fsync(tf.fileno())
+        
+        os.replace(temp_path, safe_path)
+        return "Regex replacement completed."
+    except UnicodeDecodeError:
+        raise ValueError(f"El archivo '{path}' contiene caracteres no compatibles con UTF-8 y no puede ser editado.")
 
 def replace_block_regex(path: str, pattern: str, replace_text: str) -> str:
     """Reemplaza un bloque de texto usando expresiones regulares (multilinea)."""
@@ -207,22 +220,25 @@ def replace_block_regex(path: str, pattern: str, replace_text: str) -> str:
     if is_binary_file(safe_path):
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
     directorio = os.path.dirname(safe_path)
-    with open(safe_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    if not re.search(pattern, content, re.DOTALL):
-        raise ValueError(f"The regex pattern was not found in {path}.")
-    
-    new_content = re.sub(pattern, replace_text, content, count=1, flags=re.DOTALL)
-    
-    with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
-        temp_path = tf.name
-        tf.write(new_content)
-        tf.flush()
-        os.fsync(tf.fileno())
-    
-    os.replace(temp_path, safe_path)
-    return "Regex block replaced successfully."
+    try:
+        with open(safe_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        if not re.search(pattern, content, re.DOTALL):
+            raise ValueError(f"The regex pattern was not found in {path}.")
+        
+        new_content = re.sub(pattern, replace_text, content, count=1, flags=re.DOTALL)
+        
+        with tempfile.NamedTemporaryFile('w', dir=directorio, delete=False, encoding='utf-8') as tf:
+            temp_path = tf.name
+            tf.write(new_content)
+            tf.flush()
+            os.fsync(tf.fileno())
+        
+        os.replace(temp_path, safe_path)
+        return "Regex block replaced successfully."
+    except UnicodeDecodeError:
+        raise ValueError(f"El archivo '{path}' contiene caracteres no compatibles con UTF-8 y no puede ser editado.")
 
 from typing import Optional
 
@@ -283,44 +299,32 @@ from pathlib import Path
 
 def search_files_pattern(pattern: str) -> str:
     """Busca archivos que coincidan con un patrón glob recursivo dentro del directorio de trabajo."""
-    # Obtenemos la raíz segura para asegurar que no se salga del proyecto
     root_safe = context.get_safe_path(".")
     path_obj = Path(root_safe)
-    
-    # Buscamos los archivos
-    # Filtramos directorios comunes que no queremos indexar
     matches = []
     for p in path_obj.glob(pattern):
-        # Evitar archivos en carpetas ocultas o venv
         if any(part in p.parts for part in ['.git', 'venv', '__pycache__']):
             continue
-        # Guardamos la ruta relativa al root para que el modelo la use fácilmente
         matches.append(str(p.relative_to(path_obj)))
-    
     return json.dumps(matches)
 
 def search_text_global(query: str) -> str:
     """Busca una cadena de texto en todos los archivos del proyecto."""
     root_safe = context.get_safe_path(".")
     results = []
-    
     for root, dirs, files in os.walk(root_safe):
-        # Saltar carpetas irrelevantes
         if any(part in root.split(os.sep) for part in ['.git', 'venv', '__pycache__']):
             continue
-            
         for file in files:
             file_path = os.path.join(root, file)
             if os.path.getsize(file_path) > FILE_SIZE_LIMIT:
                 continue
             if is_binary_file(file_path):
                 continue
-                
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     for i, line in enumerate(f, 1):
                         if query in line:
-                            # Guardamos ruta relativa, línea y el contenido limpio
                             rel_path = os.path.relpath(file_path, root_safe)
                             results.append({
                                 "file": rel_path,
@@ -329,5 +333,50 @@ def search_text_global(query: str) -> str:
                             })
             except Exception as e:
                 logger.error(f"Error leyendo {file_path}: {e}")
-                
     return json.dumps(results)
+
+def format_code(path: str) -> str:
+    """Aplica el formateador Black a un archivo Python."""
+    safe_path = context.get_safe_path(path)
+    if not os.path.isfile(safe_path):
+        raise FileNotFoundError(f"Archivo no encontrado: {path}")
+    try:
+        import subprocess
+        result = subprocess.run(['black', safe_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            return f"Archivo '{path}' formateado exitosamente con Black."
+        else:
+            return f"Error al formatear '{path}': {result.stderr}"
+    except Exception as e:
+        return f"Error al intentar formatear '{path}': {str(e)}"
+
+def get_tree(path: str = ".") -> str:
+    """Retorna la estructura de directorios en formato de árbol visual."""
+    safe_path = context.get_safe_path(path)
+    if not os.path.isdir(safe_path):
+        raise NotADirectoryError(f"'{path}' no es un directorio válido.")
+
+    def build_tree(current_path, prefix=""):
+        try:
+            entries = sorted(os.listdir(current_path))
+        except PermissionError:
+            return [f"{prefix}└── [Permiso Denegado]"]
+
+        tree = []
+        entries = [e for e in entries if e not in ['.git', 'venv', '__pycache__', '.idea', '.vscode']]
+        for i, entry in enumerate(entries):
+            full_path = os.path.join(current_path, entry)
+            is_last = (i == len(entries) - 1)
+            connector = "└── " if is_last else "├── "
+            if os.path.isdir(full_path):
+                tree.append(f"{prefix}{connector}{entry}/")
+                extension = "    " if is_last else "│   "
+                tree.extend(build_tree(full_path, prefix + extension))
+            else:
+                tree.append(f"{prefix}{connector}{entry}")
+        return tree
+
+    root_name = os.path.basename(safe_path) or path
+    result = [f"{root_name}/"]
+    result.extend(build_tree(safe_path))
+    return "\n".join(result)

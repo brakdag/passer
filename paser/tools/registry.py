@@ -50,6 +50,8 @@ AVAILABLE_TOOLS = {
     "get_references": nav.get_references,
     "list_symbols": nav.list_symbols,
     "execute_python": wt_wasm.execute_python,
+    "format_code": ft.format_code,
+    "get_tree": ft.get_tree,
     "see_image": vt.see_image,
     "list_issues": gh.list_issues,
     "create_issue": gh.create_issue,

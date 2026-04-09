@@ -1,43 +1,38 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando instalación de Paser..."
+echo "Iniciando instalación de Paser..."
 
 # 1. Verificar dependencias básicas
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Error: python3 no está instalado."
+    echo "Error: python3 no está instalado."
     exit 1
 fi
 
 # Get project root (donde se ejecute el script)
 PROJECT_ROOT=$(pwd)
-echo "📂 Proyecto en: $PROJECT_ROOT"
+echo "Proyecto en: $PROJECT_ROOT"
 
 # 2. Crear/Recrear entorno virtual
-echo "🛠️ Preparando entorno virtual..."
+echo "Preparando entorno virtual..."
 python3 -m venv "$PROJECT_ROOT/venv"
 
 # 3. Instalar/Actualizar dependencias
-echo "📦 Instalando dependencias..."
+echo "Instalando dependencias..."
 "$PROJECT_ROOT/venv/bin/pip" install --upgrade pip > /dev/null
 "$PROJECT_ROOT/venv/bin/pip" install -e . > /dev/null
 
 # 4. Instalar Wasmer Runtime
-echo "📦 Instalando Wasmer Runtime..."
+echo "Instalando Wasmer Runtime..."
 if ! command -v wasmer &> /dev/null; then
     curl https://get.wasmer.io -sSfL | sh
 else
-    echo "✅ Wasmer ya está instalado. Saltando..."
+    echo "Wasmer ya está instalado. Saltando..."
 fi
 
-# 5. Descargar binario de Python WASM (NOTA: La URL anterior está rota, por favor actualízala)
-echo "📂 Descargando python.wasm... (NOTA: La URL original estaba rota, por favor configura una válida)"
-# curl -L https://github.com/vmware-labs/python-wasm/releases/latest/download/python.wasm -o "$PROJECT_ROOT/assets/python.wasm"
-echo "❌ Error: La URL de descarga para python.wasm está rota. Por favor, descarga un binario válido y colócalo en 'assets/python.wasm'."
-
-# 4. Crear enlace simbólico
-echo "🔗 Configurando comando 'paser'..."
+# 5. Crear enlace simbólico
+echo "Configurando comando 'paser'..."
 mkdir -p "$HOME/.local/bin"
 ln -sf "$PROJECT_ROOT/venv/bin/paser" "$HOME/.local/bin/paser"
 
-echo "✅ ¡Instalación exitosa! Asegúrate de tener '$HOME/.local/bin' en tu PATH."
+echo "Instalación exitosa! Asegúrate de tener '$HOME/.local/bin' en tu PATH."

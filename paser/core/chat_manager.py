@@ -30,14 +30,14 @@ class ChatManager:
         "write_file": ("Escribió", "󰈚"),
         "remove_file": ("Borró", "󰆵"),
         "update_line": ("Modificó", "󰈚"),
-        "replace_text": ("Reemplazó", "󰑐"),
-        "replace_block": ("Reemplazó (bloque)", "󰑐"),
+        "replace_string": ("Reemplazó", "󰑐"),
+        "replace_code_block": ("Reemplazó (bloque)", "󰑐"),
         "read_head": ("Leyó (cabecera)", "󰈚"),
         "read_lines": ("Leyó (rango)", "󰈚"),
         "rename_path": ("Movió", "󰑐"),
-        "make_dir": ("Creó", "󰉋"),
-        "glob_search": ("Buscó archivos", "󰍃"),
-        "global_search": ("Buscó texto", "󰍃"),
+        "create_dir": ("Creó", "󰉋"),
+        "search_files_pattern": ("Buscó archivos", "󰍃"),
+        "search_text_global": ("Buscó texto", "󰍃"),
     }
 
     NOTIFICATION_TOOLS = {
@@ -122,14 +122,14 @@ class ChatManager:
                 origen = os.path.basename(args.get("origen", "desconocido"))
                 destino = os.path.basename(args.get("destino", "desconocido"))
                 msg = f"{origen} -> {destino}"
-            elif tool_name == "make_dir":
+            elif tool_name == "create_dir":
                 msg = args.get("path", "desconocido")
             elif tool_name == "read_files":
                 paths = args.get("paths", [])
                 msg = f"{len(paths)} archivos" if paths else "sin archivos"
-            elif tool_name == "glob_search":
+            elif tool_name == "search_files_pattern":
                 msg = args.get("pattern", "patrón desconocido")
-            elif tool_name == "global_search":
+            elif tool_name == "search_text_global":
                 msg = args.get("query", "consulta desconocida")
             else:
                 path = args.get("path", "archivo desconocido")
