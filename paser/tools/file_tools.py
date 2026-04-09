@@ -139,7 +139,7 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
             os.remove(temp_path)
         raise IndexError(f"Line number {line_number} out of range in {path}.")
 
-def replace_text(path: str, search_text: str, replace_text: str) -> str:
+def replace_string(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
     if is_binary_file(safe_path):
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
@@ -164,7 +164,7 @@ def replace_text(path: str, search_text: str, replace_text: str) -> str:
         os.remove(temp_path)
         return f"No occurrences of '{search_text}' were found. No changes made."
 
-def replace_block(path: str, search_text: str, replace_text: str) -> str:
+def replace_code_block(path: str, search_text: str, replace_text: str) -> str:
     safe_path = context.get_safe_path(path)
     if is_binary_file(safe_path):
         raise ValueError(f"El archivo '{path}' es un archivo binario y no puede ser editado como texto.")
@@ -273,7 +273,7 @@ def rename_path(origen: str, destino: str) -> str:
     logger.info(f"Path moved from '{origen}' to '{destino}'.")
     return f"Path moved from '{origen}' to '{destino}' successfully."
 
-def make_dir(path: str) -> str:
+def create_dir(path: str) -> str:
     safe_path = context.get_safe_path(path)
     os.makedirs(safe_path, exist_ok=True)
     logger.info(f"Carpeta '{path}' creada.")
@@ -281,7 +281,7 @@ def make_dir(path: str) -> str:
 
 from pathlib import Path
 
-def glob_search(pattern: str) -> str:
+def search_files_pattern(pattern: str) -> str:
     """Busca archivos que coincidan con un patrón glob recursivo dentro del directorio de trabajo."""
     # Obtenemos la raíz segura para asegurar que no se salga del proyecto
     root_safe = context.get_safe_path(".")
@@ -299,7 +299,7 @@ def glob_search(pattern: str) -> str:
     
     return json.dumps(matches)
 
-def global_search(query: str) -> str:
+def search_text_global(query: str) -> str:
     """Busca una cadena de texto en todos los archivos del proyecto."""
     root_safe = context.get_safe_path(".")
     results = []
