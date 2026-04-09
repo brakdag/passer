@@ -16,7 +16,6 @@ nav = cn.CodeNavigator()
 AVAILABLE_TOOLS = {
     "get_time": ut.get_time,
     "list_tools": disc.list_tools,
-    
     "read_file": ft.read_file,
     "read_files": ft.read_files,
     "write_file": ft.write_file,
@@ -59,7 +58,7 @@ import json
 with open(os.path.join(os.path.dirname(__file__), "registry_positional.json"), "r") as f:
     full_catalog = json.load(f)
 
-CORE_TOOLS = ["read_file", "write_file", "execute_python", "list_tools", "list_dir"]
+CORE_TOOLS = ["read_files","see_image", "list_tools", "list_dir"]
 core_catalog_list = [tool for tool in full_catalog if tool[0] in CORE_TOOLS]
 TOOL_CATALOG = json.dumps(core_catalog_list, indent=2)
 
@@ -79,7 +78,7 @@ STRICT Rules:
 
 3. Apply linters and best practices to all languages.
 
-4. Explore: Read AGENT.md first to load your role, then README.md and TODO.md.
+4. Setup: Read AGENT.md, then README.md on demand.
 
 """
 
