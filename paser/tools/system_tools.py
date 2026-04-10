@@ -1,9 +1,12 @@
 import subprocess
 import os
 import logging
+import re
+import time
+import glob
+from typing import Optional, Dict, Any
 from .core_tools import context
 from paser.core.ui import print_info, notify_user
-from paser.core.ui import print_info
 
 logger = logging.getLogger("tools")
 
@@ -58,7 +61,6 @@ def is_window_in_focus(**kwargs) -> str:
         return "False: Could not determine window focus (xdotool missing?)."
 
 from paser.core.event_manager import event_manager
-from typing import Optional
 
 def set_timer(seconds: int, message: Optional[str] = None) -> str:
     """Sets a timer that will inject an event directly into the agent's event queue."""
@@ -69,3 +71,56 @@ def set_timer(seconds: int, message: Optional[str] = None) -> str:
         return f"Timer scheduled for {seconds} seconds with message: {message}"
     except Exception as e:
         return f"Failed to set timer: {str(e)}"
+
+def compile_latex(path: str) -> str:
+    """
+    Compila un archivo LaTeX y devuelve las rutas del PDF y Log generados.
+    """
+    safe_path = context.get_safe_path(path)
+    if not os.path.isabs(safe_path):
+        safe_path = os.path.join(context.root, safe_path)
+    
+    working_dir = os.path.dirname(safe_path) or context.root
+    file_stem = os.path.splitext(os.path.basename(safe_path))[0]
+    pdf_path = os.path.join(working_dir, f"{file_stem}.pdf")
+    log_path = os.path.join(working_dir, f"{file_stem}.log")
+
+    try:
+        subprocess.run(
+            ["pdflatex", "-interaction=nonstopmode", safe_path],
+            capture_output=True, text=True, cwd=working_dir
+        )
+        return f"Compilación finalizada.\nPDF: {pdf_path}\nLog: {log_path}"
+
+    except Exception as e:
+        return f"Error inesperado durante la compilación: {str(e)}"
+
+def convert_image(input_path: str, output_path: str) -> str:
+    """
+    Convierte una imagen o PDF a otro formato usando ImageMagick (convert).
+    Permite especificar páginas de PDF usando el formato 'archivo.pdf[0]'.
+    """
+    try:
+        # Validamos rutas
+        in_safe = context.get_safe_path(input_path)
+        out_safe = context.get_safe_path(output_path)
+        
+        if not os.path.isabs(in_safe):
+            in_safe = os.path.join(context.root, in_safe)
+        if not os.path.isabs(out_safe):
+            out_safe = os.path.join(context.root, out_safe)
+
+        # Ejecutamos convert
+        # Nota: Para PDFs, ImageMagick requiere que el usuario pase el índice si quiere una página específica
+        result = subprocess.run(
+            ["convert", in_safe, out_safe],
+            capture_output=True, text=True
+        )
+
+        if result.returncode == 0:
+            return f"Conversión exitosa: {in_safe} -> {out_safe}"
+        else:
+            return f"Error en la conversión: {result.stderr}"
+
+    except Exception as e:
+        return f"Error inesperado durante la conversión: {str(e)}"

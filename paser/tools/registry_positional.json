@@ -26,6 +26,7 @@
   ["alert_sound", "Play alert sound", {}],
   ["set_timer", "Set a timer", {"seconds": "integer"}],
   ["is_window_in_focus", "Check terminal focus", {"action": "string"}],
+  ["convert_image", "Convert an image or PDF page to another format using ImageMagick", {"input_path": "string", "output_path": "string"}],
   ["notify_mobile", "Send mobile notification", {"mensaje": "string"}],
   ["git_diff", "Show git diff", {}],
   ["revert_file", "Revert file changes", {"path": "string"}],
@@ -40,5 +41,6 @@
   ["list_issues", "List repo issues", {"repo": "string"}],
   ["create_issue", "Create repo issue", {"repo": "string", "title": "string", "body": "string"}],
   ["close_issue", "Close repo issue", {"repo": "string", "issue_number": "integer"}],
-  ["edit_issue", "Edit a repo issue", {"issue_number": "integer", "repo": "string", "title": "string", "body": "string"}]
+  ["edit_issue", "Edit a repo issue", {"issue_number": "integer", "repo": "string", "title": "string", "body": "string"}],
+  ["compile_latex", "Compila un archivo LaTeX y devuelve las rutas del PDF y Log generados", {"path": "string"}]
 ]

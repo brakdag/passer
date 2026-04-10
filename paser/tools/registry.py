@@ -42,6 +42,7 @@ AVAILABLE_TOOLS = {
     "set_timer": st.set_timer,
     "set_timer": st.set_timer,
     "is_window_in_focus": st.is_window_in_focus,
+    "convert_image": st.convert_image,
     "notify_mobile": mt.notify_mobile,
     "git_diff": gt.git_diff,
     "revert_file": gt.revert_file,
@@ -56,7 +57,8 @@ AVAILABLE_TOOLS = {
     "list_issues": gh.list_issues,
     "create_issue": gh.create_issue,
     "close_issue": gh.close_issue,
-    "edit_issue": gh.edit_issue
+    "edit_issue": gh.edit_issue,
+    "compile_latex": st.compile_latex
 }
 
 import json
