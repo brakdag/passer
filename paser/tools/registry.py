@@ -84,7 +84,7 @@ STRICT Rules:
 
 3. Apply linters and best practices to all languages.
 
-4. Setup: Read AGENT.md, then README.md on demand.
+4. Setup: Read AGENT.md and README.md first by default.
 
 """
 
