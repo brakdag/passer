@@ -350,28 +350,38 @@ def format_code(path: str) -> str:
     except Exception as e:
         return f"Error al intentar formatear '{path}': {str(e)}"
 
-def get_tree(path: str = ".") -> str:
-    """Retorna la estructura de directorios en formato de árbol visual."""
+def get_tree(path: str = ".", max_depth: Optional[int] = None, exclude_patterns: Optional[list[str]] = None) -> str:
+    """Retorna la estructura de directorios en formato de árbol visual con control de profundidad y filtros."""
     safe_path = context.get_safe_path(path)
     if not os.path.isdir(safe_path):
         raise NotADirectoryError(f"'{path}' no es un directorio válido.")
 
-    def build_tree(current_path, prefix=""):
+    # Combinar patrones por defecto con los proporcionados por el usuario
+    default_excludes = {'.git', 'venv', '__pycache__', '.idea', '.vscode'}
+    if exclude_patterns:
+        default_excludes.update(exclude_patterns)
+
+    def build_tree(current_path, prefix="", depth=0):
+        if max_depth is not None and depth >= max_depth:
+            return []
+            
         try:
             entries = sorted(os.listdir(current_path))
         except PermissionError:
             return [f"{prefix}└── [Permiso Denegado]"]
 
         tree = []
-        entries = [e for e in entries if e not in ['.git', 'venv', '__pycache__', '.idea', '.vscode']]
+        entries = [e for e in entries if e not in default_excludes]
+        
         for i, entry in enumerate(entries):
             full_path = os.path.join(current_path, entry)
             is_last = (i == len(entries) - 1)
             connector = "└── " if is_last else "├── "
+            
             if os.path.isdir(full_path):
                 tree.append(f"{prefix}{connector}{entry}/")
                 extension = "    " if is_last else "│   "
-                tree.extend(build_tree(full_path, prefix + extension))
+                tree.extend(build_tree(full_path, prefix + extension, depth + 1))
             else:
                 tree.append(f"{prefix}{connector}{entry}")
         return tree

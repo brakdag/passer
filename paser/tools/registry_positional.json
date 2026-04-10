@@ -35,7 +35,7 @@
   ["list_symbols", "List symbols in file", {"path": "string"}],
   ["execute_python", "Execute Python code in a secure sandbox. Note: The '>>>' prompt indicates the interpreter is ready for the next command (OK).", {"code": "string"}],
   ["format_code", "Apply standard Python formatting (Black) to a file", {"path": "string"}],
-  ["get_tree", "Return the directory structure in a visual tree format", {"path": "string"}],
+  ["get_tree", "Return the directory structure in a visual tree format with depth control and filters", {"path": "string", "max_depth": "integer", "exclude_patterns": "array[string]"}],
   ["see_image", "See image content", {"path": "string"}],
   ["list_issues", "List repo issues", {"repo": "string"}],
   ["create_issue", "Create repo issue", {"repo": "string", "title": "string", "body": "string"}],
