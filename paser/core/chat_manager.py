@@ -32,16 +32,22 @@ class ChatManager:
         "update_line": ("Modificó", "󰈚"),
         "replace_string": ("Reemplazó", "󰑐"),
         "replace_code_block": ("Reemplazó (bloque)", "󰑐"),
+        "replace_text_regex": ("Reemplazó (regex)", "󰑐"),
+        "replace_block_regex": ("Reemplazó bloque (regex)", "󰑐"),
+        "global_replace": ("Reemplazo global", "󰑐"),
         "read_head": ("Leyó (cabecera)", "󰈚"),
         "read_lines": ("Leyó (rango)", "󰈚"),
         "rename_path": ("Movió", "󰑐"),
         "create_dir": ("Creó", "󰉋"),
+        "list_dir": ("Listó directorio", "󰉋"),
+        "get_tree": ("Generó árbol", "󰉋"),
         "search_files_pattern": ("Buscó archivos", "󰍃"),
         "search_text_global": ("Buscó texto", "󰍃"),
     }
 
     NOTIFICATION_TOOLS = {
         "notify_user": ("Notificación", "󰋃"),
+        "notify_mobile": ("Notificación móvil", "󰋃"),
     }
     
     TIMER_TOOLS = {
@@ -50,6 +56,8 @@ class ChatManager:
 
     SYSTEM_TOOLS = {
         "is_window_in_focus": ("Verificando foco", "󰇄"),
+        "alert_sound": ("Reproduciendo sonido", "󰋃"),
+        "convert_image": ("Convirtiendo imagen", "󰈚"),
     }
 
     COMPUTE_TOOLS = {
@@ -85,6 +93,12 @@ class ChatManager:
 
     LATEX_TOOLS = {
         "compile_latex": ("Compilando LaTeX", "󰈚"),
+    }
+
+    UTIL_TOOLS = {
+        "get_time": ("Obteniendo hora", "󰔟"),
+        "list_tools": ("Listando herramientas", "󰍃"),
+        "get_cwd": ("Obteniendo ruta", "󰉋"),
     }
 
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
@@ -141,7 +155,8 @@ class ChatManager:
             self.GIT_TOOLS,
             self.GITHUB_TOOLS,
             self.CODE_TOOLS,
-            self.LATEX_TOOLS
+            self.LATEX_TOOLS,
+            self.UTIL_TOOLS
         ]
         for cat in categories:
             if tool_name in cat:
@@ -202,6 +217,10 @@ class ChatManager:
         
         elif tool_name in self.SYSTEM_TOOLS:
             verb, icon = self.SYSTEM_TOOLS[tool_name]
+            console.print(f"  {icon} {verb} {status_icon}", style="dim yellow")
+        
+        elif tool_name in self.UTIL_TOOLS:
+            verb, icon = self.UTIL_TOOLS[tool_name]
             console.print(f"  {icon} {verb} {status_icon}", style="dim yellow")
         
         else:
