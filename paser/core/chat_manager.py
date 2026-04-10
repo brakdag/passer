@@ -57,6 +57,36 @@ class ChatManager:
         "execute_python": ("Ejecutando Python", "󰈚"),
     }
 
+    WEB_TOOLS = {
+        "web_search": ("Buscando en la web", "󰍃"),
+        "fetch_url": ("Obteniendo URL", "󰈚"),
+    }
+
+    GIT_TOOLS = {
+        "git_diff": ("Analizando diff", "󰑐"),
+        "revert_file": ("Revirtiendo archivo", "󰆵"),
+        "get_current_repo": ("Obteniendo repo", "󰈚"),
+    }
+
+    GITHUB_TOOLS = {
+        "list_issues": ("Listando issues", "󰍃"),
+        "create_issue": ("Creando issue", "󰉋"),
+        "close_issue": ("Cerrando issue", "󰆵"),
+        "edit_issue": ("Editando issue", "󰑐"),
+    }
+
+    CODE_TOOLS = {
+        "analyze_pyright": ("Analizando tipos", "󰈚"),
+        "format_code": ("Formateando código", "󰑐"),
+        "get_definition": ("Buscando definición", "󰍃"),
+        "get_references": ("Buscando referencias", "󰍃"),
+        "list_symbols": ("Listando símbolos", "󰈚"),
+    }
+
+    LATEX_TOOLS = {
+        "compile_latex": ("Compilando LaTeX", "󰈚"),
+    }
+
     def __init__(self, assistant: IAIAssistant, tools: dict, system_instruction: str):
         self.assistant = assistant
         self.tools = tools
@@ -106,7 +136,12 @@ class ChatManager:
             self.COMPUTE_TOOLS, 
             self.TIMER_TOOLS, 
             self.SYSTEM_TOOLS, 
-            self.NOTIFICATION_TOOLS
+            self.NOTIFICATION_TOOLS,
+            self.WEB_TOOLS,
+            self.GIT_TOOLS,
+            self.GITHUB_TOOLS,
+            self.CODE_TOOLS,
+            self.LATEX_TOOLS
         ]
         for cat in categories:
             if tool_name in cat:

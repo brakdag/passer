@@ -3,6 +3,7 @@ import json
 import tempfile
 import logging
 import re
+import fnmatch
 from .core_tools import context
 
 logger = logging.getLogger("tools")
@@ -356,10 +357,9 @@ def get_tree(path: str = ".", max_depth: Optional[int] = None, exclude_patterns:
     if not os.path.isdir(safe_path):
         raise NotADirectoryError(f"'{path}' no es un directorio válido.")
 
-    # Combinar patrones por defecto con los proporcionados por el usuario
+    # Patrones fijos de exclusión para evitar ruido
     default_excludes = {'.git', 'venv', '__pycache__', '.idea', '.vscode'}
-    if exclude_patterns:
-        default_excludes.update(exclude_patterns)
+    user_patterns = exclude_patterns or []
 
     def build_tree(current_path, prefix="", depth=0):
         if max_depth is not None and depth >= max_depth:
@@ -371,11 +371,15 @@ def get_tree(path: str = ".", max_depth: Optional[int] = None, exclude_patterns:
             return [f"{prefix}└── [Permiso Denegado]"]
 
         tree = []
-        entries = [e for e in entries if e not in default_excludes]
+        # Filtrado: exacto (default) y por patrones (fnmatch)
+        filtered_entries = [
+            e for e in entries 
+            if e not in default_excludes and not any(fnmatch.fnmatch(e, p) for p in user_patterns)
+        ]
         
-        for i, entry in enumerate(entries):
+        for i, entry in enumerate(filtered_entries):
             full_path = os.path.join(current_path, entry)
-            is_last = (i == len(entries) - 1)
+            is_last = (i == len(filtered_entries) - 1)
             connector = "└── " if is_last else "├── "
             
             if os.path.isdir(full_path):

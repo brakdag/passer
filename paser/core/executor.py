@@ -65,11 +65,16 @@ class AutonomousExecutor:
         return calls
 
     def _format_tool_response(self, data: Any, success: bool = True) -> str:
-        payload = {"status": "success" if success else "error", "data": data}
+        payload = {
+            "status": "success" if success else "error",
+            "turn": self.turn_count,
+            "data": data
+        }
         return f"<TOOL_RESPONSE>{json.dumps(payload)}</TOOL_RESPONSE>"
 
     async def execute(self, user_input: str, thinking_enabled: bool = True, get_confirmation_callback=None) -> str:
         self.stop_requested = False
+        self.turn_count = 0  # Reset turn count for the new task
         if self.stop_requested:
             return "Ejecución interrumpida por el usuario."
 
