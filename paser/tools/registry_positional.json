@@ -26,7 +26,7 @@
   ["alert_sound", "Play alert sound", {}],
   ["set_timer", "Set a timer", {"seconds": "integer"}],
   ["is_window_in_focus", "Check terminal focus", {"action": "string"}],
-  ["convert_image", "Convert an image or PDF page to another format using ImageMagick", {"input_path": "string", "output_path": "string"}],
+  ["convert_image", "Convert an image or PDF page to another format using ImageMagick. Supports extra ImageMagick flags via 'extra_args' (e.g., -resize, -crop). Use '-help' in extra_args for more info.", {"input_path": "string", "output_path": "string", "extra_args": "string"}],
   ["notify_mobile", "Send mobile notification", {"mensaje": "string"}],
   ["git_diff", "Show git diff", {}],
   ["revert_file", "Revert file changes", {"path": "string"}],

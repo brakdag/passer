@@ -4,6 +4,7 @@ import logging
 import re
 import time
 import glob
+import shlex
 from typing import Optional, Dict, Any
 from .core_tools import context
 from paser.core.ui import print_info, notify_user
@@ -95,10 +96,11 @@ def compile_latex(path: str) -> str:
     except Exception as e:
         return f"Error inesperado durante la compilación: {str(e)}"
 
-def convert_image(input_path: str, output_path: str) -> str:
+def convert_image(input_path: str, output_path: str, extra_args: Optional[str] = None) -> str:
     """
     Convierte una imagen o PDF a otro formato usando ImageMagick (convert).
     Permite especificar páginas de PDF usando el formato 'archivo.pdf[0]'.
+    extra_args: String con argumentos adicionales de ImageMagick (ej. '-crop 100x100+10+10').
     """
     try:
         # Validamos rutas
@@ -110,10 +112,16 @@ def convert_image(input_path: str, output_path: str) -> str:
         if not os.path.isabs(out_safe):
             out_safe = os.path.join(context.root, out_safe)
 
+        # Construcción del comando
+        cmd = ["convert"]
+        if extra_args:
+            cmd.extend(shlex.split(extra_args))
+        
+        cmd.extend([in_safe, out_safe])
+
         # Ejecutamos convert
-        # Nota: Para PDFs, ImageMagick requiere que el usuario pase el índice si quiere una página específica
         result = subprocess.run(
-            ["convert", in_safe, out_safe],
+            cmd,
             capture_output=True, text=True
         )
 
