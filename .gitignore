@@ -1,25 +1,11 @@
-venv/
-deprecated/
-__pycache__/
-*.pyc
-.DS_Store
-.vscode/
-projects/
-.chat_history
-paser.egg-info/
-sessions/
+.pytest_cache
+__pycache__
 .paser_events.json
 .paser_events_test.json
-TODO.md
+venv
+.github
+.git
+*.egg-info
 paser.log
-
-# LaTeX artifacts
-*.aux
-*.log
-*.out
-*.toc
-*.pdf
-*.tex
-
-# Test artifacts
-tests/*.png
+.chat_history
+tests/test_results.json
