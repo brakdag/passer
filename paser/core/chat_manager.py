@@ -53,7 +53,7 @@ class ChatManager:
             return ""
         
         # Priority keys for better feedback
-        priority_keys = ['path', 'url', 'query', 'symbol', 'repo', 'mensaje']
+        priority_keys = ['issue_number', 'path', 'url', 'query', 'symbol', 'repo', 'mensaje']
         for key in priority_keys:
             if key in args:
                 val = args[key]
@@ -75,6 +75,14 @@ class ChatManager:
         status_icon = "✓" if success else "✗"
         verb, icon = get_tool_metadata(tool_name)
         detail = self._get_tool_detail(tool_name, args)
+        
+        # Special case: if create_issue succeeded, use the issue number from the result
+        if tool_name == 'create_issue' and success and isinstance(result, str):
+            import re
+            match = re.search(r'#(\d+)', result)
+            if match:
+                detail = f": #{match.group(1)}"
+
         console.print(f"  {icon} {verb}{detail} {status_icon}", style="dim yellow")
 
     async def run(self):

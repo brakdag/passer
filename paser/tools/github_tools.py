@@ -30,7 +30,8 @@ def create_issue(title: str, body: str, repo: str = ""):
     url = f"{GITHUB_API_URL}/repos/{target_repo}/issues"
     response = requests.post(url, headers=headers, json={"title": title, "body": body})
     response.raise_for_status()
-    return response.json()
+    data = response.json()
+    return f"Issue #{data['number']} created successfully."
 
 def edit_issue(issue_number: int, repo: str = "", title: str = None, body: str = None):
     headers = _get_headers()
@@ -39,7 +40,7 @@ def edit_issue(issue_number: int, repo: str = "", title: str = None, body: str =
     data = {k: v for k, v in {"title": title, "body": body}.items() if v}
     response = requests.patch(url, headers=headers, json=data)
     response.raise_for_status()
-    return response.json()
+    return f"Issue #{issue_number} edited successfully."
 
 def close_issue(issue_number: int, repo: str = ""):
     headers = _get_headers()
@@ -47,4 +48,4 @@ def close_issue(issue_number: int, repo: str = ""):
     url = f"{GITHUB_API_URL}/repos/{target_repo}/issues/{issue_number}"
     response = requests.patch(url, headers=headers, json={"state": "closed"})
     response.raise_for_status()
-    return response.json()
+    return f"Issue #{issue_number} closed successfully."
