@@ -80,10 +80,7 @@ class CommandHandler:
             return True
             
         elif input_stripped == '/new':
-            # Guardar sesión antes de reiniciar
             path = self.chat_manager.save_session("last_session")
-            
-            # Soft Reset: Reiniciar la sesión del asistente y el estado del executor
             self.chat_manager.assistant.start_chat(
                 self.chat_manager.assistant.current_model,
                 self.chat_manager.system_instruction,
@@ -91,7 +88,6 @@ class CommandHandler:
             )
             self.chat_manager.executor.turn_count = 0
             self.history = []
-            
             print_panel("Sesión Reiniciada", f"Historial limpiado y sesión guardada en {path}", style="green")
             return True
             
@@ -107,7 +103,6 @@ class CommandHandler:
                 temp_input = await get_input(f"Temp (0-1, default {self.chat_manager.temperature}): ")
                 new_temp = float(temp_input or self.chat_manager.temperature)
                 
-                # commands.py está en paser/core/, subimos dos niveles para llegar a la raíz
                 config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
                 try:
                     with open(config_path, "r") as f:
@@ -147,7 +142,6 @@ class CommandHandler:
 
         elif input_stripped == '/t':
             try:
-                # Obtenemos el historial a través de la interfaz del adaptador
                 history = self.chat_manager.assistant.get_chat_history()
                 if history:
                     tokens = self.chat_manager.assistant.count_tokens(history)
@@ -156,6 +150,21 @@ class CommandHandler:
                     console.print("No hay una sesión de chat activa.", style="red")
             except Exception as e:
                 console.print(f"Error estimando tokens: {e}", style="red")
+            return True
+        
+        elif input_stripped.startswith('/close_issue'):
+            parts = input_stripped.split()
+            if len(parts) < 3:
+                console.print("Uso: /close_issue [repo] [issue_number]", style="red")
+                return True
+            try:
+                repo = parts[1]
+                issue_num = int(parts[2])
+                from paser.tools.github_tools import close_issue
+                result = close_issue(repo, issue_num)
+                console.print(result, style="green")
+            except Exception as e:
+                console.print(f"Error: {e}", style="red")
             return True
             
         return False

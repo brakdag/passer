@@ -61,14 +61,14 @@ def _(event):
 @kb.add('j')
 def _(event):
     if ui_state.mode == UIState.NORMAL:
-        event.current_buffer.cursor_down()
+        event.current_buffer.history_backward()
     else:
         event.current_buffer.insert_text('j')
 
 @kb.add('k')
 def _(event):
     if ui_state.mode == UIState.NORMAL:
-        event.current_buffer.cursor_up()
+        event.current_buffer.history_forward()
     else:
         event.current_buffer.insert_text('k')
 
