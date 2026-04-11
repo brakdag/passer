@@ -68,7 +68,8 @@ AVAILABLE_TOOLS = {
     "close_issue": gh.close_issue,
     "edit_issue": gh.edit_issue,
     "compile_latex": st.compile_latex,
-    "api_request": at.api_request
+    "api_request": at.api_request,
+    "query_ai": ut.query_ai
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt

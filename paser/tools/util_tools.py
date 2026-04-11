@@ -3,6 +3,10 @@ import time
 import ast
 import operator
 import logging
+import json
+import os
+from typing import Optional
+from paser.infrastructure.gemini_adapter import GeminiAdapter
 
 logger = logging.getLogger("tools")
 
@@ -29,3 +33,49 @@ def get_cwd() -> str:
     import os
     return os.getcwd()
 
+def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context: str = None) -> str:
+    """
+    Queries another AI instance for a second opinion, alternative perspectives, or to break reasoning loops.
+    By default, it uses the same model as the agent but with a high temperature (0.9) for 'out-of-the-box' thinking.
+    """
+    try:
+        adapter = GeminiAdapter()
+        
+        # Determine model to use
+        if not model:
+            # Try to get the current model from the system config
+            try:
+                config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                model = config.get("model_name")
+            except Exception as e:
+                logger.warning(f"Could not read config for model_name: {e}")
+
+            # Fallback if config read failed or model_name is missing
+            if not model:
+                try:
+                    available = adapter.get_available_models()
+                    model = next((m for m in available if 'pro' in m.lower()), available[0])
+                except Exception:
+                    model = "gemini-1.5-flash"
+
+        # Construct the prompt with context if provided
+        full_prompt = prompt
+        if context:
+            full_prompt = f"Context:\n{context}\n\nQuestion: {prompt}"
+
+        # System instruction for the reflection agent
+        system_instruction = (
+            "You are a specialized AI consultant providing a second opinion. "
+            "Your goal is to be critical, identify blind spots, and offer alternative "
+            "perspectives or 'out-of-the-box' solutions. Be concise and direct."
+        )
+
+        adapter.start_chat(model, system_instruction, temperature)
+        response = adapter.send_message(full_prompt)
+        
+        return response.text if hasattr(response, 'text') else str(response)
+    except Exception as e:
+        logger.error(f"Error in query_ai: {e}")
+        return f"Error querying AI: {str(e)}"
