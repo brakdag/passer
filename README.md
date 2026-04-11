@@ -50,6 +50,7 @@ paser
     - Does not use native Google SDK tools.
     - Uses _System Instructions_ to force the model to emit structured calls (`<TOOL_CALL>`).
     - The script acts as a _middleware_ that intercepts these calls, executes the local function, and returns the result in `<TOOL_RESPONSE>` format to the model's history.
+    - *Note: Modifying `paser/tools/registry.py` autonomously can be unstable due to the tool interceptor (see [Issue #110](https://github.com/brakdag/passer/issues/110)). The complex string construction of `SYSTEM_INSTRUCTION` (using `chr()` and `.replace()`) is a mandatory workaround to prevent the middleware from misinterpreting the code as a tool call; do not simplify or "clean up" this implementation.*
 
 2.  **Security and File Control:**
     - All file operations (read, write, delete) are restricted to the current working directory defined by `PROJECT_ROOT` through a secure path validation function (`get_safe_path`).

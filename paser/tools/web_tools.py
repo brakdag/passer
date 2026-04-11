@@ -1,7 +1,6 @@
 import urllib.request
 import urllib.parse
 import re
-import html2text
 import logging
 import json
 import subprocess
@@ -35,11 +34,16 @@ def web_search(query: str) -> str:
     return json.dumps(results)
 
 def fetch_url(url: str) -> str:
-    html = _fetch_url(url)
-    h = html2text.HTML2Text()
-    h.ignore_links = True
-    h.ignore_images = True
-    return h.handle(html)[:3000]
+    """
+    Fetches the raw HTML content of a URL. Useful for scraping and analysis.
+    """
+    try:
+        html = _fetch_url(url)
+        # Limit the output to avoid overflowing the context window
+        return html[:10000]
+    except Exception as e:
+        logger.error(f"Error fetching URL {url}: {str(e)}")
+        return f"Error fetching URL: {str(e)}"
 
 def render_web_page(url: str) -> str:
     """
