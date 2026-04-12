@@ -38,9 +38,7 @@ AVAILABLE_TOOLS = {
     "read_head": ft.read_head,
     "update_line": ft.update_line,
     "replace_string": ft.replace_string,
-    "replace_code_block": ft.replace_code_block,
-    "replace_text_regex": ft.replace_text_regex,
-    "replace_block_regex": ft.replace_block_regex,
+
     "analyze_pyright": st.analyze_pyright,
     "global_replace": ft.global_replace,
     "search_text_global": ft.search_text_global,

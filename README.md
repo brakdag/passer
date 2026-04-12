@@ -72,9 +72,9 @@ paser
 ### Files and Directories
 
 - `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`: File reading.
-- `write_file(path, content)`, `update_line(...)`, `replace_text(...)`, `replace_block(...)`, `replace_text_regex(...)`, `replace_block_regex(...)`: Writing and editing.
-- `list_dir(path)`, `make_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`: Path management.
-- `global_search(query)`, `glob_search(pattern)`, `global_replace(path, search_text, replace_text, extensions)`: Mass search and replace.
+- `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, ``, `global_replace(...)`: Writing and editing. **Note: These tools implement strict validation and throw errors if the target string/line is not found or the operation is invalid.**
+- `list_dir(path)`, `create_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`: Path management.
+- `search_files_pattern(pattern)`, `search_text_global(query)`: Search and discovery.
 
 ### Code Navigation
 
@@ -99,5 +99,5 @@ paser
 - `notify_mobile(message)`: Sends mobile notification via MQTT.
 - `set_timer(seconds, message)`: Task scheduling.
 - `is_window_in_focus(action)`: Terminal window focus verification.
-- `git_diff()`, `get_remote_repo()`: Local Git integration.
+- `git_diff()`, `get_current_repo()`: Local Git integration.
 - `list_issues(repo)`, `create_issue(repo, title, body)`, `close_issue(repo, issue_number)`: GitHub Issues management.

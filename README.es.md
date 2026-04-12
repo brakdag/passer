@@ -66,7 +66,7 @@ paser
 ### Archivos y Directorios
 
 - `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`: Lectura de archivos.
-- `write_file(path, contenido)`, `update_line(...)`, `replace_text(...)`, `replace_block(...)`, `replace_text_regex(...)`, `replace_block_regex(...)`: Escritura y edición.
+- `write_file(path, contenido)`, `update_line(...)`, `replace_text(...)`, `replace_block(...)`, `replace_text_regex(...)`, ``: Escritura y edición.
 - `list_dir(path)`, `make_dir(path)`, `rename_path(origen, destino)`, `remove_file(path)`: Gestión de rutas.
 - `global_search(query)`, `glob_search(pattern)`, `global_replace(path, search_text, replace_text, extensiones)`: Búsqueda y reemplazo masivo.
 

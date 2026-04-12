@@ -7,7 +7,7 @@ TOOL_CATEGORIES = {
     "files": [
         "read_file", "read_files", "write_file", "remove_file", "list_dir", 
         "read_lines", "read_head", "update_line", "replace_text", "replace_block", 
-        "replace_text_regex", "replace_block_regex", "global_replace", "global_search", 
+        "replace_text_regex", "global_replace", "global_search", 
         "glob_search", "rename_path", "make_dir"
     ],
     "web": ["web_search", "fetch_url"],

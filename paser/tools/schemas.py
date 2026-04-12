@@ -16,10 +16,6 @@ class ReplaceStringSchema(BaseModel):
     search_text: str = Field(..., description="Texto a buscar")
     replace_text: str = Field(..., description="Texto de reemplazo")
 
-class ReplaceCodeBlockSchema(BaseModel):
-    path: str = Field(..., description="Ruta del archivo")
-    search_text: str = Field(..., description="Bloque de código a buscar")
-    replace_text: str = Field(..., description="Bloque de código de reemplazo")
 
 class RemoveFileSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo a borrar")
