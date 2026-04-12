@@ -15,7 +15,8 @@ from paser.tools import (
     vision as vt,
     git_tools as gt,
     github_tools as gh,
-    api_tools as at
+    api_tools as at,
+    lsp_tools as lsp
 )
 
 # Initialize specialized navigators
@@ -38,6 +39,8 @@ AVAILABLE_TOOLS = {
     "read_head": ft.read_head,
     "update_line": ft.update_line,
     "replace_string": ft.replace_string,
+    "replace_function": ft.replace_function,
+    "manage_imports": ft.manage_imports,
 
     "analyze_pyright": st.analyze_pyright,
     "global_replace": ft.global_replace,
@@ -57,9 +60,17 @@ AVAILABLE_TOOLS = {
     "get_definition": nav.get_definition,
     "get_references": nav.get_references,
     "list_symbols": nav.list_symbols,
+    "find_all_calls": nav.find_all_calls,
+    "get_detailed_symbols": nav.get_detailed_symbols,
+    "get_imports": nav.get_imports,
+    "find_missing_type_hints": nav.find_missing_type_hints,
     "execute_python": wt_wasm.execute_python,
     "format_code": ft.format_code,
     "get_tree": ft.get_tree,
+    "read_file_with_lines": ft.read_file_with_lines,
+    "copy_lines": ft.copy_lines,
+    "cut_lines": ft.cut_lines,
+    "paste_lines": ft.paste_lines,
     "see_image": vt.see_image,
     "list_issues": gh.list_issues,
     "create_issue": gh.create_issue,
@@ -70,7 +81,9 @@ AVAILABLE_TOOLS = {
     "stop_music": st.stop_music,
     "speak_text": st.speak_text,
     "api_request": at.api_request,
-    "query_ai": ut.query_ai
+    "query_ai": ut.query_ai,
+    "get_lsp_completions": lsp.lsp_nav.get_lsp_completions,
+    "get_object_methods": lsp.lsp_nav.get_object_methods
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt

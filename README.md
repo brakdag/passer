@@ -44,6 +44,27 @@ Once installed and configured, you can run the application simply by using:
 paser
 ```
 
+## Project Structure
+
+```text
+. 
+├── paser/                # Main application package
+│   ├── core/             # ReAct engine, agent orchestration and state management
+│   ├── tools/            # Tool definitions, registry and semantic navigators
+│   │   ├── file_tools.py # File system operations and surgical editing
+│   │   ├── lsp_tools.py  # IDE-like introspection (Jedi integration)
+│   │   ├── code_navigator.py # AST-based code analysis
+│   │   └── registry.py   # Central tool mapping and system instructions
+│   ├── infrastructure/   # Low-level system wrappers and API clients
+│   ├── config/           # Application settings and environment config
+│   └── main.py           # CLI entry point
+├── tests/                # Unit and integration test suite
+├── scripts/              # Installation and maintenance scripts
+├── assets/               # Static assets and branding
+├── docs/                 # Technical documentation
+└── pyproject.toml        # Project metadata and dependencies
+```
+
 ## Main Features
 
 1.  **Local Function Calling (Manual):**
@@ -72,7 +93,7 @@ paser
 ### Files and Directories
 
 - `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`: File reading.
-- `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, ``, `global_replace(...)`: Writing and editing. **Note: These tools implement strict validation and throw errors if the target string/line is not found or the operation is invalid.**
+- `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, `replace_function(...)`, `manage_imports(...)`, `global_replace(...)`: Writing and editing. **Note: These tools implement strict validation and throw errors if the target string/line is not found or the operation is invalid.**
 - `list_dir(path)`, `create_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`: Path management.
 - `search_files_pattern(pattern)`, `search_text_global(query)`: Search and discovery.
 
@@ -81,6 +102,15 @@ paser
 - `list_symbols(file_path)`: Lists all classes and functions defined in a file.
 - `get_definition(symbol_name, file_path)`: Locates the line and column where a symbol is defined.
 - `get_references(symbol_name, file_path)`: Searches for all references to a symbol in the file.
+- `find_all_calls(symbol_name, file_path)`: Finds all semantic calls to a function.
+- `get_detailed_symbols(path)`: Extracts signatures, return types and decorators.
+- `get_imports(path)`: Lists all imports and aliases in a file.
+- `find_missing_type_hints(path)`: Audits missing type annotations.
+
+### IDE Introspection (LSP)
+
+- `get_lsp_completions(filepath, line, column)`: Returns autocompletion suggestions for a specific position.
+- `get_object_methods(object_name, filepath)`: Lists available methods and attributes for a specific object.
 
 ### Utilities and Web
 

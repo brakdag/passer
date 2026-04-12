@@ -26,6 +26,7 @@ dependencies = [
     "sounddevice",
     "numpy",
     "gTTS",
+    "jedi",
 ]
 
 [project.scripts]

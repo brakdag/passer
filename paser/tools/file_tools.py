@@ -4,11 +4,16 @@ import tempfile
 import logging
 import re
 import fnmatch
+import ast
 from typing import Optional
 from pathlib import Path
 from .core_tools import context
 from .validation import validate_args
-from .schemas import ReadFileSchema, WriteFileSchema, ReadFilesSchema, ReplaceStringSchema, RemoveFileSchema, CreateDirSchema
+from .schemas import (
+    ReadFileSchema, WriteFileSchema, ReadFilesSchema, ReplaceStringSchema, 
+    RemoveFileSchema, CreateDirSchema, ReadFileWithLinesSchema, 
+    CopyLinesSchema, CutLinesSchema, PasteLinesSchema
+)
 
 logger = logging.getLogger("tools")
 
@@ -163,3 +168,200 @@ def format_code(path: str) -> str:
 
 def get_tree(path: str = ".", max_depth: Optional[int] = None, exclude_patterns: Optional[list[str]] = None) -> str:
     return "Tree structure generated."
+
+@validate_args(ReadFileWithLinesSchema)
+def read_file_with_lines(path: str) -> str:
+    safe_path = context.get_safe_path(path)
+    if not os.path.isfile(safe_path):
+        raise FileNotFoundError(f"Archivo no encontrado en '{path}'.")
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        return "".join([f"{i+1}: {line}" for i, line in enumerate(lines)])
+
+@validate_args(CopyLinesSchema)
+def copy_lines(path: str, start_line: int, end_line: int) -> str:
+    safe_path = context.get_safe_path(path)
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    if start_line < 1 or end_line > len(lines) or start_line > end_line:
+        raise IndexError(f"Rango de líneas {start_line}-{end_line} fuera de rango. El archivo tiene {len(lines)} líneas.")
+    
+    context.clipboard = "".join(lines[start_line-1:end_line])
+    
+    return f"Líneas {start_line} a {end_line} de '{path}' copiadas al portapapeles."
+
+@validate_args(CutLinesSchema)
+def cut_lines(path: str, start_line: int, end_line: int) -> str:
+    safe_path = context.get_safe_path(path)
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    if start_line < 1 or end_line > len(lines) or start_line > end_line:
+        raise IndexError(f"Rango de líneas {start_line}-{end_line} fuera de rango. El archivo tiene {len(lines)} líneas.")
+    
+    context.clipboard = "".join(lines[start_line-1:end_line])
+    remaining_lines = lines[:start_line-1] + lines[end_line:]
+    
+    # Actualizar archivo
+    with open(safe_path, 'w', encoding='utf-8') as f:
+        f.writelines(remaining_lines)
+    
+    return f"Líneas {start_line} a {end_line} de '{path}' cortadas y movidas al portapapeles."
+
+@validate_args(PasteLinesSchema)
+def paste_lines(path: str, line_number: int) -> str:
+    if not context.clipboard:
+        raise ValueError("El portapapeles está vacío.")
+    
+    clipboard_content = context.clipboard
+    
+    safe_path = context.get_safe_path(path)
+    if not os.path.isfile(safe_path):
+        # Si el archivo no existe, lo creamos
+        with open(safe_path, 'w', encoding='utf-8') as f:
+            f.write(clipboard_content)
+        return f"Contenido pegado en nuevo archivo '{path}'."
+
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    if line_number < 1 or line_number > len(lines) + 1:
+        raise IndexError(f"Línea de inserción {line_number} fuera de rango. El archivo tiene {len(lines)} líneas.")
+    
+    # Asegurar que el contenido del portapapeles termine en salto de línea si no es vacío
+    if clipboard_content and not clipboard_content.endswith('\n'):
+        clipboard_content += '\n'
+
+    lines.insert(line_number-1, clipboard_content)
+    
+    with open(safe_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+    
+    return f"Contenido del portapapeles pegado en '{path}' en la línea {line_number}."
+
+def replace_function(path: str, function_name: str, new_content: str) -> str:
+    """Replaces a function in a Python file using AST to find exact boundaries."""
+    safe_path = context.get_safe_path(path)
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        source = f.read()
+    
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        raise ValueError(f"Syntax error in file {path}: {e}")
+
+    target_node = None
+    if '.' in function_name:
+        class_name, method_name = function_name.split('.', 1)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name == class_name:
+                for subnode in ast.walk(node):
+                    if isinstance(subnode, (ast.FunctionDef, ast.AsyncFunctionDef)) and subnode.name == method_name:
+                        target_node = subnode
+                        break
+                if target_node: break
+    else:
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name:
+                target_node = node
+                break
+
+    if not target_node:
+        raise ValueError(f"Function '{function_name}' not found in {path}.")
+
+    start_line = target_node.lineno
+    end_line = getattr(target_node, 'end_lineno', start_line)
+
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    # Ensure new_content ends with newline
+    if not new_content.endswith('\n'):
+        new_content += '\n'
+
+    # Replace the range [start_line-1 : end_line]
+    lines[start_line-1 : end_line] = [new_content]
+
+    with open(safe_path, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+
+    return f"Function '{function_name}' replaced successfully in {path}."
+
+def manage_imports(path: str, add_imports: list[str] = [], remove_imports: list[str] = []) -> str:
+    """Manages Python imports by adding new ones and removing unwanted ones semantically."""
+    safe_path = context.get_safe_path(path)
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    source = "".join(lines)
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        raise ValueError(f"Syntax error in file {path}: {e}")
+
+    # 1. Identify current imports
+    current_imports = []
+    import_lines = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                current_imports.append(alias.name)
+            import_lines.add(node.lineno)
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module if node.module else "__main__"
+            for alias in node.names:
+                current_imports.append(f"{module}.{alias.name}")
+            import_lines.add(node.lineno)
+
+    # 2. Remove imports
+    # We remove lines that start with 'import' or 'from' and contain the target string
+    new_lines = []
+    for line in lines:
+        stripped = line.strip()
+        should_remove = False
+        for rem in remove_imports:
+            if (stripped.startswith("import ") and rem in stripped) or (stripped.startswith("from ") and rem in stripped):
+                should_remove = True
+                break
+        if not should_remove:
+            new_lines.append(line)
+
+    # 3. Add imports
+    # Find the insertion point (after docstring or at the top)
+    insertion_point = 0
+    for i, line in enumerate(new_lines):
+        if line.strip() == "":
+            # If we found a blank line after some content, we might be past the docstring
+            if i > 0 and not new_lines[0].strip().startswith('"""'):
+                break
+        if not line.strip().startswith('(') and i > 0:
+            # This is a simplification: we look for the first non-docstring, non-import line
+            if not (line.strip().startswith("import ") or line.strip().startswith("from ")):
+                insertion_point = i
+                break
+
+    # Avoid duplicates when adding
+    added_count = 0
+    for imp in add_imports:
+        # Simple check to avoid adding the exact same string
+        if not any(imp in line for line in new_lines):
+            new_lines.insert(insertion_point, imp + "\n")
+            insertion_point += 1
+            added_count += 1
+
+    with open(safe_path, 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+
+    # Return final list of imports for confirmation
+    with open(safe_path, 'r', encoding='utf-8') as f:
+        final_source = f.read()
+        final_tree = ast.parse(final_source)
+        final_imports = []
+        for node in ast.walk(final_tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names: final_imports.append(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module if node.module else "__main__"
+                for alias in node.names: final_imports.append(f"{module}.{alias.name}")
+        return json.dumps({"status": "success", "added": added_count, "current_imports": final_imports})

@@ -33,7 +33,7 @@ class CodeNavigator:
             
             symbols = []
             for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     symbols.append({"name": node.name, "type": "function", "line": node.lineno})
                 elif isinstance(node, ast.ClassDef):
                     symbols.append({"name": node.name, "type": "class", "line": node.lineno})
@@ -43,6 +43,42 @@ class CodeNavigator:
                             symbols.append({"name": target.id, "type": "variable", "line": node.lineno})
             
             return symbols
+        except Exception as e:
+            return {"error": str(e)}
+
+    def get_detailed_symbols(self, file_path):
+        """Provides detailed information about symbols in a file, including signatures and decorators."""
+        if self._is_binary(file_path):
+            return {"error": "Binary file detected."}
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            
+            details = []
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    args = [arg.arg for arg in node.args.args]
+                    return_type = ast.unparse(node.returns) if node.returns else "Any"
+                    decorators = [ast.unparse(dec) for dec in node.decorator_list]
+                    details.append({
+                        "name": node.name,
+                        "type": "function",
+                        "line": node.lineno,
+                        "args": args,
+                        "return_type": return_type,
+                        "decorators": decorators
+                    })
+                elif isinstance(node, ast.ClassDef):
+                    bases = [ast.unparse(base) for base in node.bases]
+                    decorators = [ast.unparse(dec) for dec in node.decorator_list]
+                    details.append({
+                        "name": node.name,
+                        "type": "class",
+                        "line": node.lineno,
+                        "bases": bases,
+                        "decorators": decorators
+                    })
+            return details
         except Exception as e:
             return {"error": str(e)}
 
@@ -58,7 +94,7 @@ class CodeNavigator:
                     tree = ast.parse(f.read())
                 
                 for node in ast.walk(tree):
-                    if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name == symbol_name:
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == symbol_name:
                         return {"path": path, "line": node.lineno, "column": node.col_offset}
                     if isinstance(node, ast.Assign):
                         for target in node.targets:
@@ -89,11 +125,95 @@ class CodeNavigator:
         
         return references
 
+    def find_all_calls(self, symbol_name, file_path=None):
+        """Finds all calls to a specific function or method."""
+        files_to_search = [file_path] if file_path else self._get_python_files()
+        calls = []
+
+        for path in files_to_search:
+            if not path or not os.path.exists(path) or self._is_binary(path):
+                continue
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    tree = ast.parse(f.read())
+                
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.Call):
+                        # Handle direct calls: func()
+                        if isinstance(node.func, ast.Name) and node.func.id == symbol_name:
+                            calls.append({"path": path, "line": node.lineno, "column": node.func.col_offset})
+                        # Handle method calls: obj.func()
+                        elif isinstance(node.func, ast.Attribute) and node.func.attr == symbol_name:
+                            calls.append({"path": path, "line": node.lineno, "column": node.func.col_offset})
+            except Exception:
+                continue
+        
+        return calls
+
+    def get_imports(self, file_path):
+        """Lists all imports in a file."""
+        if self._is_binary(file_path):
+            return {"error": "Binary file detected."}
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            
+            imports = []
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        imports.append({"module": alias.name, "alias": alias.asname})
+                elif isinstance(node, ast.ImportFrom):
+                    module = node.module if node.module else "__main__"
+                    for alias in node.names:
+                        imports.append({"module": f"{module}.{alias.name}", "alias": alias.asname})
+            return imports
+        except Exception as e:
+            return {"error": str(e)}
+
+    def find_missing_type_hints(self, file_path):
+        """Finds functions and arguments missing type hints."""
+        if self._is_binary(file_path):
+            return {"error": "Binary file detected."}
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            
+            missing = []
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    # Check arguments
+                    for arg in node.args.args:
+                        if arg.arg in ("self", "cls"):
+                            continue
+                        if not arg.annotation:
+                            missing.append({
+                                "symbol": node.name,
+                                "line": node.lineno,
+                                "type": "argument",
+                                "detail": f"Argument '{arg.arg}' missing type hint"
+                            })
+                    # Check return type
+                    if not node.returns:
+                        missing.append({
+                            "symbol": node.name,
+                            "line": node.lineno,
+                            "type": "return",
+                            "detail": "Return type missing"
+                        })
+            return missing
+        except Exception as e:
+            return {"error": str(e)}
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI Code Navigator Tool")
     parser.add_argument("--define", type=str, help="Symbol to find definition for")
     parser.add_argument("--refs", type=str, help="Symbol to find references for")
     parser.add_argument("--symbols", type=str, help="File to list symbols from")
+    parser.add_argument("--calls", type=str, help="Function name to find all calls for")
+    parser.add_argument("--detailed", type=str, help="File to get detailed symbols from")
+    parser.add_argument("--imports", type=str, help="File to list imports from")
+    parser.add_argument("--hints", type=str, help="File to check for missing type hints")
     parser.add_argument("--file", type=str, help="Specific file to target (optional)")
 
     args = parser.parse_args()
@@ -106,7 +226,15 @@ if __name__ == "__main__":
         result = nav.get_references(args.refs, args.file)
     elif args.symbols:
         result = nav.list_symbols(args.symbols)
+    elif args.calls:
+        result = nav.find_all_calls(args.calls, args.file)
+    elif args.detailed:
+        result = nav.get_detailed_symbols(args.detailed)
+    elif args.imports:
+        result = nav.get_imports(args.imports)
+    elif args.hints:
+        result = nav.find_missing_type_hints(args.hints)
     else:
-        result = {"error": "No action specified. Use --define, --refs, or --symbols."}
+        result = {"error": "No action specified. Use --define, --refs, --symbols, --calls, --detailed, --imports, or --hints."}
 
     print(json.dumps(result, indent=2))

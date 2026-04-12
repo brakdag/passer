@@ -22,3 +22,20 @@ class RemoveFileSchema(BaseModel):
 
 class CreateDirSchema(BaseModel):
     path: str = Field(..., description="Ruta del directorio a crear")
+
+class ReadFileWithLinesSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo a leer con números de línea")
+
+class CopyLinesSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo origen")
+    start_line: int = Field(..., description="Línea de inicio (1-indexed)")
+    end_line: int = Field(..., description="Línea de fin (inclusive)")
+
+class CutLinesSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo origen")
+    start_line: int = Field(..., description="Línea de inicio (1-indexed)")
+    end_line: int = Field(..., description="Línea de fin (inclusive)")
+
+class PasteLinesSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo destino")
+    line_number: int = Field(..., description="Línea donde insertar el contenido (1-indexed)")
