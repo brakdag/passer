@@ -1,7 +1,10 @@
 import json
 import os
+import re
+import subprocess
+from datetime import datetime
 from rich.table import Table
-from paser.core.ui import get_input, console, print_panel, LATEX_TO_UNICODE
+from paser.core.ui import get_input, console, print_panel, LATEX_TO_UNICODE, SpinnerContext, print_model_response
 from paser.tools import core_tools
 
 class CommandHandler:
@@ -166,6 +169,50 @@ class CommandHandler:
                 except Exception as e: console.print(f"Error: {e}", style="red")
             return True
 
+        elif input_stripped == '/snapshot':
+            try:
+                # 1. Preparar ruta y nombre
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"snapshot_{timestamp}.png"
+                assets_dir = "assets"
+                os.makedirs(assets_dir, exist_ok=True)
+                filepath = os.path.join(assets_dir, filename)
 
-            
+                # 2. Intentar capturar pantalla (scrot -> maim)
+                captured = False
+                for tool in ['scrot', 'maim']:
+                    try:
+                        # scrot usa -o para el output, maim usa el path directamente
+                        cmd = [tool, '-o', filepath] if tool == 'scrot' else [tool, filepath]
+                        subprocess.run(cmd, check=True, capture_output=True)
+                        captured = True
+                        break
+                    except (subprocess.CalledProcessError, FileNotFoundError):
+                        continue
+                
+                if not captured:
+                    console.print("[bold red]Error:[/bold red] No se encontró 'scrot' ni 'maim' instalados en el sistema.", style="red")
+                    console.print("Instálalos con: [bold]sudo apt install scrot maim[/bold]", style="dim")
+                    return True
+
+                print_panel("Captura realizada", f"Archivo guardado en: {filepath}", style="green")
+
+                # 3. Notificar a la IA para análisis inmediato
+                notification = f"He realizado una captura de pantalla del sistema: {filepath}. Por favor, analízala y dime qué ves."
+                
+                with SpinnerContext("Analizando captura...", "magenta", newline=True):
+                    # Llamamos al executor directamente para que la IA procese la imagen
+                    result = await self.chat_manager.executor.execute(
+                        user_input=notification, 
+                        thinking_enabled=self.chat_manager.thinking_enabled, 
+                        get_confirmation_callback=get_input
+                    )
+                    if result:
+                        print_model_response(re.sub(r'<[^>]+>.*?</[^>]+>', '', result, flags=re.DOTALL))
+                
+                return True
+            except Exception as e:
+                console.print(f"[bold red]Error crítico en /snapshot:[/bold red] {e}", style="red")
+                return True
+
         return False

@@ -11,3 +11,5 @@ paser.log
 tests/test_results.json
 .paser_quota.json
 last_voice.wav
+assets/*.png
+!assets/mascot.png
