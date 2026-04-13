@@ -24,12 +24,12 @@ class CodeNavigator:
                     python_files.append(os.path.join(root, file))
         return python_files
 
-    def list_symbols(self, file_path):
+    def list_symbols(self, path):
         """Lists all classes and functions defined in a file."""
-        if self._is_binary(file_path):
+        if self._is_binary(path):
             raise ToolError("Binary file detected. Cannot list symbols.")
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
             
             symbols = []
@@ -47,12 +47,12 @@ class CodeNavigator:
         except Exception as e:
             raise ToolError(str(e))
 
-    def get_detailed_symbols(self, file_path):
+    def get_detailed_symbols(self, path):
         """Provides detailed information about symbols in a file, including signatures and decorators."""
-        if self._is_binary(file_path):
+        if self._is_binary(path):
             raise ToolError("Binary file detected.")
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
             
             details = []
@@ -83,15 +83,15 @@ class CodeNavigator:
         except Exception as e:
             return {"error": str(e)}
 
-    def get_definition(self, symbol_name, file_path=None):
-        """Finds the definition of a symbol. If file_path is None, searches the project."""
-        files_to_search = [file_path] if file_path else self._get_python_files()
+    def get_definition(self, symbol_name, path=None):
+        """Finds the definition of a symbol. If path is None, searches the project."""
+        files_to_search = [path] if path else self._get_python_files()
         
-        for path in files_to_search:
-            if not path or not os.path.exists(path) or self._is_binary(path):
+        for p in files_to_search:
+            if not p or not os.path.exists(p) or self._is_binary(p):
                 continue
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(p, "r", encoding="utf-8") as f:
                     tree = ast.parse(f.read())
                 
                 for node in ast.walk(tree):
@@ -106,16 +106,16 @@ class CodeNavigator:
         
         raise ToolError(f"Symbol '{symbol_name}' not found.")
 
-    def get_references(self, symbol_name, file_path=None):
+    def get_references(self, symbol_name, path=None):
         """Finds all references to a symbol."""
-        files_to_search = [file_path] if file_path else self._get_python_files()
+        files_to_search = [path] if path else self._get_python_files()
         references = []
 
-        for path in files_to_search:
-            if not path or not os.path.exists(path):
+        for p in files_to_search:
+            if not p or not os.path.exists(p):
                 continue
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(p, "r", encoding="utf-8") as f:
                     tree = ast.parse(f.read())
                 
                 for node in ast.walk(tree):
@@ -126,16 +126,16 @@ class CodeNavigator:
         
         return references
 
-    def find_all_calls(self, symbol_name, file_path=None):
+    def find_all_calls(self, symbol_name, path=None):
         """Finds all calls to a specific function or method."""
-        files_to_search = [file_path] if file_path else self._get_python_files()
+        files_to_search = [path] if path else self._get_python_files()
         calls = []
 
-        for path in files_to_search:
-            if not path or not os.path.exists(path) or self._is_binary(path):
+        for p in files_to_search:
+            if not p or not os.path.exists(p) or self._is_binary(p):
                 continue
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(p, "r", encoding="utf-8") as f:
                     tree = ast.parse(f.read())
                 
                 for node in ast.walk(tree):
@@ -151,12 +151,12 @@ class CodeNavigator:
         
         return calls
 
-    def get_imports(self, file_path):
+    def get_imports(self, path):
         """Lists all imports in a file."""
-        if self._is_binary(file_path):
+        if self._is_binary(path):
             return {"error": "Binary file detected."}
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
             
             imports = []
@@ -172,12 +172,12 @@ class CodeNavigator:
         except Exception as e:
             return {"error": str(e)}
 
-    def find_missing_type_hints(self, file_path):
+    def find_missing_type_hints(self, path):
         """Finds functions and arguments missing type hints."""
-        if self._is_binary(file_path):
+        if self._is_binary(path):
             return {"error": "Binary file detected."}
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
             
             missing = []

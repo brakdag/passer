@@ -220,8 +220,7 @@ def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns:
         return "\n".join(lines)
 
     tree_content = _build_tree(safe_root, 0)
-    return f"{safe_root.name}/
-{tree_content}"
+    return f"{safe_root.name}/\n{tree_content}"
 
 @validate_args(ReadFileWithLinesSchema)
 def read_file_with_lines(path: str) -> str:
