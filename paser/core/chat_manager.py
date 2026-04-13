@@ -207,6 +207,14 @@ class ChatManager:
             self.temperature
         )
 
+    def delete_session(self, name):
+        session_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'sessions')
+        filepath = os.path.join(session_dir, f"{name}.json")
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            return True
+        return False
+
     async def handle_audio_input(self, base64_audio: str):
         try:
             import base64

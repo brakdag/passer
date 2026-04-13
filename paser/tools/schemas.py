@@ -45,6 +45,20 @@ class PasteLinesSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo destino")
     line_number: int = Field(..., description="Línea donde insertar el contenido (1-indexed)")
 
+class InsertAfterSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo")
+    search_text: str = Field(..., description="Texto después del cual insertar")
+    content: str = Field(..., description="Contenido a insertar")
+
+class InsertBeforeSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo")
+    search_text: str = Field(..., description="Texto antes del cual insertar")
+    content: str = Field(..., description="Contenido a insertar")
+
+class VerifyFileHashSchema(BaseModel):
+    path: str = Field(..., description="Ruta del archivo a verificar")
+    expected_hash: str = Field(..., description="Hash SHA-256 esperado")
+
 class ValidateJsonSchema(BaseModel):
     json_string: str = Field(..., description="Cadena JSON a validar")
 

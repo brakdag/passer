@@ -2,6 +2,7 @@ import json
 import tempfile
 import logging
 import ast
+import hashlib
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 from .core_tools import context, ToolError
@@ -9,7 +10,7 @@ from .validation import validate_args
 from .schemas import (
     ReadFileSchema, WriteFileSchema, ReadFilesSchema, ReplaceStringSchema, ReplaceStringAtLineSchema,
     RemoveFileSchema, CreateDirSchema, ReadFileWithLinesSchema, 
-    CopyLinesSchema, CutLinesSchema, PasteLinesSchema
+    CopyLinesSchema, CutLinesSchema, PasteLinesSchema, InsertAfterSchema, InsertBeforeSchema, VerifyFileHashSchema
 )
 
 logger = logging.getLogger('tools')
@@ -24,6 +25,9 @@ def is_binary_file(path: Path) -> bool:
     except Exception:
         return True
 
+def _calculate_hash(content: str) -> str:
+    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+
 @validate_args(ReadFileSchema)
 def read_file(path: str) -> str:
     safe_path = Path(context.get_safe_path(path))
@@ -36,13 +40,15 @@ def read_file(path: str) -> str:
     if is_binary_file(safe_path):
         raise ToolError(f'Binary: {path}')
     
+    content = safe_path.read_text(encoding='utf-8')
+    file_hash = _calculate_hash(content)
+    
     if size > READ_PREVIEW_LIMIT:
-        content = safe_path.read_text(encoding='utf-8')
         lines = content.splitlines()
         preview = "\n".join(lines[:100])
-        return f"[PREVIEW - First 100 lines of {size} bytes]\n{preview}\n\n[TRUNCATED - Use read_lines for more]"
+        return f"--- HASH: {file_hash} ---\n[PREVIEW - First 100 lines of {size} bytes]\n{preview}\n\n[TRUNCATED - Use read_lines for more]"
     
-    return safe_path.read_text(encoding='utf-8') or f'ERR: Empty: {path}'
+    return f"--- HASH: {file_hash} ---\n{content}" if content else f"--- HASH: {file_hash} ---\nERR: Empty: {path}"
 
 @validate_args(ReadFilesSchema)
 def read_files(paths: List[str]) -> str:
@@ -294,3 +300,34 @@ def manage_imports(path: str, add_imports: List[str] = [], remove_imports: List[
             added_count += 1
     safe_path.write_text(''.join(new_lines), encoding='utf-8')
     return 'OK'
+
+def _get_indentation(path: str, search_text: str) -> str:
+    safe_path = Path(context.get_safe_path(path))
+    content = safe_path.read_text(encoding='utf-8')
+    for line in content.splitlines():
+        if search_text in line:
+            return line[:len(line) - len(line.lstrip())]
+    return ""
+
+@validate_args(InsertAfterSchema)
+def insert_after(path: str, search_text: str, content: str) -> str:
+    indent = _get_indentation(path, search_text)
+    indented_content = "\n".join([indent + line for line in content.splitlines()])
+    return replace_string(path, search_text, f"{search_text}\n{indented_content}")
+
+@validate_args(InsertBeforeSchema)
+def insert_before(path: str, search_text: str, content: str) -> str:
+    indent = _get_indentation(path, search_text)
+    indented_content = "\n".join([indent + line for line in content.splitlines()])
+    return replace_string(path, search_text, f"{indented_content}\n{search_text}")
+
+@validate_args(VerifyFileHashSchema)
+def verify_file_hash(path: str, expected_hash: str) -> str:
+    safe_path = Path(context.get_safe_path(path))
+    if not safe_path.is_file():
+        raise ToolError(f'Not found: {path}')
+    content = safe_path.read_text(encoding='utf-8')
+    actual_hash = _calculate_hash(content)
+    if actual_hash == expected_hash:
+        return 'OK: File unchanged'
+    return f'ERR: File changed. Actual hash: {actual_hash}'

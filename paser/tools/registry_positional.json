@@ -109,6 +109,32 @@
     }
   ],
   [
+    "verify_file_hash",
+    "Verify if a file has changed by comparing its SHA-256 hash",
+    {
+      "path": "string",
+      "expected_hash": "string"
+    }
+  ],
+  [
+    "insert_after",
+    "Insert content after a specific string, maintaining indentation",
+    {
+      "path": "string",
+      "search_text": "string",
+      "content": "string"
+    }
+  ],
+  [
+    "insert_before",
+    "Insert content before a specific string, maintaining indentation",
+    {
+      "path": "string",
+      "search_text": "string",
+      "content": "string"
+    }
+  ],
+  [
     "manage_imports",
     "Manages Python imports by adding new ones and removing unwanted ones semantically",
     {

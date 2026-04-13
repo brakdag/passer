@@ -54,7 +54,18 @@ class CommandHandler:
             console.clear()
             return True
             
-        elif input_stripped == '/session':
+        elif input_stripped.startswith(('/save', '/s')):
+            # Normalizar el comando para extraer el nombre
+            cmd = '/save' if input_stripped.startswith('/save') else '/s'
+            parts = input_stripped[len(cmd):].strip().split(maxsplit=1)
+            name = parts[0] if parts else "last_session"
+            try:
+                path = self.chat_manager.save_session(name)
+                print_panel("Sesión Guardada", f"Contexto guardado como: {name}\nPath: {path}", style="green")
+            except Exception as e: console.print(f"Error guardando sesión: {e}", style="red")
+            return True
+
+        elif input_stripped in ('/session', '/ls'):
             session_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'sessions')
             os.makedirs(session_dir, exist_ok=True)
             sessions = [f for f in os.listdir(session_dir) if f.endswith('.json')]
@@ -72,12 +83,26 @@ class CommandHandler:
             except Exception as e: console.print(f"Error cargando sesión: {e}", style="red")
             return True
             
+        elif input_stripped.startswith(('/rm_session', '/rm')):
+            parts = input_stripped.split(maxsplit=1)
+            if len(parts) < 2:
+                console.print("Uso: /rm [nombre_sesion]", style="red")
+                return True
+            name = parts[1].strip()
+            try:
+                if self.chat_manager.delete_session(name):
+                    print_panel("Sesión Eliminada", f"La sesión {name} ha sido borrada.", style="yellow")
+                else:
+                    console.print(f"Sesión {name} no encontrada.", style="red")
+            except Exception as e: console.print(f"Error eliminando sesión: {e}", style="red")
+            return True
+
         elif input_stripped == '/thinking':
             self.chat_manager.thinking_enabled = not self.chat_manager.thinking_enabled
             console.print(f"Pensamientos: {'Visible' if self.chat_manager.thinking_enabled else 'Oculto'}", style="bold")
             return True
             
-        elif input_stripped == '/new':
+        elif input_stripped in ('/new', '/n'):
             # 1. Generar resumen de la sesión actual
             summary_prompt = "Por favor, genera un resumen conciso de nuestra conversación hasta ahora en aproximadamente 200 palabras."
             with SpinnerContext("Generando resumen de la sesión...", "magenta", newline=True):
@@ -89,12 +114,11 @@ class CommandHandler:
             
             print_panel("Resumen de la Sesión", summary_text, style="cyan")
             
-            # 2. Guardar y Reiniciar
-            path = self.chat_manager.save_session("last_session")
+            # 2. Reiniciar
             self.chat_manager.assistant.start_chat(self.chat_manager.assistant.current_model, self.chat_manager.system_instruction, self.chat_manager.temperature)
             self.chat_manager.executor.turn_count = 0
             self.history = []
-            print_panel("Sesión Reiniciada", f"Historial limpiado y sesión guardada en {path}", style="green")
+            print_panel("Sesión Reiniciada", "Historial limpiado. No se ha guardado la sesión.", style="green")
             return True
             
         elif input_stripped == '/models':

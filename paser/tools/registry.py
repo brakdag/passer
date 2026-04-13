@@ -39,6 +39,9 @@ AVAILABLE_TOOLS = {
     "read_head": ft.read_head,
     "update_line": ft.update_line,
     "replace_string": ft.replace_string,
+    "verify_file_hash": ft.verify_file_hash,
+    "insert_after": ft.insert_after,
+    "insert_before": ft.insert_before,
     "manage_imports": ft.manage_imports,
 
     "analyze_pyright": st.analyze_pyright,
