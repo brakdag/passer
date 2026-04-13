@@ -133,11 +133,14 @@ def create_dir(path: str) -> str:
     return 'OK'
 
 def search_files_pattern(pattern: str) -> str:
-    root = Path(context.get_safe_path('.'))
-    results = [str(p.relative_to(root)) for p in root.rglob(pattern)]
-    if len(results) > MAX_LIST_RESULTS:
-        return json.dumps({"results": results[:MAX_LIST_RESULTS], "total": len(results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
-    return json.dumps(results)
+    try:
+        root = Path(context.get_safe_path('.'))
+        results = [str(p.relative_to(root)) for p in root.rglob(pattern)]
+        if len(results) > MAX_LIST_RESULTS:
+            return json.dumps({"results": results[:MAX_LIST_RESULTS], "total": len(results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
+        return json.dumps(results)
+    except Exception as e:
+        raise ToolError(f"Error searching files with pattern '{pattern}': {str(e)}")
 
 def search_text_global(query: str) -> str:
     import subprocess
@@ -150,8 +153,13 @@ def search_text_global(query: str) -> str:
             encoding='utf-8', 
             errors='replace'
         )
+        
+        if result.returncode > 1:
+            raise ToolError(f"Grep failed with return code {result.returncode}: {result.stderr}")
+            
         if not result.stdout:
             return json.dumps([])
+            
         parsed_results = []
         for line in result.stdout.splitlines():
             parts = line.split(':', 2)
@@ -162,11 +170,14 @@ def search_text_global(query: str) -> str:
                     "line": int(line_num),
                     "text": text.strip()
                 })
+        
         if len(parsed_results) > MAX_LIST_RESULTS:
             return json.dumps({"results": parsed_results[:MAX_LIST_RESULTS], "total": len(parsed_results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
         return json.dumps(parsed_results)
+    except ToolError:
+        raise
     except Exception as e:
-        return json.dumps([f"ERR: Search failed: {str(e)}"])
+        raise ToolError(f"Search failed: {str(e)}")
 
 def format_code(path: str) -> str:
     import subprocess
