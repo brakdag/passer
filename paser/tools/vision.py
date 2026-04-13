@@ -4,7 +4,7 @@ import base64
 import logging
 from typing import Optional, List
 from PIL import Image
-from .core_tools import context
+from .core_tools import context, ToolError
 from ..core.validation import BaseValidator, ValidationError
 
 logger = logging.getLogger("tools")
@@ -30,7 +30,7 @@ def see_image(path: str, crop: Optional[List[int]] = None) -> dict:
         # 2. Validar ruta segura
         safe_path = context.get_safe_path(args.path)
         if not os.path.isfile(safe_path):
-            raise FileNotFoundError(f"Imagen no encontrada en '{args.path}'.")
+            raise ToolError(f"Imagen no encontrada en '{args.path}'.")
 
         # 3. Abrir imagen
         with Image.open(safe_path) as img:
@@ -64,8 +64,8 @@ def see_image(path: str, crop: Optional[List[int]] = None) -> dict:
 
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
-        raise FileNotFoundError(f"Error: El archivo de imagen '{args.path}' no existe.")
+        raise ToolError(f"El archivo de imagen '{args.path}' no existe.")
     except Exception as e:
         # Captura UnidentifiedImageError y otros errores de PIL
         logger.exception(f"Error procesando imagen {args.path}: {e}")
-        raise ValueError(f"Error: El archivo '{args.path}' no es una imagen válida o está corrupto.")
+        raise ToolError(f"El archivo '{args.path}' no es una imagen válida o está corrupto.")

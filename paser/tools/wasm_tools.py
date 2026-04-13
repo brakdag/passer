@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import tempfile
+from .core_tools import ToolError
 
 logger = logging.getLogger("tools")
 
@@ -52,7 +53,7 @@ class PythonWasmInterpreter:
                 if "can't open file" in result.stderr:
                     logger.warning("WASM -c failed, falling back to restricted execution.")
                     return self._execute_restricted(code)
-                return f"Execution Error (Exit Code {result.returncode}):\n{result.stderr}"
+                raise ToolError(f"Execution Error (Exit Code {result.returncode}):\n{result.stderr}")
             
             output = result.stdout
             # Abstract the REPL prompt '>>>' as a successful execution signal
@@ -62,9 +63,9 @@ class PythonWasmInterpreter:
             return output if output else "Code executed successfully (no output)."
 
         except subprocess.TimeoutExpired:
-            return "Error: Execution timed out after 30 seconds."
+            raise ToolError("Execution timed out after 30 seconds.")
         except Exception as e:
-            return f"WASM Runtime Error: {str(e)}"
+            raise ToolError(f"WASM Runtime Error: {str(e)}")
 
     def _execute_restricted(self, code: str) -> str:
         """
@@ -111,7 +112,7 @@ class PythonWasmInterpreter:
             result = output_buffer.getvalue()
             return result if result else "Code executed successfully (no output)."
         except Exception:
-            return traceback.format_exc()
+            raise ToolError(traceback.format_exc())
         finally:
             sys.stdout = old_stdout
 

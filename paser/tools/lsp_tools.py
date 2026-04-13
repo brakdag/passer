@@ -1,7 +1,7 @@
 import jedi
 import os
 import json
-from .core_tools import context
+from .core_tools import context, ToolError
 
 class LSPNavigator:
     def __init__(self):
@@ -11,7 +11,7 @@ class LSPNavigator:
         """Returns LSP-like completions for a specific position in a file."""
         safe_path = context.get_safe_path(filepath)
         if not os.path.exists(safe_path):
-            return {"error": f"File {filepath} not found."}
+            raise ToolError(f"File {filepath} not found.")
 
         try:
             # Jedi uses 1-based indexing for lines and columns
@@ -28,9 +28,9 @@ class LSPNavigator:
                 })
             return results
         except ImportError:
-            return {"error": "The 'jedi' library is not installed. Please run 'pip install jedi' in your terminal."}
+            raise ToolError("The 'jedi' library is not installed. Please run 'pip install jedi' in your terminal.")
         except Exception as e:
-            return {"error": str(e)}
+            raise ToolError(str(e))
 
     def get_object_methods(self, object_name: str, filepath: str):
         """Finds the available methods/attributes for a specific object name in a file."""
@@ -51,7 +51,7 @@ class LSPNavigator:
                     last_col = line.find(object_name) + len(object_name) + 1
 
             if last_line == -1:
-                return {"error": f"Object '{object_name}' not found in {filepath}."}
+                raise ToolError(f"Object '{object_name}' not found in {filepath}.")
 
             # Use get_lsp_completions at that position
             return self.get_lsp_completions(filepath, last_line, last_col)

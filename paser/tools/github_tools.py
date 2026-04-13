@@ -1,5 +1,6 @@
 import os
 import requests
+from paser.tools.core_tools import ToolError
 from paser.tools.git_tools import get_current_repo
 from paser.tools.system_tools import notify_user
 
@@ -8,7 +9,7 @@ GITHUB_API_URL = "https://api.github.com"
 def _get_headers():
     token = os.getenv("GITHUB_TOKEN")
     if not token:
-        raise ValueError("GITHUB_TOKEN no configurado.")
+        raise ToolError("GITHUB_TOKEN no configurado.")
     return {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
 
 def _resolve_repo(repo: str) -> str:

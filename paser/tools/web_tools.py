@@ -5,6 +5,7 @@ import logging
 import json
 import subprocess
 import os
+from .core_tools import ToolError
 import socket
 from .util_tools import retry_request
 
@@ -44,7 +45,7 @@ def is_safe_url(url: str) -> bool:
 @retry_request
 def _fetch_url(url: str):
     if not is_safe_url(url):
-        raise ValueError(f"ERR: Unsafe or invalid URL: {url}")
+        raise ToolError(f"Unsafe or invalid URL: {url}")
     
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=10) as response:
@@ -78,7 +79,7 @@ def fetch_url(url: str) -> str:
         return html[:10000]
     except Exception as e:
         logger.error(f"Error fetching URL {url}: {str(e)}")
-        return f"Error fetching URL: {str(e)}"
+        raise ToolError(f"Error fetching URL: {str(e)}")
 
 def render_web_page(url: str) -> str:
     """
@@ -86,7 +87,7 @@ def render_web_page(url: str) -> str:
     """
     try:
         if not is_safe_url(url):
-            return f"Error: Unsafe or invalid URL: {url}"
+            raise ToolError(f"Unsafe or invalid URL: {url}")
 
         # Set environment to ensure UTF-8 output
         env = os.environ.copy()
@@ -104,12 +105,12 @@ def render_web_page(url: str) -> str:
         
         if result.returncode != 0:
             logger.error(f"Elinks error: {result.stderr}")
-            return f"Error rendering page: {result.stderr}"
+            raise ToolError(f"Error rendering page: {result.stderr}")
             
         return result.stdout
     except subprocess.TimeoutExpired:
         logger.error(f"Elinks timeout for URL: {url}")
-        return "Error: The page took too long to render."
+        raise ToolError("The page took too long to render.")
     except Exception as e:
         logger.error(f"Unexpected error rendering page {url}: {str(e)}")
-        return f"Error rendering page: {str(e)}"
+        raise ToolError(f"Error rendering page: {str(e)}")

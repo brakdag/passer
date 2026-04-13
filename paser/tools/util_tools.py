@@ -7,7 +7,7 @@ import json
 import os
 from typing import Optional
 from paser.infrastructure.gemini_adapter import GeminiAdapter
-from .core_tools import context
+from .core_tools import context, ToolError
 from .validation import validate_args
 from .schemas import ValidateJsonSchema, ValidateJsonFileSchema
 
@@ -43,7 +43,7 @@ def validate_json(json_string: str) -> str:
         json.loads(json_string)
         return "✅ El JSON es válido."
     except json.JSONDecodeError as e:
-        return f"❌ JSON inválido: {str(e)}"
+        raise ToolError(f"JSON inválido: {str(e)}")
 
 @validate_args(ValidateJsonFileSchema)
 def validate_json_file(path: str) -> str:
@@ -54,7 +54,7 @@ def validate_json_file(path: str) -> str:
             content = f.read()
         return validate_json(json_string=content)
     except Exception as e:
-        return f"❌ Error al leer el archivo: {str(e)}"
+        raise ToolError(f"Error al leer el archivo: {str(e)}")
 
 def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_str: str = None) -> str:
     """
@@ -101,4 +101,4 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
         return response.text if hasattr(response, 'text') else str(response)
     except Exception as e:
         logger.error(f"Error in query_ai: {e}")
-        return f"Error querying AI: {str(e)}"
+        raise ToolError(f"Error querying AI: {str(e)}")

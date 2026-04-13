@@ -2,6 +2,7 @@ import json
 import os
 import paho.mqtt.client as mqtt
 import logging
+from .core_tools import ToolError
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +31,14 @@ def notify_mobile(mensaje: str) -> str:
     """
     config = _load_mqtt_config()
     if not config:
-        return "Error: No se pudo cargar la configuración de MQTT."
+        raise ToolError("No se pudo cargar la configuración de MQTT.")
 
     host = config.get("mqtt_host")
     port = config.get("mqtt_port", 1883)
     topic = config.get("mqtt_topic")
 
     if not host or not topic:
-        return "Error: Faltan parámetros de configuración de MQTT (host o topic)."
+        raise ToolError("Faltan parámetros de configuración de MQTT (host o topic).")
 
     try:
         client = mqtt.Client()
@@ -49,4 +50,4 @@ def notify_mobile(mensaje: str) -> str:
         return f"Notificación enviada exitosamente al tópico {topic}."
     except Exception as e:
         logger.error(f"Error enviando mensaje MQTT: {e}")
-        return f"Error al enviar notificación MQTT: {str(e)}"
+        raise ToolError(f"Error al enviar notificación MQTT: {str(e)}")

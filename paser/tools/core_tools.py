@@ -25,6 +25,10 @@ if not logger.handlers:
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
 
+class ToolError(Exception):
+    """Custom exception for tool-related errors to be reported back to the AI."""
+    pass
+
 # Gestión de PROJECT_ROOT
 class ProjectContext:
     from typing import Optional

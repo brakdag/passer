@@ -1,5 +1,6 @@
 import json
 import os
+from .core_tools import ToolError
 from typing import Optional, List, Dict, Any
 
 # Mapping of tools to categories
@@ -43,7 +44,7 @@ def discover_capabilities(category: Optional[str] = None) -> str:
         with open(catalog_path, "r", encoding="utf-8") as f:
             catalog = json.load(f)
     except Exception as e:
-        return f"Error loading tool catalog: {str(e)}"
+        raise ToolError(f"Error loading tool catalog: {str(e)}")
 
     if category is None:
         categories = sorted(list(TOOL_CATEGORIES.keys()))

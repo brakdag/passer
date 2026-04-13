@@ -98,6 +98,10 @@ To maintain system stability and ensure the LLM correctly identifies available c
 3. **Metadata Definition**: Add the tool's metadata (name, description, and parameter types) to `paser/tools/registry_positional.json`. This file is used to generate the `TOOL_CATALOG` in the system prompt.
 4. **Refresh**: Restart the application to reload the registry and update the system instructions sent to the model.
 
+### Error Handling
+
+To ensure consistent error reporting to the LLM, tools must not return error messages as strings (e.g., avoid `return "Error: ..."`). Instead, raise the `ToolError` exception from `paser.tools.core_tools`. The `AutonomousExecutor` automatically catches this exception, prepends the `ERR: ` prefix, and marks the response status as `error`.
+
 ### Removing a Tool
 1. **Registry Removal**: Delete the tool's entry from the `AVAILABLE_TOOLS` dictionary in `paser/tools/registry.py`.
 2. **Metadata Cleanup**: Remove the corresponding entry from `paser/tools/registry_positional.json`.

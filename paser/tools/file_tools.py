@@ -4,7 +4,7 @@ import logging
 import ast
 from typing import Optional, List, Dict, Any
 from pathlib import Path
-from .core_tools import context
+from .core_tools import context, ToolError
 from .validation import validate_args
 from .schemas import (
     ReadFileSchema, WriteFileSchema, ReadFilesSchema, ReplaceStringSchema, ReplaceStringAtLineSchema,
@@ -28,13 +28,13 @@ def is_binary_file(path: Path) -> bool:
 def read_file(path: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     if not safe_path.is_file():
-        raise FileNotFoundError(f'ERR: Not found: {path}')
+        raise ToolError(f'Not found: {path}')
     
     size = safe_path.stat().st_size
     if size > FILE_SIZE_LIMIT:
-        raise ValueError(f'ERR: Too large: {path}')
+        raise ToolError(f'Too large: {path}')
     if is_binary_file(safe_path):
-        raise ValueError(f'ERR: Binary: {path}')
+        raise ToolError(f'Binary: {path}')
     
     if size > READ_PREVIEW_LIMIT:
         content = safe_path.read_text(encoding='utf-8')
@@ -72,7 +72,7 @@ def remove_file(path: str) -> str:
         safe_path.unlink()
         return 'OK'
     except FileNotFoundError:
-        raise FileNotFoundError(f'ERR: Not found: {path}')
+        raise ToolError(f'Not found: {path}')
 
 def list_dir(path: str = '.') -> str:
     safe_path = Path(context.get_safe_path(path))
@@ -93,7 +93,7 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= line_number <= len(lines)):
-        raise IndexError(f'ERR: Line {line_number} out of range')
+        raise ToolError(f'Line {line_number} out of range')
     lines[line_number-1] = new_content + '\n'
     safe_path.write_text(''.join(lines), encoding='utf-8')
     return 'OK'
@@ -103,7 +103,7 @@ def replace_string(path: str, search_text: str, replace_text: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     content = safe_path.read_text(encoding='utf-8')
     if search_text not in content:
-        raise ValueError(f'ERR: Not found in {path}')
+        raise ToolError(f'Not found in {path}')
     safe_path.write_text(content.replace(search_text, replace_text, 1), encoding='utf-8')
     return 'OK'
 
@@ -112,10 +112,10 @@ def replace_string_at_line(path: str, line_number: int, search_text: str, replac
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= line_number <= len(lines)):
-        raise IndexError(f'ERR: Line {line_number} out of range')
+        raise ToolError(f'Line {line_number} out of range')
     target_line = lines[line_number-1]
     if search_text not in target_line:
-        raise ValueError(f'ERR: Not found in line {line_number}')
+        raise ToolError(f'Not found in line {line_number}')
     lines[line_number-1] = target_line.replace(search_text, replace_text)
     safe_path.write_text(''.join(lines), encoding='utf-8')
     return 'OK'
@@ -125,7 +125,7 @@ def rename_path(origen: str, destino: str) -> str:
         Path(context.get_safe_path(origen)).rename(context.get_safe_path(destino))
         return 'OK'
     except FileNotFoundError:
-        raise FileNotFoundError(f'ERR: Origin not found: {origen}')
+        raise ToolError(f'Origin not found: {origen}')
 
 @validate_args(CreateDirSchema)
 def create_dir(path: str) -> str:
@@ -189,7 +189,7 @@ def copy_lines(path: str, start_line: int, end_line: int) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= start_line <= end_line <= len(lines)):
-        raise IndexError(f'ERR: Range {start_line}-{end_line} out of bounds')
+        raise ToolError(f'Range {start_line}-{end_line} out of bounds')
     context.clipboard = ''.join(lines[start_line-1:end_line])
     return 'OK'
 
@@ -198,7 +198,7 @@ def cut_lines(path: str, start_line: int, end_line: int) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= start_line <= end_line <= len(lines)):
-        raise IndexError(f'ERR: Range {start_line}-{end_line} out of bounds')
+        raise ToolError(f'Range {start_line}-{end_line} out of bounds')
     context.clipboard = ''.join(lines[start_line-1:end_line])
     remaining = lines[:start_line-1] + lines[end_line:]
     safe_path.write_text(''.join(remaining), encoding='utf-8')
@@ -207,7 +207,7 @@ def cut_lines(path: str, start_line: int, end_line: int) -> str:
 @validate_args(PasteLinesSchema)
 def paste_lines(path: str, line_number: int) -> str:
     if not context.clipboard:
-        raise ValueError('ERR: Clipboard empty')
+        raise ToolError('Clipboard empty')
     safe_path = Path(context.get_safe_path(path))
     content = context.clipboard
     if content and not content.endswith('\n'):
@@ -229,7 +229,7 @@ def manage_imports(path: str, add_imports: List[str] = [], remove_imports: List[
     try:
         ast.parse(source)
     except SyntaxError as e:
-        raise ValueError(f'ERR: Syntax error: {e}')
+        raise ToolError(f'Syntax error: {e}')
     new_lines = [line for line in lines if not any(
         (line.strip().startswith('import ') or line.strip().startswith('from ')) and rem in line 
         for rem in remove_imports

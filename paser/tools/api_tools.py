@@ -1,4 +1,5 @@
 import requests
+from .core_tools import ToolError
 import logging
 import json
 import socket
@@ -50,7 +51,7 @@ def api_request(
     """
     try:
         if not is_safe_url(url):
-            return f"ERR: Unsafe or invalid URL: {url}"
+            raise ToolError(f"Unsafe or invalid URL: {url}")
 
         method = method.upper()
         response = requests.request(
@@ -73,13 +74,13 @@ def api_request(
             
     except requests.exceptions.HTTPError as e:
         logger.error(f"HTTP Error: {e}")
-        return f"HTTP Error: {e.response.status_code} - {e.response.text}"
+        raise ToolError(f"HTTP Error: {e.response.status_code} - {e.response.text}")
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection Error: {e}")
-        return f"Connection Error: Could not connect to {url}"
+        raise ToolError(f"Connection Error: Could not connect to {url}")
     except requests.exceptions.Timeout as e:
         logger.error(f"Timeout Error: {e}")
-        return "Error: The request timed out."
+        raise ToolError("The request timed out.")
     except Exception as e:
         logger.error(f"Unexpected Error: {e}")
-        return f"Unexpected Error: {str(e)}"
+        raise ToolError(f"Unexpected Error: {str(e)}")

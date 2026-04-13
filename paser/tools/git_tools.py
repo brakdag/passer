@@ -1,12 +1,13 @@
 import subprocess
 import re
+from .core_tools import ToolError
 
 def git_diff() -> str:
     try:
         result = subprocess.run(["git", "diff"], capture_output=True, text=True, check=True)
         return result.stdout if result.stdout else "No hay cambios."
     except subprocess.CalledProcessError as e:
-        return f"Error: {e.stderr}"
+        raise ToolError(f"Git diff error: {e.stderr}")
 
 def get_current_repo() -> str:
     try:
@@ -23,4 +24,4 @@ def revert_file(path: str) -> str:
         subprocess.run(["git", "restore", "--", path], check=True, capture_output=True, text=True)
         return f"File '{path}' successfully reverted."
     except subprocess.CalledProcessError as e:
-        return f"Error reverting file '{path}': {e.stderr}"
+        raise ToolError(f"Error reverting file '{path}': {e.stderr}")

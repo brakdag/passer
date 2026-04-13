@@ -10,7 +10,7 @@ import tempfile
 import threading
 from gtts import gTTS
 from typing import Optional, Dict, Any
-from .core_tools import context
+from .core_tools import context, ToolError
 from paser.core.ui import print_info, notify_user
 
 logger = logging.getLogger("tools")
@@ -57,7 +57,7 @@ def stop_music() -> str:
         return "Reproducción detenida exitosamente."
     except Exception as e:
         logger.error(f"Error stopping music: {e}")
-        return f"Error al detener la música: {str(e)}"
+        raise ToolError(f"Error al detener la música: {str(e)}")
 
 def analyze_pyright(path: str = ".") -> str:
     """Analiza código usando pyright y devuelve errores si existen."""
@@ -119,7 +119,7 @@ def set_timer(seconds: int, message: Optional[str] = None) -> str:
         event_manager.add_event(seconds, message)
         return f"Timer scheduled for {seconds} seconds with message: {message}"
     except Exception as e:
-        return f"Failed to set timer: {str(e)}"
+        raise ToolError(f"Failed to set timer: {str(e)}")
 
 def compile_latex(path: str) -> str:
     """
@@ -142,7 +142,7 @@ def compile_latex(path: str) -> str:
         return f"Compilación finalizada.\nPDF: {pdf_path}\nLog: {log_path}"
 
     except Exception as e:
-        return f"Error inesperado durante la compilación: {str(e)}"
+        raise ToolError(f"Error inesperado durante la compilación: {str(e)}")
 
 def convert_image(input_path: str, output_path: str, extra_args: Optional[str] = None) -> str:
     """
@@ -176,10 +176,10 @@ def convert_image(input_path: str, output_path: str, extra_args: Optional[str] =
         if result.returncode == 0:
             return f"Conversión exitosa: {in_safe} -> {out_safe}"
         else:
-            return f"Error en la conversión: {result.stderr}"
+            raise ToolError(f"Error en la conversión: {result.stderr}")
 
     except Exception as e:
-        return f"Error inesperado durante la conversión: {str(e)}"
+        raise ToolError(f"Error inesperado durante la conversión: {str(e)}")
 
 def play_music(query: str) -> str:
     """
@@ -194,12 +194,12 @@ def play_music(query: str) -> str:
         result = subprocess.run(search_cmd, capture_output=True, text=True, timeout=15)
         
         if result.returncode != 0 or not result.stdout.strip():
-            return f"No se encontraron resultados en YouTube para '{query}'."
+            raise ToolError(f"No se encontraron resultados en YouTube para '{query}'.")
         
         # Parsear título e ID
         output = result.stdout.strip().split('|')
         if len(output) < 2:
-            return "Error al procesar los resultados de la búsqueda."
+            raise ToolError("Error al procesar los resultados de la búsqueda.")
         
         song_title, video_id = output[0], output[1]
         url = f"https://www.youtube.com/watch?v={video_id}"
@@ -224,10 +224,10 @@ def play_music(query: str) -> str:
                 
     except subprocess.TimeoutExpired:
         logger.error(f"Search timed out for: {query}")
-        return "La búsqueda en YouTube tardó demasiado. Intenta de nuevo."
+        raise ToolError("La búsqueda en YouTube tardó demasiado. Intenta de nuevo.")
     except Exception as e:
         logger.error(f"Unexpected error in play_music: {str(e)}", exc_info=True)
-        return f"Error inesperado: {str(e)}"
+        raise ToolError(f"Error inesperado: {str(e)}")
 
 def speak_text(text: str, lang: str = 'es') -> str:
     """
@@ -266,4 +266,4 @@ def speak_text(text: str, lang: str = 'es') -> str:
         return f"Speaking: {text}"
     except Exception as e:
         logger.error(f"Error in speak_text: {e}", exc_info=True)
-        return f"Error in text-to-speech: {str(e)}"
+        raise ToolError(f"Error in text-to-speech: {str(e)}")

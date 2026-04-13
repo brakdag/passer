@@ -9,6 +9,7 @@ from paser.core.repetition_detector import RepetitionDetector
 from paser.core.interfaces import IAIAssistant
 from paser.core.ui import async_get_confirmation
 from paser.core.quota_tracker import QuotaTracker
+from paser.tools.core_tools import ToolError
 
 logger = logging.getLogger(__name__)
 
@@ -169,9 +170,13 @@ class AutonomousExecutor:
                         tr = self._format_tool_response(result, call_id=call_data.get("id"), success=True)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, result, True)
+                    except ToolError as te:
+                        tr = self._format_tool_response(f"ERR: {str(te)}", call_id=call_data.get("id"), success=False)
+                        if self.on_tool_used:
+                            self.on_tool_used(name, args, str(te), False)
                     except Exception as exc:
                         logger.exception(f"Error executing tool {name} with args {args}: {exc}")
-                        tr = self._format_tool_response(f"Error en herramienta '{name}': {str(exc)}", call_id=call_data.get("id"), success=False)
+                        tr = self._format_tool_response(f"ERR: Unexpected error in '{name}': {str(exc)}", call_id=call_data.get("id"), success=False)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, str(exc), False)
                 combined_tool_responses.append(tr)

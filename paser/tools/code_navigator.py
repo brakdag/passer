@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import argparse
+from .core_tools import ToolError
 
 class CodeNavigator:
     def __init__(self, root_dir="."):
@@ -26,7 +27,7 @@ class CodeNavigator:
     def list_symbols(self, file_path):
         """Lists all classes and functions defined in a file."""
         if self._is_binary(file_path):
-            return {"error": "Binary file detected. Cannot list symbols."}
+            raise ToolError("Binary file detected. Cannot list symbols.")
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
@@ -44,12 +45,12 @@ class CodeNavigator:
             
             return symbols
         except Exception as e:
-            return {"error": str(e)}
+            raise ToolError(str(e))
 
     def get_detailed_symbols(self, file_path):
         """Provides detailed information about symbols in a file, including signatures and decorators."""
         if self._is_binary(file_path):
-            return {"error": "Binary file detected."}
+            raise ToolError("Binary file detected.")
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 tree = ast.parse(f.read())
@@ -103,7 +104,7 @@ class CodeNavigator:
             except Exception:
                 continue
         
-        return {"error": f"Symbol '{symbol_name}' not found."}
+        raise ToolError(f"Symbol '{symbol_name}' not found.")
 
     def get_references(self, symbol_name, file_path=None):
         """Finds all references to a symbol."""
