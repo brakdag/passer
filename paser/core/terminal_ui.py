@@ -15,7 +15,7 @@ from rich.markdown import Markdown
 from rich.text import Text
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
 
 from paser.core.ui_interface import UserInterface
@@ -35,6 +35,7 @@ class TerminalUI(UserInterface):
         self._session = None
         self.audio_callback = None
         self.kb = KeyBindings()
+        self.current_spinner_message: Optional[str] = None
         self._setup_key_bindings()
 
     def _setup_key_bindings(self):
@@ -99,9 +100,16 @@ class TerminalUI(UserInterface):
                 event.current_buffer.insert_text(c)
 
     def _get_bottom_toolbar(self):
+        parts = []
+        if self.current_spinner_message:
+            parts.append(('ansicyan', f' ⌛ {self.current_spinner_message} '))
         if self.mode == UIState.NORMAL:
-            return HTML('<ansiyellow> <b>— NORMAL —</b> </ansiyellow> (h/j/k/l: navigate, i: insert)')
-        return HTML('<ansigreen> <b>— INSERT —</b> </ansigreen> (Esc: normal)')
+            parts.append(('ansiyellow bold', ' — NORMAL — '))
+            parts.append((' ', ' (h/j/k/l: navigate, i: insert)'))
+        else:
+            parts.append(('ansigreen bold', ' — INSERT — '))
+            parts.append((' ', ' (Esc: normal)'))
+        return FormattedText(parts)
 
     def _translate_latex(self, text: str) -> str:
         LATEX_TO_UNICODE = {
@@ -197,19 +205,14 @@ class TerminalSpinner:
     def __init__(self, ui: TerminalUI, message: str, color: str, newline: bool):
         self.ui = ui
         self.message = message
-        self.color = color
         self.newline = newline
-        self.previous_mode = None
-        self._status = None
 
     def __enter__(self):
         self.previous_mode = self.ui.mode
         self.ui.mode = UIState.NORMAL
-        if self.newline: self.ui.console.print()
-        status_msg = f"[{self.color}]{self.message}[/{self.color}]" if self.color else self.message
-        self._status = self.ui.console.status(status_msg, spinner="material")
-        return self._status.__enter__()
+        self.ui.current_spinner_message = self.message
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._status: self._status.__exit__(exc_type, exc_val, exc_tb)
+        self.ui.current_spinner_message = None
         self.ui.mode = self.previous_mode
