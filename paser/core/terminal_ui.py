@@ -166,6 +166,10 @@ class TerminalUI(UserInterface):
         if self._session is None:
             self._session = PromptSession(history=history)
         
+        # Añadimos un salto de línea preventivo para que el chat no empuje la barra
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+        
         return await self._session.prompt_async(
             prompt, style=self.style, key_bindings=self.kb, bottom_toolbar=self._get_bottom_toolbar
         )
@@ -176,7 +180,6 @@ class TerminalUI(UserInterface):
             self.console.print(Markdown(text))
         except Exception:
             self.console.print(Text(text, style="cyan"))
-        self.console.print()
 
     def display_thought(self, text: str):
         self.console.print("Thinking...")

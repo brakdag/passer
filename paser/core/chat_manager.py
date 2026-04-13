@@ -43,6 +43,7 @@ class ChatManager:
             on_thought=self._on_thought
         )
         self.event_monitor = EventMonitor(event_manager, self.executor)
+        self.recurring_tasks = {}
         self.should_exit = False
         
         self._initialized_event = threading.Event()

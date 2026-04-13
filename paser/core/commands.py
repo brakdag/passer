@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+import time
 from datetime import datetime
 from rich.table import Table
 from paser.core.ui import get_input, console, print_panel, LATEX_TO_UNICODE, SpinnerContext, print_model_response
