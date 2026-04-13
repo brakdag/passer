@@ -7,7 +7,7 @@
     }
   ],
   [
-    "list_tools",
+    "discover_capabilities",
     "List available tools by category",
     {
       "category": "string"

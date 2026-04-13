@@ -98,7 +98,7 @@ MEDIA_TOOLS = {
 
 UTIL_TOOLS = {
     "get_time": ("Obteniendo hora", "󰔟"),
-    "list_tools": ("Listando herramientas", "󰍃"),
+    "discover_capabilities": ("Listando herramientas", "󰍃"),
     "get_cwd": ("Obteniendo ruta", "󰉋"),
 }
 

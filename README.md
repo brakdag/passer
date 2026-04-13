@@ -106,44 +106,29 @@ To maintain system stability and ensure the LLM correctly identifies available c
 
 ## Available Tools
 
-### Files and Directories
+### 📂 Files & Directories
 
-- `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`: File reading.
-- `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, `manage_imports(...)`, `global_replace(...)`: Writing and editing. **Note: These tools implement strict validation and throw errors if the target string/line is not found or the operation is invalid.**
-- `list_dir(path)`, `create_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`: Path management.
-- `search_files_pattern(pattern)`, `search_text_global(query)`: Search and discovery.
+- **Reading**: `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`, `read_file_with_lines(path)`.
+- **Writing & Editing**: `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, `replace_string_at_line(...)`, `global_replace(...)`, `manage_imports(...)`, `copy_lines(...)`, `cut_lines(...)`, `paste_lines(...)`.
+- **Path Management**: `list_dir(path)`, `create_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`, `get_tree(path)`, `get_cwd()`.
+- **Search**: `search_files_pattern(pattern)`, `search_text_global(query)`.
 
-### Code Navigation
+### 🎨 Media & Interaction
 
-- `list_symbols(file_path)`: Lists all classes and functions defined in a file.
-- `get_definition(symbol_name, file_path)`: Locates the line and column where a symbol is defined.
-- `get_references(symbol_name, file_path)`: Searches for all references to a symbol in the file.
-- `find_all_calls(symbol_name, file_path)`: Finds all semantic calls to a function.
-- `get_detailed_symbols(path)`: Extracts signatures, return types and decorators.
-- `get_imports(path)`: Lists all imports and aliases in a file.
-- `find_missing_type_hints(path)`: Audits missing type annotations.
+- **Web & API**: `web_search(query)`, `fetch_url(url)`, `render_web_page(url)`, `api_request(...)`.
+- **Vision**: `see_image(path)`, `convert_image(...)`.
+- **Audio & Music**: `play_music(query)`, `stop_music()`, `speak_text(text, lang)`, `alert_sound()`.
+- **System Interaction**: `notify_user(message)`, `notify_mobile(message)`, `set_timer(seconds, message)`, `is_window_in_focus(action)`, `compile_latex(path)`, `get_time(timezone)`.
+- **Discovery**: `discover_capabilities(category)`: Lists available tools by category.
 
-### IDE Introspection (LSP)
+### 💻 Code & Engineering
 
-- `get_lsp_completions(filepath, line, column)`: Returns autocompletion suggestions for a specific position.
-- `get_object_methods(object_name, filepath)`: Lists available methods and attributes for a specific object.
+- **Navigation**: `list_symbols(file_path)`, `get_definition(symbol, file)`, `get_references(symbol, file)`, `find_all_calls(symbol, file)`, `get_detailed_symbols(path)`, `get_imports(path)`.
+- **Analysis & Quality**: `analyze_pyright(path)`, `find_missing_type_hints(path)`, `format_code(path)`, `validate_json(json_string)`, `validate_json_file(path)`.
+- **LSP Introspection**: `get_lsp_completions(...)`, `get_object_methods(...)`.
+- **Execution & AI**: `execute_python(code)`, `query_ai(prompt, ...)`.
 
-### Utilities and Web
+### 🐙 GitHub & Version Control
 
-- `web_search(query)`, `fetch_url(url)`: Access to external information.
-- `get_time(timezone)`, `get_cwd()`: Basic tools.
-
-### Computing and Vision
-
-- `execute_python(code)`: Executes Python code in a secure sandbox.
-- `see_image(path)`: Analyzes the content of an image.
-
-### System, Notifications and GitHub
-
-- `analyze_pyright(path)`: Static analysis for Python.
-- `notify_user()`: Visual notification in the terminal.
-- `notify_mobile(message)`: Sends mobile notification via MQTT.
-- `set_timer(seconds, message)`: Task scheduling.
-- `is_window_in_focus(action)`: Terminal window focus verification.
-- `git_diff()`, `get_current_repo()`: Local Git integration.
-- `list_issues(repo)`, `create_issue(repo, title, body)`, `close_issue(repo, issue_number)`: GitHub Issues management.
+- **Issue Management**: `list_issues(repo)`, `create_issue(repo, title, body)`, `close_issue(repo, issue_number)`, `edit_issue(...)`.
+- **Git Operations**: `git_diff()`, `get_current_repo()`, `revert_file(path)`.

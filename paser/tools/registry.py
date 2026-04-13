@@ -25,7 +25,7 @@ nav = cn.CodeNavigator()
 # Mapping of tool names to their executable Python functions
 AVAILABLE_TOOLS = {
     "get_time": ut.get_time,
-    "list_tools": disc.list_tools,
+    "discover_capabilities": disc.discover_capabilities,
     "read_file": ft.read_file,
     "read_files": ft.read_files,
     "write_file": ft.write_file,
@@ -39,7 +39,7 @@ AVAILABLE_TOOLS = {
     "read_head": ft.read_head,
     "update_line": ft.update_line,
     "replace_string": ft.replace_string,
-        "manage_imports": ft.manage_imports,
+    "manage_imports": ft.manage_imports,
 
     "analyze_pyright": st.analyze_pyright,
     "replace_string_at_line": ft.replace_string_at_line,
@@ -92,7 +92,16 @@ _registry_path = os.path.join(os.path.dirname(__file__), "registry_positional.js
 with open(_registry_path, "r") as f:
     full_catalog = json.load(f)
 
-TOOL_CATALOG = json.dumps(full_catalog, indent=2)
+# Hybrid Tooling: Only inject basic tools into the system prompt to save tokens
+# The rest are discoverable via 'discover_capabilities'
+BASIC_TOOLS = {
+    "read_file", "write_file", "replace_string", 
+    "list_dir", "create_dir", "rename_path", "remove_file", "get_cwd",
+    "discover_capabilities"
+}
+
+filtered_catalog = [tool for tool in full_catalog if tool[0] in BASIC_TOOLS]
+TOOL_CATALOG = json.dumps(filtered_catalog, indent=2)
 
 # Bypassing interceptor by fragmenting the forbidden strings
 _S = chr(60) + "TOOL" + "_CALL" + chr(62)

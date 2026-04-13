@@ -3,25 +3,36 @@ import os
 from typing import Optional, List, Dict, Any
 
 # Mapping of tools to categories
+# Synchronized with registry_positional.json
 TOOL_CATEGORIES = {
     "files": [
         "read_file", "read_files", "write_file", "remove_file", "list_dir", 
-        "read_lines", "read_head", "update_line", "replace_text", "replace_block", 
-        "replace_text_regex", "global_replace", "global_search", 
-        "glob_search", "rename_path", "make_dir"
+        "read_lines", "read_head", "update_line", "replace_string", 
+        "replace_string_at_line", "global_replace", "rename_path", "create_dir", 
+        "search_files_pattern", "search_text_global", "get_tree", 
+        "read_file_with_lines", "copy_lines", "cut_lines", "paste_lines", "manage_imports",
+        "get_cwd"
     ],
-    "web": ["web_search", "fetch_url"],
-    "system": ["analyze_pyright", "notify_user", "set_timer", "is_window_in_focus"],
-    "git": ["git_diff", "get_remote_repo"],
-    "github": ["list_issues", "create_issue", "close_issue"],
-    "vision": ["see_image"],
-    "code": ["get_definition", "get_references", "list_symbols"],
-    "python": ["execute_python"],
-    "util": ["get_time", "get_cwd", "list_tools"],
-    "mqtt": ["notify_mobile"],
+    "media": [
+        "web_search", "fetch_url", "render_web_page", "api_request", 
+        "see_image", "alert_sound", "convert_image", "play_music", 
+        "stop_music", "speak_text", "notify_mobile", "notify_user", 
+        "set_timer", "is_window_in_focus", "compile_latex",
+        "get_time", "discover_capabilities"
+    ],
+    "github": [
+        "list_issues", "create_issue", "close_issue", "edit_issue",
+        "git_diff", "get_current_repo", "revert_file"
+    ],
+    "code": [
+        "analyze_pyright", "get_definition", "get_references", "list_symbols", "find_all_calls", 
+        "get_detailed_symbols", "get_imports", "find_missing_type_hints", 
+        "format_code", "get_lsp_completions", "get_object_methods", "execute_python",
+        "validate_json", "validate_json_file", "query_ai"
+    ],
 }
 
-def list_tools(category: Optional[str] = None) -> str:
+def discover_capabilities(category: Optional[str] = None) -> str:
     """
     Lists available tools. If no category is provided, returns a list of categories.
     If a category is provided, returns the detailed description and parameters of tools in that category.
