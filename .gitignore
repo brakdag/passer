@@ -13,3 +13,4 @@ tests/test_results.json
 last_voice.wav
 assets/*.png
 !assets/mascot.png
+save_langchain/
