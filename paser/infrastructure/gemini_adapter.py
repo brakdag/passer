@@ -3,6 +3,7 @@ import re
 import base64
 import time
 import json
+import os
 from typing import Generator, Optional, Any, Union
 from google import genai
 from google.genai import types
@@ -19,6 +20,62 @@ class GeminiAdapter(IAIAssistant):
         self._current_model: Optional[str] = None
         self.max_retries = 5
         self.default_retry_delay = 5
+        self.system_instruction: Optional[str] = None
+        
+        # Initialize call counter for langchain saving
+        self.save_dir = "save_langchain"
+        self.call_count = self._initialize_call_count()
+
+    def _initialize_call_count(self) -> int:
+        """Finds the last used number in save_langchain to continue numbering."""
+        if not os.path.exists(self.save_dir):
+            return 0
+        files = os.listdir(self.save_dir)
+        numbers = []
+        for f in files:
+            match = re.search(r'lang_chang_(\d+)\.text', f)
+            if match:
+                numbers.append(int(match.group(1)))
+        return max(numbers) if numbers else 0
+
+    def _save_payload(self, current_message: Union[str, bytes]):
+        """Saves the full prompt (system + history + current) to disk."""
+        try:
+            self.call_count += 1
+            filename = f"lang_chang_{self.call_count}.text"
+            filepath = os.path.join(self.save_dir, filename)
+            
+            lines = []
+            lines.append("=== SYSTEM INSTRUCTION ===")
+            lines.append(self.system_instruction or "No system instruction set.")
+            lines.append("\n" + "="*30 + "\n")
+            
+            lines.append("=== CONVERSATION HISTORY ===")
+            for content in self.history:
+                role = content.role.upper()
+                text_parts = []
+                for part in content.parts:
+                    if hasattr(part, 'text') and part.text:
+                        text_parts.append(part.text)
+                    elif hasattr(part, 'inline_data') or (hasattr(part, 'data') and part.data):
+                        text_parts.append("[Binary Data/Image/Audio]")
+                    else:
+                        text_parts.append("[Unknown Part]")
+                
+                lines.append(f"[{role}]: " + "\n".join(text_parts))
+                lines.append("-" * 20)
+            
+            lines.append("\n" + "="*30 + "\n")
+            lines.append("=== CURRENT MESSAGE ===")
+            if isinstance(current_message, bytes):
+                lines.append("[Audio/Binary Data]")
+            else:
+                lines.append(current_message)
+            
+            with open(filepath, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
+        except Exception as e:
+            logger.error(f"Failed to save langchain payload: {e}")
 
     @property
     def current_model(self) -> Optional[str]:
@@ -142,6 +199,7 @@ class GeminiAdapter(IAIAssistant):
 
     def start_chat(self, model_name: str, system_instruction: str, temperature: float):
         self._current_model = model_name
+        self.system_instruction = system_instruction
         
         # Validar el modelo antes de iniciar
         try:
@@ -189,6 +247,8 @@ class GeminiAdapter(IAIAssistant):
             yield ""
             return
 
+        self._save_payload(message)
+
         retries = 0
         while retries <= self.max_retries:
             try:
@@ -230,6 +290,8 @@ class GeminiAdapter(IAIAssistant):
     def send_message(self, message: Union[str, bytes]) -> Any:
         if not self.chat:
             return None
+
+        self._save_payload(message)
 
         retries = 0
         while retries <= self.max_retries:
@@ -285,6 +347,9 @@ class GeminiAdapter(IAIAssistant):
                 mime_type="audio/wav"
             )
             
+            # Guardamos el payload antes de enviar
+            self._save_payload(audio_bytes)
+
             response = self.chat.send_message([audio_part])
             
             # Actualizar historial

@@ -1,10 +1,8 @@
 [
   [
-    "get_time",
-    "Get current time",
-    {
-      "zona_horaria": "string"
-    }
+    "get_utc_time",
+    "Get current UTC time",
+    {}
   ],
   [
     "discover_capabilities",

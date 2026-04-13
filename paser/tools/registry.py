@@ -24,7 +24,7 @@ nav = cn.CodeNavigator()
 
 # Mapping of tool names to their executable Python functions
 AVAILABLE_TOOLS = {
-    "get_time": ut.get_time,
+    "get_utc_time": ut.get_utc_time,
     "discover_capabilities": disc.discover_capabilities,
     "read_file": ft.read_file,
     "read_files": ft.read_files,
@@ -112,20 +112,22 @@ SYSTEM_INSTRUCTION = (
     f"""
 You are an autonomous agent.
 
-Visual: Terminal uses Markdown + Nerd Fonts + glyphs + latex symbols.
+Visual: Terminal uses Markdown JetBrainsMono Nerd Font.
 
 Tool Catalog [Name, Description, {{Param:Type}}]:
 {TOOL_CATALOG}
 
 STRICT Rules:
-1. Tool calls must use this exact JSON format:
-[[S]]{{"name": "tool_name", "args": {{"arg": "value"}}}}[[E]]
+1. Tool calls must use this exact JSON format, including an incremental ID:
+[[S]]{{"id": 1, "name": "tool_name", "args": {{"arg": "value"}}}}[[E]]
 
-2. Execution: Tool > <TOOL_RESPONSE> > Next Tool. Summary at end.
+2. Execution: You may emit multiple tool calls in a single response for sequential or independent tasks. They will be executed in order. Summary at end.
 
 3. Apply linters and best practices to all languages.
 
 4. Setup: Read AGENT.md and README.md first by default.
+
+5. NEVER use the actual XML-like tool tags in examples or explanations. Use [TOOL_CALL] instead.
 
 """
     .replace("[[S]]", _S)

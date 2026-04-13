@@ -66,10 +66,10 @@ class AutonomousExecutor:
                 if data and 'name' in data: calls.append((data, raw))
         return calls
 
-    def _format_tool_response(self, data: Any, success: bool = True) -> str:
+    def _format_tool_response(self, data: Any, call_id: Optional[Union[int, str]] = None, success: bool = True) -> str:
         payload = {
+            "id": call_id,
             "status": "success" if success else "error",
-            "turn": self.turn_count,
             "data": data
         }
         return f"<TOOL_RESPONSE>{json.dumps(payload)}</TOOL_RESPONSE>"
@@ -119,7 +119,7 @@ class AutonomousExecutor:
             combined_tool_responses = []
             for call_data, raw_content in calls:
                 if call_data is None:
-                    tr = self._format_tool_response(f"Error de sintaxis: El TOOL_CALL '{raw_content}' no es un JSON válido.", success=False)
+                    tr = self._format_tool_response(f"Error de sintaxis: El TOOL_CALL '{raw_content}' no es un JSON válido.", call_id=None, success=False)
                     combined_tool_responses.append(tr)
                     continue
 
@@ -146,14 +146,14 @@ class AutonomousExecutor:
                                 is_valid = True
                             
                             if not is_valid:
-                                tr = self._format_tool_response(f"Tipo inválido para el argumento '{arg_name}' en '{name}'.", success=False)
+                                tr = self._format_tool_response(f"Tipo inválido para el argumento '{arg_name}' en '{name}'.", call_id=call_data.get("id"), success=False)
                                 combined_tool_responses.append(tr)
                                 continue
                 
                 if not isinstance(args, dict):
-                    tr = self._format_tool_response(f"Argumentos invñlidos para {name}", success=False)
+                    tr = self._format_tool_response(f"Argumentos invñlidos para {name}", call_id=call_data.get("id"), success=False)
                 elif name not in self.tools:
-                    tr = self._format_tool_response(f"Herramienta desconocida: {name}", success=False)
+                    tr = self._format_tool_response(f"Herramienta desconocida: {name}", call_id=call_data.get("id"), success=False)
                 else:
                     try:
                         ctx = None
@@ -166,12 +166,12 @@ class AutonomousExecutor:
                         else:
                             result = self.tools[name](**args)
                         
-                        tr = self._format_tool_response(result, success=True)
+                        tr = self._format_tool_response(result, call_id=call_data.get("id"), success=True)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, result, True)
                     except Exception as exc:
                         logger.exception(f"Error executing tool {name} with args {args}: {exc}")
-                        tr = self._format_tool_response(f"Error en herramienta '{name}': {str(exc)}", success=False)
+                        tr = self._format_tool_response(f"Error en herramienta '{name}': {str(exc)}", call_id=call_data.get("id"), success=False)
                         if self.on_tool_used:
                             self.on_tool_used(name, args, str(exc), False)
                 combined_tool_responses.append(tr)

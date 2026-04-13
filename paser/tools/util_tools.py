@@ -28,9 +28,9 @@ def retry_request(func):
                 time.sleep(sleep_time)
     return wrapper
 
-def get_time(zona_horaria: str) -> str:
+def get_utc_time() -> str:
     now_utc = datetime.datetime.now(datetime.timezone.utc)
-    return f"La hora actual en {zona_horaria} (simulado UTC) es: {now_utc.strftime('%H:%M:%S')}"
+    return f"La hora actual (UTC) es: {now_utc.strftime('%H:%M:%S')}"
 
 def get_cwd() -> str:
     import os
