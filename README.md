@@ -139,7 +139,7 @@ Consequently, after implementing any changes, the agent must always propose crea
 - **Navigation**: `list_symbols(file_path)`, `get_definition(symbol, file)`, `get_references(symbol, file)`, `find_all_calls(symbol, file)`, `get_detailed_symbols(path)`, `get_imports(path)`.
 - **Analysis & Quality**: `analyze_pyright(path)`, `find_missing_type_hints(path)`, `format_code(path)`, `validate_json(json_string)`, `validate_json_file(path)`.
 - **LSP Introspection**: `get_lsp_completions(...)`, `get_object_methods(...)`.
-- **Execution & AI**: `execute_python(code)`, `query_ai(prompt, ...)`.
+- **Execution & AI**: `execute_python(code)`, `query_ai(prompt, ...)`, `chat_with_paser_mini(prompt, context_str)`.
 
 ### 🐙 GitHub & Version Control
 

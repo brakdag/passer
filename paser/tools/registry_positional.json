@@ -473,5 +473,13 @@
     {
       "path": "string"
     }
+  ],
+  [
+    "chat_with_paser_mini",
+    "Chats with Paser Mini, a streamlined autonomous agent, to delegate tasks or get a minimalist perspective.",
+    {
+      "prompt": "string",
+      "context_str": "string"
+    }
   ]
 ]

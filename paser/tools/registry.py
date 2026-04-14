@@ -87,7 +87,8 @@ AVAILABLE_TOOLS = {
     "get_lsp_completions": lsp.lsp_nav.get_lsp_completions,
     "get_object_methods": lsp.lsp_nav.get_object_methods,
     "validate_json": ut.validate_json,
-    "validate_json_file": ut.validate_json_file
+    "validate_json_file": ut.validate_json_file,
+    "chat_with_paser_mini": ut.chat_with_paser_mini
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt

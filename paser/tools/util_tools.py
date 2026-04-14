@@ -102,3 +102,33 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
     except Exception as e:
         logger.error(f"Error in query_ai: {e}")
         raise ToolError(f"Error querying AI: {str(e)}")
+
+def chat_with_paser_mini(prompt: str, context_str: str = None) -> str:
+    """
+    Chats with Paser Mini, a streamlined autonomous agent, to delegate tasks or get a minimalist perspective.
+    Uses the system instructions defined in PASER-mini.md.
+    """
+    try:
+        # Load Paser Mini system instructions from the markdown file
+        # We assume PASER-mini.md is in the project root
+        mini_instructions_path = os.path.join(os.getcwd(), 'PASER-mini.md')
+        with open(mini_instructions_path, 'r', encoding='utf-8') as f:
+            system_instruction = f.read()
+
+        adapter = GeminiAdapter()
+        
+        # Use a fast model for the mini agent
+        model = "gemini-1.5-flash"
+        
+        # Construct the prompt with context if provided
+        full_prompt = prompt
+        if context_str:
+            full_prompt = f"Context:\n{context_str}\n\nTask: {prompt}"
+
+        adapter.start_chat(model, system_instruction, temperature=0.7)
+        response = adapter.send_message(full_prompt)
+        
+        return response.text if hasattr(response, 'text') else str(response)
+    except Exception as e:
+        logger.error(f"Error in chat_with_paser_mini: {e}")
+        raise ToolError(f"Error chatting with Paser Mini: {str(e)}")
