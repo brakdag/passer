@@ -104,34 +104,71 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
         logger.error(f"Error in query_ai: {e}")
         raise ToolError(f"Error querying AI: {str(e)}")
 
-def chat_with_paser_mini(prompt: str, context_str: str = None) -> str:
+class PaserMiniSession:
+    """Manages a persistent REPL session with a paser-mini instance."""
+    def __init__(self, agent_id: str):
+        self.agent_id = agent_id
+        # Start paser-mini as a persistent process
+        # PYTHONUNBUFFERED=1 ensures we get output in real-time
+        self.process = subprocess.Popen(
+            ["paser-mini"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            bufsize=1,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"}
+        )
+        self.prompt_char = "➔"
+
+    def send_prompt(self, prompt: str) -> str:
+        try:
+            # Send the prompt to the REPL
+            self.process.stdin.write(prompt + "\n")
+            self.process.stdin.flush()
+
+            # Read output until the prompt character is encountered
+            output = []
+            while True:
+                line = self.process.stdout.readline()
+                if not line:
+                    break
+                output.append(line)
+                if self.prompt_char in line:
+                    break
+            
+            return "".join(output).strip()
+        except Exception as e:
+            raise ToolError(f"Error communicating with Paser Mini session {self.agent_id}: {str(e)}")
+
+    def close(self):
+        self.process.terminate()
+        self.process.wait()
+
+# Global dictionary to maintain active sessions
+PASER_MINI_SESSIONS: dict[str, PaserMiniSession] = {}
+
+def chat_with_paser_mini(prompt: str, agent_id: str = "default", context_str: str = None) -> str:
     """
-    Chats with Paser Mini, a streamlined autonomous agent, to delegate tasks or get a minimalist perspective.
-    Invokes the 'paser-mini' CLI tool.
+    Chats with a persistent Paser Mini instance. 
+    Each agent_id maintains its own independent session and history.
     """
     try:
-        # Construct the prompt with context if provided
-        full_prompt = prompt
-        if context_str:
-            full_prompt = f"Context:\n{context_str}\n\nTask: {prompt}"
-
-        # Execute the paser-mini CLI command
-        # We use subprocess.run to capture the output of the command
-        result = subprocess.run(
-            ["paser-mini", full_prompt],
-            capture_output=True,
-            text=True,
-            check=True,
-            encoding='utf-8'
-        )
+        # Initialize session if it doesn't exist
+        is_new_session = agent_id not in PASER_MINI_SESSIONS
+        if is_new_session:
+            PASER_MINI_SESSIONS[agent_id] = PaserMiniSession(agent_id)
         
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Error executing paser-mini: {e.stderr}")
-        raise ToolError(f"Paser Mini CLI error: {e.stderr.strip() or e.stdout.strip()}")
-    except FileNotFoundError:
-        logger.error("paser-mini command not found in PATH")
-        raise ToolError("The 'paser-mini' executable was not found in the system PATH.")
+        session = PASER_MINI_SESSIONS[agent_id]
+
+        # Construct the prompt
+        # If context_str is provided and it's a new session, we can use it to seed the agent
+        full_prompt = prompt
+        if context_str and is_new_session:
+             full_prompt = f"Context:\n{context_str}\n\nTask: {prompt}"
+
+        return session.send_prompt(full_prompt)
+
     except Exception as e:
         logger.error(f"Unexpected error in chat_with_paser_mini: {e}")
-        raise ToolError(f"Error chatting with Paser Mini: {str(e)}")
+        raise ToolError(f"Error chatting with Paser Mini ({agent_id}): {str(e)}")
