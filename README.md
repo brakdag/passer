@@ -77,6 +77,8 @@ paser
     - All file operations (read, write, delete) are restricted to the current working directory defined by `PROJECT_ROOT` through a secure path validation function (`get_safe_path`).
     - File deletion requires interactive confirmation (`y/n`).
 
+**System Commands & Privileges:** For operations requiring specific system privileges (e.g., `chmod`), executing system commands not available in the toolset, or performing complex tests, the agent must always produce a shell script (`.sh` file). This script will be executed only after user review and confirmation.
+
 3.  **User Commands:**
     - `/models`: Change the AI model and adjust temperature.
     - `/thinking`: Toggle the visibility of the model's internal reasoning (thoughts).

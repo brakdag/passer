@@ -205,8 +205,8 @@ def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns:
         try:
             # Sort entries: directories first, then files
             entries = sorted(list(current_dir.iterdir()), key=lambda x: (x.is_file(), x.name.lower()))
-        except PermissionError:
-            return f"{prefix}└── [Permission Denied]"
+        except OSError as e:
+            return f"{prefix}└── [Error: {e.strerror or str(e)}]"
 
         # Filter excluded patterns
         entries = [e for e in entries if not any(p in e.name for p in exclude_patterns)]

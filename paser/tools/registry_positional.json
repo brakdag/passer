@@ -308,7 +308,7 @@
   ],
   [
     "execute_python",
-    "Execute Python code in a secure sandbox. Note: The sandbox is isolated and does NOT have access to the project's local file system. Use file-specific tools for disk operations. The '>>>' prompt indicates the interpreter is ready for the next command (OK).",
+    "Execute Python code in a secure sandbox. WARNING: THIS SANDBOX IS COMPLETELY ISOLATED. It has ZERO access to the project files or local disk. DO NOT use this tool for file exploration. Use 'list_dir', 'read_file', etc., for that. The '>>>' prompt indicates the interpreter is ready (OK).",
     {
       "code": "string"
     }

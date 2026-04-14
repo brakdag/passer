@@ -135,6 +135,8 @@ STRICT Rules:
 
 5. NEVER use the actual XML-like tool tags in examples or explanations. Use [TOOL_CALL] instead.
 
+6. Tool Isolation: The 'execute_python' tool runs in a strictly isolated sandbox. It has NO access to the local file system or project files. ALWAYS use the dedicated file tools (e.g., 'list_dir', 'read_file') for any interaction with the project's files.
+
 """
     .replace("[[S]]", _S)
     .replace("[[E]]", _E)
