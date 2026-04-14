@@ -5,7 +5,10 @@ import operator
 import logging
 import json
 import os
+import re
+import uuid
 import subprocess
+import selectors
 from typing import Optional
 from paser.infrastructure.gemini_adapter import GeminiAdapter
 from .core_tools import context, ToolError
@@ -104,71 +107,108 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
         logger.error(f"Error in query_ai: {e}")
         raise ToolError(f"Error querying AI: {str(e)}")
 
-class PaserMiniSession:
-    """Manages a persistent REPL session with a paser-mini instance."""
-    def __init__(self, agent_id: str):
-        self.agent_id = agent_id
-        # Start paser-mini as a persistent process
-        # PYTHONUNBUFFERED=1 ensures we get output in real-time
-        self.process = subprocess.Popen(
-            ["paser-mini"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1,
-            env={**os.environ, "PYTHONUNBUFFERED": "1"}
-        )
-        self.prompt_char = "➔"
+class PaserMiniProcessManager:
+    """Manages multiple independent processes of the paser-mini executable."""
+    def __init__(self):
+        self.processes: dict[str, subprocess.Popen] = {}
+        self.process_cwd: dict[str, str] = {}
+        self.executable_path = os.path.expanduser("~/.config/bin/paser-mini")
 
-    def send_prompt(self, prompt: str) -> str:
-        try:
-            # Send the prompt to the REPL
-            self.process.stdin.write(prompt + "\n")
-            self.process.stdin.flush()
-
-            # Read output until the prompt character is encountered
-            output = []
-            while True:
-                line = self.process.stdout.readline()
-                if not line:
-                    break
-                output.append(line)
-                if self.prompt_char in line:
-                    break
-            
-            return "".join(output).strip()
-        except Exception as e:
-            raise ToolError(f"Error communicating with Paser Mini session {self.agent_id}: {str(e)}")
-
-    def close(self):
-        self.process.terminate()
-        self.process.wait()
-
-# Global dictionary to maintain active sessions
-PASER_MINI_SESSIONS: dict[str, PaserMiniSession] = {}
-
-def chat_with_paser_mini(prompt: str, agent_id: str = "default", context_str: str = None) -> str:
-    """
-    Chats with a persistent Paser Mini instance. 
-    Each agent_id maintains its own independent session and history.
-    """
-    try:
-        # Initialize session if it doesn't exist
-        is_new_session = agent_id not in PASER_MINI_SESSIONS
-        if is_new_session:
-            PASER_MINI_SESSIONS[agent_id] = PaserMiniSession(agent_id)
+    def get_process(self, agent_id: str) -> subprocess.Popen:
+        current_cwd = os.getcwd()
         
-        session = PASER_MINI_SESSIONS[agent_id]
+        # If process exists but CWD has changed, restart it to sync directory
+        if agent_id in self.processes:
+            if self.process_cwd.get(agent_id) != current_cwd:
+                logger.info(f"CWD changed for agent {agent_id}. Restarting process to sync directory.")
+                self.terminate_agent(agent_id)
 
-        # Construct the prompt
-        # If context_str is provided and it's a new session, we can use it to seed the agent
-        full_prompt = prompt
-        if context_str and is_new_session:
-             full_prompt = f"Context:\n{context_str}\n\nTask: {prompt}"
+        if agent_id not in self.processes:
+            try:
+                # Start paser-mini as a subprocess in the current working directory
+                process = subprocess.Popen(
+                    [self.executable_path],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1, # Line buffered
+                    universal_newlines=True,
+                    cwd=current_cwd
+                )
+                self.processes[agent_id] = process
+                self.process_cwd[agent_id] = current_cwd
+                
+                # Initial wait for the prompt to ensure it's ready
+                self._wait_for_prompt(process)
+            except Exception as e:
+                raise ToolError(f"Failed to start paser-mini process: {e}")
+        return self.processes[agent_id]
 
-        return session.send_prompt(full_prompt)
+    def _wait_for_prompt(self, process: subprocess.Popen, timeout: int = 30) -> str:
+        """Reads stdout until the '> ' prompt is encountered."""
+        output = []
+        start_time = time.time()
+        
+        while True:
+            if time.time() - start_time > timeout:
+                raise TimeoutError("Paser-mini process timed out waiting for prompt '> '")
+            
+            char = process.stdout.read(1)
+            if not char:
+                break
+            output.append(char)
+            
+            # Check if the last characters are the prompt '> '
+            if "".join(output[-2:]) == "> ":
+                break
+        
+        return "".join(output)
 
+    def terminate_agent(self, agent_id: str):
+        if agent_id in self.processes:
+            self.processes[agent_id].terminate()
+            if agent_id in self.process_cwd:
+                del self.process_cwd[agent_id]
+            del self.processes[agent_id]
+
+# Global manager instance
+mini_process_manager = PaserMiniProcessManager()
+
+def chat_with_paser_mini(prompt: str, agent_id: str = None, context_str: str = None) -> str:
+    """
+    Interacts with a persistent paser-mini executable instance.
+    Each agent_id corresponds to a separate OS process.
+    """
+    if agent_id is None:
+        agent_id = str(uuid.uuid4())[:8]
+    
+    try:
+        process = mini_process_manager.get_process(agent_id)
+        
+        # Prepare the message
+        message = prompt
+        if context_str:
+            message = f"Context:\n{context_str}\n\nTask: {prompt}"
+        
+        # Send message to the process
+        process.stdin.write(message + "\n")
+        process.stdin.flush()
+        
+        # Read response until the prompt '> ' appears
+        # We use a timeout to prevent the main agent from hanging
+        response_text = mini_process_manager._wait_for_prompt(process, timeout=60)
+        
+        # Clean up the response (remove the trailing prompt)
+        if response_text.endswith("> "):
+            response_text = response_text[:-2]
+            
+        return f"[Agent: {agent_id}] {response_text.strip()}"
+        
+    except TimeoutError:
+        # If it hangs, we terminate the process to clean up and allow a restart
+        mini_process_manager.terminate_agent(agent_id)
+        raise ToolError(f"Agent {agent_id} hung and was terminated. Please try again with a new session.")
     except Exception as e:
-        logger.error(f"Unexpected error in chat_with_paser_mini: {e}")
-        raise ToolError(f"Error chatting with Paser Mini ({agent_id}): {str(e)}")
+        logger.error(f"Error in chat_with_paser_mini: {e}")
+        raise ToolError(f"Error interacting with paser-mini process: {str(e)}")
