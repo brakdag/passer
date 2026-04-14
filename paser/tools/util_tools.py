@@ -14,7 +14,7 @@ from paser.infrastructure.gemini_adapter import GeminiAdapter
 from .core_tools import context, ToolError
 from .validation import validate_args
 from .schemas import ValidateJsonSchema, ValidateJsonFileSchema
-from paser.core.mini_agent import manager as mini_manager
+
 
 logger = logging.getLogger("tools")
 
@@ -135,6 +135,7 @@ def chat_with_paser_mini(prompt: str, citizen_id: str = None, role: str = None, 
     Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory.
     Each citizen has its own independent history and uses the orchestrator's model.
     """
+    from paser.core.mini_agent import manager as mini_manager
     try:
         # Get or create the citizen with the specified role
         citizen = mini_manager.get_citizen(citizen_id, role)
