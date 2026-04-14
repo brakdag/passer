@@ -5,6 +5,7 @@ import operator
 import logging
 import json
 import os
+import subprocess
 from typing import Optional
 from paser.infrastructure.gemini_adapter import GeminiAdapter
 from .core_tools import context, ToolError
@@ -81,7 +82,7 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
                     available = adapter.get_available_models()
                     model = next((m for m in available if 'pro' in m.lower()), available[0])
                 except Exception:
-                    model = "gemini-1.5-flash"
+                    model = "models/gemini-1.5-flash"
 
         # Construct the prompt with context if provided
         full_prompt = prompt
@@ -106,29 +107,31 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
 def chat_with_paser_mini(prompt: str, context_str: str = None) -> str:
     """
     Chats with Paser Mini, a streamlined autonomous agent, to delegate tasks or get a minimalist perspective.
-    Uses the system instructions defined in PASER-mini.md.
+    Invokes the 'paser-mini' CLI tool.
     """
     try:
-        # Load Paser Mini system instructions from the markdown file
-        # We assume PASER-mini.md is in the project root
-        mini_instructions_path = os.path.join(os.getcwd(), 'PASER-mini.md')
-        with open(mini_instructions_path, 'r', encoding='utf-8') as f:
-            system_instruction = f.read()
-
-        adapter = GeminiAdapter()
-        
-        # Use a fast model for the mini agent
-        model = "gemini-1.5-flash"
-        
         # Construct the prompt with context if provided
         full_prompt = prompt
         if context_str:
             full_prompt = f"Context:\n{context_str}\n\nTask: {prompt}"
 
-        adapter.start_chat(model, system_instruction, temperature=0.7)
-        response = adapter.send_message(full_prompt)
+        # Execute the paser-mini CLI command
+        # We use subprocess.run to capture the output of the command
+        result = subprocess.run(
+            ["paser-mini", full_prompt],
+            capture_output=True,
+            text=True,
+            check=True,
+            encoding='utf-8'
+        )
         
-        return response.text if hasattr(response, 'text') else str(response)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error executing paser-mini: {e.stderr}")
+        raise ToolError(f"Paser Mini CLI error: {e.stderr.strip() or e.stdout.strip()}")
+    except FileNotFoundError:
+        logger.error("paser-mini command not found in PATH")
+        raise ToolError("The 'paser-mini' executable was not found in the system PATH.")
     except Exception as e:
-        logger.error(f"Error in chat_with_paser_mini: {e}")
+        logger.error(f"Unexpected error in chat_with_paser_mini: {e}")
         raise ToolError(f"Error chatting with Paser Mini: {str(e)}")

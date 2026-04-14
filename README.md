@@ -117,6 +117,16 @@ Since the agent operates in a runtime environment that does not automatically re
 
 Consequently, after implementing any changes, the agent must always propose creating a GitHub issue to delegate testing to a subsequent agent to ensure the modifications are verified in a clean state.
 
+### Technical Note: Tool Implementation & Runtime Persistence
+
+During the implementation of the `chat_with_paser_mini` tool, a critical behavior of the Python runtime was observed:
+
+1. **The Stale Module Problem**: When an agent modifies a `.py` file (e.g., `util_tools.py`) and then calls a tool from that file, the changes are **not** reflected immediately. This is because Python caches imported modules in `sys.modules`. The running process continues to execute the version of the code that was loaded at startup.
+2. **The Failed Test**: Initial attempts to fix a model name error in `chat_with_paser_mini` appeared to fail even after the file was correctly updated on disk, because the agent was still executing the "stale" version of the function in memory.
+3. **The Solution (CLI Wrapper)**: To bypass this runtime persistence and align with the project architecture, `chat_with_paser_mini` was refactored to use `subprocess.run(["paser-mini", prompt])`.
+
+**Why this works:** By spawning a new system process for every call, the tool executes the actual binary installed in the system path (`~/.local/bin/paser-mini`), ensuring that the most recent version of the code is always used without requiring a restart of the main agent process.
+
 ## Available Tools
 
 ### 📂 Files & Directories
