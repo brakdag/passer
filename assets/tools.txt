@@ -1,0 +1,13 @@
+Available Tools:
+- read_file
+- write_file
+- remove_file
+- list_dir
+- get_cwd
+- replace_string
+- analyze_pyright
+- search_text_global
+- search_files_pattern
+- rename_path
+- create_dir
+- validate_json
