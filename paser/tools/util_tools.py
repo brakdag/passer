@@ -7,13 +7,14 @@ import json
 import os
 import re
 import uuid
-import subprocess
-import selectors
+import asyncio
+import threading
 from typing import Optional
 from paser.infrastructure.gemini_adapter import GeminiAdapter
 from .core_tools import context, ToolError
 from .validation import validate_args
 from .schemas import ValidateJsonSchema, ValidateJsonFileSchema
+from paser.core.mini_agent import manager as mini_manager
 
 logger = logging.getLogger("tools")
 
@@ -107,108 +108,41 @@ def query_ai(prompt: str, temperature: float = 0.9, model: str = None, context_s
         logger.error(f"Error in query_ai: {e}")
         raise ToolError(f"Error querying AI: {str(e)}")
 
-class PaserMiniProcessManager:
-    """Manages multiple independent processes of the paser-mini executable."""
-    def __init__(self):
-        self.processes: dict[str, subprocess.Popen] = {}
-        self.process_cwd: dict[str, str] = {}
-        self.executable_path = os.path.expanduser("~/.config/bin/paser-mini")
-
-    def get_process(self, agent_id: str) -> subprocess.Popen:
-        current_cwd = os.getcwd()
-        
-        # If process exists but CWD has changed, restart it to sync directory
-        if agent_id in self.processes:
-            if self.process_cwd.get(agent_id) != current_cwd:
-                logger.info(f"CWD changed for agent {agent_id}. Restarting process to sync directory.")
-                self.terminate_agent(agent_id)
-
-        if agent_id not in self.processes:
-            try:
-                # Start paser-mini as a subprocess in the current working directory
-                process = subprocess.Popen(
-                    [self.executable_path],
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    bufsize=1, # Line buffered
-                    universal_newlines=True,
-                    cwd=current_cwd
-                )
-                self.processes[agent_id] = process
-                self.process_cwd[agent_id] = current_cwd
-                
-                # Initial wait for the prompt to ensure it's ready
-                self._wait_for_prompt(process)
-            except Exception as e:
-                raise ToolError(f"Failed to start paser-mini process: {e}")
-        return self.processes[agent_id]
-
-    def _wait_for_prompt(self, process: subprocess.Popen, timeout: int = 30) -> str:
-        """Reads stdout until the '> ' prompt is encountered."""
-        output = []
-        start_time = time.time()
-        
-        while True:
-            if time.time() - start_time > timeout:
-                raise TimeoutError("Paser-mini process timed out waiting for prompt '> '")
-            
-            char = process.stdout.read(1)
-            if not char:
-                break
-            output.append(char)
-            
-            # Check if the last characters are the prompt '> '
-            if "".join(output[-2:]) == "> ":
-                break
-        
-        return "".join(output)
-
-    def terminate_agent(self, agent_id: str):
-        if agent_id in self.processes:
-            self.processes[agent_id].terminate()
-            if agent_id in self.process_cwd:
-                del self.process_cwd[agent_id]
-            del self.processes[agent_id]
-
-# Global manager instance
-mini_process_manager = PaserMiniProcessManager()
-
-def chat_with_paser_mini(prompt: str, agent_id: str = None, context_str: str = None) -> str:
-    """
-    Interacts with a persistent paser-mini executable instance.
-    Each agent_id corresponds to a separate OS process.
-    """
-    if agent_id is None:
-        agent_id = str(uuid.uuid4())[:8]
+def _run_async_task(coro):
+    """Helper to run an async coroutine in a separate thread with its own event loop."""
+    result = []
+    def target():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            res = loop.run_until_complete(coro)
+            result.append(res)
+        except Exception as e:
+            result.append(e)
+        finally:
+            loop.close()
     
+    thread = threading.Thread(target=target)
+    thread.start()
+    thread.join()
+    
+    if result and isinstance(result[0], Exception):
+        raise result[0]
+    return result[0] if result else None
+
+def chat_with_paser_mini(prompt: str, citizen_id: str = None, role: str = None, context_str: str = None) -> str:
+    """
+    Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory.
+    Each citizen has its own independent history and uses the orchestrator's model.
+    """
     try:
-        process = mini_process_manager.get_process(agent_id)
+        # Get or create the citizen with the specified role
+        citizen = mini_manager.get_citizen(citizen_id, role)
         
-        # Prepare the message
-        message = prompt
-        if context_str:
-            message = f"Context:\n{context_str}\n\nTask: {prompt}"
+        # Run the async task in a separate thread to avoid "running event loop" errors
+        result = _run_async_task(citizen.execute_task(prompt, context_str))
         
-        # Send message to the process
-        process.stdin.write(message + "\n")
-        process.stdin.flush()
-        
-        # Read response until the prompt '> ' appears
-        # We use a timeout to prevent the main agent from hanging
-        response_text = mini_process_manager._wait_for_prompt(process, timeout=60)
-        
-        # Clean up the response (remove the trailing prompt)
-        if response_text.endswith("> "):
-            response_text = response_text[:-2]
-            
-        return f"[Agent: {agent_id}] {response_text.strip()}"
-        
-    except TimeoutError:
-        # If it hangs, we terminate the process to clean up and allow a restart
-        mini_process_manager.terminate_agent(agent_id)
-        raise ToolError(f"Agent {agent_id} hung and was terminated. Please try again with a new session.")
+        return f"[Citizen: {citizen.citizen_id} | Role: {role or 'generalist'}] {result}"
     except Exception as e:
         logger.error(f"Error in chat_with_paser_mini: {e}")
-        raise ToolError(f"Error interacting with paser-mini process: {str(e)}")
+        raise ToolError(f"Error chatting with Citizen: {str(e)}")

@@ -4,41 +4,15 @@
   <img src="assets/mascot.png" alt="Paser Mascot" width="200"/>
 </div>
 
-**Paser** (originally called "Passer", after _Passer domesticus_) is an autonomous agent powered by Google's Gemini model (via the `google-genai` SDK) that employs the **ReAct (Reasoning and Acting)** pattern to execute local functions transparently for the user. Designed and optimized for **Debian/Linux** systems.
-
-The name change from "Passer" to "Paser" (repository: `brakdag/passer`) simplifies terminal typing while maintaining the root of the original name and the meaning linked to the house sparrow, a very common bird in southern Mendoza.
+**Paser** is an autonomous agent powered by Google's Gemini model that employs the **ReAct (Reasoning and Acting)** pattern to execute local functions transparently. Designed and optimized for **Debian/Linux** systems.
 
 ## Installation
-
-You can choose between cloning the repository (for development) or running the installation script directly:
-
-### Option 1: Quick Installation (Recommended)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/brakdag/paser/main/install.sh | bash
 ```
 
-### Option 2: Clone from Repository (For Development)
-
-```bash
-git clone https://github.com/brakdag/paser.git && cd paser && chmod +x install.sh && ./install.sh
-```
-
-## Credentials Configuration
-
-To allow Paser to interact with external services, you must configure the following environment variables in your `.bashrc` or `.zshrc` file:
-
-```bash
-# API Key for the Gemini model
-export GOOGLE_API_KEY="your_google_api_key_here"
-
-# Personal access token for GitHub (required for managing issues)
-export GITHUB_TOKEN="your_github_token_here"
-```
-
 ## Execution
-
-Once installed and configured, you can run the application simply by using:
 
 ```bash
 paser
@@ -51,13 +25,10 @@ paser
 ├── paser/                # Main application package
 │   ├── core/             # ReAct engine, agent orchestration and state management
 │   ├── tools/            # Tool definitions, registry and semantic navigators
-│   │   ├── file_tools.py # File system operations and surgical editing
-│   │   ├── lsp_tools.py  # IDE-like introspection (Jedi integration)
-│   │   ├── code_navigator.py # AST-based code analysis
-│   │   └── registry.py   # Central tool mapping and system instructions
 │   ├── infrastructure/   # Low-level system wrappers and API clients
 │   ├── config/           # Application settings and environment config
 │   └── main.py           # CLI entry point
+├── staff/                # Role definitions for specialized citizens (.md files)
 ├── tests/                # Unit and integration test suite
 ├── scripts/              # Installation and maintenance scripts
 ├── assets/               # Static assets and branding
@@ -67,91 +38,40 @@ paser
 
 ## Main Features
 
-1.  **Local Function Calling (Manual):**
-    - Does not use native Google SDK tools.
-    - Uses _System Instructions_ to force the model to emit structured calls (`<TOOL_CALL>`).
-    - The script acts as a _middleware_ that intercepts these calls, executes the local function, and returns the result in `<TOOL_RESPONSE>` format to the model's history.
-    - *Note: Modifying `paser/tools/registry.py` autonomously can be unstable due to the tool interceptor (see [Issue #110](https://github.com/brakdag/passer/issues/110)). The complex string construction of `SYSTEM_INSTRUCTION` (using `chr()` and `.replace()`) is a mandatory workaround to prevent the middleware from misinterpreting the code as a tool call; do not simplify or "clean up" this implementation.*
+1. **Local Function Calling**: Uses a custom middleware to intercept `<TOOL_CALL>` and return `<TOOL_RESPONSE>`.
+2. **Staff & Citizens System**: Paser acts as an **Orchestrator** that can spawn specialized **Citizens** (mini-agents). 
+    - **Roles**: Defined in `staff/*.md`.
+    - **Isolation**: Each citizen has its own independent history.
+    - **Efficiency**: Citizens use a fast model and limited execution turns to avoid blocking the main agent.
+3. **Security**: All file operations are restricted to the `PROJECT_ROOT` via `get_safe_path`.
 
-2.  **Security and File Control:**
-    - All file operations (read, write, delete) are restricted to the current working directory defined by `PROJECT_ROOT` through a secure path validation function (`get_safe_path`).
-    - File deletion requires interactive confirmation (`y/n`).
-
-**System Commands & Privileges:** For operations requiring specific system privileges (e.g., `chmod`), executing system commands not available in the toolset, or performing complex tests, the agent must always produce a shell script (`.sh` file). This script will be executed only after user review and confirmation.
-
-3.  **User Commands:**
-    - `/models`: Change the AI model and adjust temperature.
-    - `/thinking`: Toggle the visibility of the model's internal reasoning (thoughts).
-    - `/cd <path>`: Change the agent's working directory.
-    - `/t`: Display the current context window token count.
-    - `/history`: Show a summary of tools executed during the session.
-    - `/session`: List and load previously saved sessions.
-    - `/reset`: Save the current session and restart the application.
-    - `/max_turns <n>`: Set the maximum number of autonomous turns to prevent infinite loops.
-    - `/clear` or `/cls`: Clear the terminal screen.
+## User Commands
+- `/models`: Change AI model.
+- `/thinking`: Toggle reasoning visibility.
+- `/cd <path>`: Change working directory.
+- `/history`: Show tool execution summary.
+- `/session`: Manage saved sessions.
+- `/reset`: Restart application.
+- `/max_turns <n>`: Set autonomous turn limit.
 
 ## Tool Management
 
-To maintain system stability and ensure the LLM correctly identifies available capabilities, follow these procedures when modifying the toolset:
-
-### Adding a New Tool
-1. **Implementation**: Define the Python function in the appropriate module within `paser/tools/` (e.g., `file_tools.py`, `web_tools.py`). Ensure strict type hinting for all arguments.
-2. **Registry Mapping**: Add the tool to the `AVAILABLE_TOOLS` dictionary in `paser/tools/registry.py`, mapping the tool name (used by the LLM) to the actual function object.
-3. **Metadata Definition**: Add the tool's metadata (name, description, and parameter types) to `paser/tools/registry_positional.json`. This file is used to generate the `TOOL_CATALOG` in the system prompt.
-4. **Refresh**: Restart the application to reload the registry and update the system instructions sent to the model.
-
-### Error Handling
-
-To ensure consistent error reporting to the LLM, tools must not return error messages as strings (e.g., avoid `return "Error: ..."`). Instead, raise the `ToolError` exception from `paser.tools.core_tools`. The `AutonomousExecutor` automatically catches this exception, prepends the `ERR: ` prefix, and marks the response status as `error`.
-
-### Removing a Tool
-1. **Registry Removal**: Delete the tool's entry from the `AVAILABLE_TOOLS` dictionary in `paser/tools/registry.py`.
-2. **Metadata Cleanup**: Remove the corresponding entry from `paser/tools/registry_positional.json`.
-3. **Code Cleanup**: (Optional) Delete the function implementation from the source file to keep the codebase clean.
-4. **Refresh**: Restart the application.
-
-## Development & Testing
-
-**Important Note on Runtime Environment:**
-Since the agent operates in a runtime environment that does not automatically reflect code changes upon rewriting, testing must be performed in a freshly initialized environment with a new agent instance. 
-
-Consequently, after implementing any changes, the agent must always propose creating a GitHub issue to delegate testing to a subsequent agent to ensure the modifications are verified in a clean state.
-
-### Technical Note: Tool Implementation & Runtime Persistence
-
-During the implementation of the `chat_with_paser_mini` tool, a critical behavior of the Python runtime was observed:
-
-1. **The Stale Module Problem**: When an agent modifies a `.py` file (e.g., `util_tools.py`) and then calls a tool from that file, the changes are **not** reflected immediately. This is because Python caches imported modules in `sys.modules`. The running process continues to execute the version of the code that was loaded at startup.
-2. **The Failed Test**: Initial attempts to fix a model name error in `chat_with_paser_mini` appeared to fail even after the file was correctly updated on disk, because the agent was still executing the "stale" version of the function in memory.
-3. **The Solution (CLI Wrapper)**: To bypass this runtime persistence and align with the project architecture, `chat_with_paser_mini` was refactored to use `subprocess.run(["paser-mini", prompt])`.
-
-**Why this works:** By spawning a new system process for every call, the tool executes the actual binary installed in the system path (`~/.local/bin/paser-mini`), ensuring that the most recent version of the code is always used without requiring a restart of the main agent process.
+### Adding a Tool
+1. Implement function in `paser/tools/`.
+2. Map in `paser/tools/registry.py`.
+3. Define metadata in `paser/tools/registry_positional.json`.
+4. Restart application.
 
 ## Available Tools
 
-### 📂 Files & Directories
+### Files & Directories
+- `read_file`, `write_file`, `list_dir`, `replace_string`, `get_tree`, etc.
 
-- **Reading**: `read_file(path)`, `read_files(paths)`, `read_lines(...)`, `read_head(...)`, `read_file_with_lines(path)`.
-- **Writing & Editing**: `write_file(path, content)`, `update_line(...)`, `replace_string(...)`, `replace_string_at_line(...)`, `global_replace(...)`, `manage_imports(...)`, `copy_lines(...)`, `cut_lines(...)`, `paste_lines(...)`.
-- **Path Management**: `list_dir(path)`, `create_dir(path)`, `rename_path(origin, destination)`, `remove_file(path)`, `get_tree(path)`, `get_cwd()`.
-- **Search**: `search_files_pattern(pattern)`, `search_text_global(query)`.
+### Media & Interaction
+- `web_search`, `fetch_url`, `api_request`, `speak_text`, `alert_sound`, etc.
 
-### 🎨 Media & Interaction
+### Code & Engineering
+- `list_symbols`, `get_definition`, `analyze_pyright`, `execute_python`, `chat_with_paser_mini(prompt, citizen_id, role, context_str)`, etc.
 
-- **Web & API**: `web_search(query)`, `fetch_url(url)`, `render_web_page(url)`, `api_request(...)`.
-- **Vision**: `see_image(path)`, `convert_image(...)`.
-- **Audio & Music**: `play_music(query)`, `stop_music()`, `speak_text(text, lang)`, `alert_sound()`.
-- **System Interaction**: `notify_user(message)`, `notify_mobile(message)`, `set_timer(seconds, message)`, `is_window_in_focus(action)`, `compile_latex(path)`, `get_time(timezone)`.
-- **Discovery**: `discover_capabilities(category)`: Lists available tools by category.
-
-### 💻 Code & Engineering
-
-- **Navigation**: `list_symbols(file_path)`, `get_definition(symbol, file)`, `get_references(symbol, file)`, `find_all_calls(symbol, file)`, `get_detailed_symbols(path)`, `get_imports(path)`.
-- **Analysis & Quality**: `analyze_pyright(path)`, `find_missing_type_hints(path)`, `format_code(path)`, `validate_json(json_string)`, `validate_json_file(path)`.
-- **LSP Introspection**: `get_lsp_completions(...)`, `get_object_methods(...)`.
-- **Execution & AI**: `execute_python(code)`, `query_ai(prompt, ...)`, `chat_with_paser_mini(prompt, context_str)`.
-
-### 🐙 GitHub & Version Control
-
-- **Issue Management**: `list_issues(repo)`, `create_issue(repo, title, body)`, `close_issue(repo, issue_number)`, `edit_issue(...)`.
-- **Git Operations**: `git_diff()`, `get_current_repo()`, `revert_file(path)`.
+### GitHub & Version Control
+- `list_issues`, `create_issue`, `git_diff`, `get_current_repo`, etc.

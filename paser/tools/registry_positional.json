@@ -476,10 +476,11 @@
   ],
   [
     "chat_with_paser_mini",
-    "Chats with a persistent Paser Mini instance. Each agent_id maintains its own independent session and history.",
+    "Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory. Each citizen maintains its own independent session and history.",
     {
       "prompt": "string",
-      "agent_id": "string",
+      "citizen_id": "string",
+      "role": "string",
       "context_str": "string"
     }
   ]
