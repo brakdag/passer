@@ -73,6 +73,23 @@ paser
 3. Define metadata in `paser/tools/registry_positional.json`.
 4. Restart application.
 
+## 🚫 PROHIBITED TOOLS (STRICT)
+
+> [!CAUTION]
+> **The following tools are STRICTLY PROHIBITED for use in this project.** 
+> Using these tools may cause system instability, noise, or performance degradation.
+
+- `play_music`
+- `stop_music`
+- `speak_text`
+- `compile_latex`
+- `is_window_in_focus`
+- **Web Navigation**: `web_search`, `fetch_url`, `render_web_page`
+- **Code Navigation**: `get_definition`, `get_references`, `list_symbols`, `find_all_calls`, `get_detailed_symbols`, `get_imports`, `find_missing_type_hints`, `get_lsp_completions`, `get_object_methods`
+- **System & API**: `convert_image`, `api_request`, `execute_python`
+
+**DO NOT use these tools under any circumstances unless explicitly instructed by the project owner.**
+
 ## Available Tools
 
 ### Files & Directories

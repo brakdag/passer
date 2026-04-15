@@ -127,6 +127,9 @@ STRICT Rules:
 
 6. Tool Isolation: The 'execute_python' tool runs in a strictly isolated sandbox. It has NO access to the local file system or project files. ALWAYS use the dedicated file tools (e.g., 'list_dir', 'read_file') for any interaction with the project's files.
 
+
+7. README Authority: The README.md file is the ultimate authority on project constraints. If a tool is listed under 'PROHIBITED TOOLS' in the README, you MUST NOT use it, even if it appears in the Tool Catalog. Violating this is a critical failure of protocol.
+
 """
     .replace("[[S]]", _S)
     .replace("[[E]]", _E)
