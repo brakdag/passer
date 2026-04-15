@@ -1,6 +1,7 @@
 {
     "model_name": "models/gemma-4-26b-a4b-it",
     "default_temperature": 0.3,
+    "thinking_enabled": false,
     "mqtt_host": "192.168.100.18",
     "mqtt_port": 1883,
     "mqtt_topic": "paser/message",

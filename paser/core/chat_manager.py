@@ -28,7 +28,7 @@ class ChatManager:
         config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
         self.config_manager = ConfigManager(config_path)
         
-        self.thinking_enabled = self.config_manager.get("thinking_enabled", True)
+        self.thinking_enabled = self.config_manager.get("thinking_enabled", False)
         self.temperature = float(self.config_manager.get("default_temperature", 0.7))
         
         # Langchain saving toggle
