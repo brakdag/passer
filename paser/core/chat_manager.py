@@ -103,6 +103,7 @@ class ChatManager:
                 detail = f": #{match.group(1)}"
 
         self.ui.display_tool_status(tool_name, success, detail)
+        self.command_handler.log_tool(tool_name, "success" if success else "error")
 
     async def run(self):
         loop = asyncio.get_running_loop()

@@ -1,4 +1,5 @@
 --- HASH: 07b927d11b0a16dddddeb3eec01c7deb56a738e4cddf827e14591b81da88328e ---
+
 # Paser (Autonomous Function Calling System - ReAct Pattern)
 
 <div align="center">
@@ -22,7 +23,7 @@ paser
 ## Project Structure
 
 ```text
-. 
+.
 ├── paser/                # Main application package
 │   ├── core/             # ReAct engine, agent orchestration and state management
 │   ├── tools/            # Tool definitions, registry and semantic navigators
@@ -40,22 +41,21 @@ paser
 ## Main Features
 
 ### Communication Protocol
+
 - **Brevity & Productivity**: The agent is committed to providing concise, direct, and highly productive responses. Every interaction is designed to minimize noise and maximize actionable output.
 
 1. **Local Function Calling**: Uses a custom middleware to intercept `<TOOL_CALL>` and return `<TOOL_RESPONSE>`.
-2. **Staff & Citizens System**: Paser acts as a **Pure Orchestrator (CEO)** that is strictly forbidden from editing code, delegating all technical implementations to specialized **Citizens** (mini-agents). 
-    - **Roles**: Defined in `staff/*.md`.
-    - **Isolation**: Each citizen has its own independent history.
-    - **Efficiency**: Citizens use a fast model and limited execution turns to avoid blocking the main agent.
-3. **Security**: All file operations are restricted to the `PROJECT_ROOT` via `get_safe_path`.
+2. **Security**: All file operations are restricted to the `PROJECT_ROOT` via `get_safe_path`.
 
 ## Protocolo de Delegación
+
 1. Ciudadanos son responsables de integridad, calidad y pruebas.
 2. El CEO NO lee código. El CEO recibe resumen ejecutivo y reporte de pruebas.
 3. Si un ciudadano no garantiza calidad, solicita revisión de pares (otro ciudadano).
 4. Prohibido al CEO realizar auditorías de código manuales.
 
 ## User Commands
+
 - `/models`: Change AI model.
 - `/thinking`: Toggle reasoning visibility.
 - `/cd <path>`: Change working directory.
@@ -67,6 +67,7 @@ paser
 ## Tool Management
 
 ### Adding a Tool
+
 1. Implement function in `paser/tools/`.
 2. Map in `paser/tools/registry.py`.
 3. Define metadata in `paser/tools/registry_positional.json`.
@@ -75,13 +76,17 @@ paser
 ## Available Tools
 
 ### Files & Directories
+
 - `read_file`, `write_file`, `list_dir`, `replace_string`, `get_tree`, etc.
 
 ### Media & Interaction
+
 - `web_search`, `fetch_url`, `api_request`, `speak_text`, `alert_sound`, etc.
 
 ### Code & Engineering
+
 - `list_symbols`, `get_definition`, `analyze_pyright`, `execute_python`, `chat_with_paser_mini(prompt, citizen_id, role, context_str)`, etc.
 
 ### GitHub & Version Control
+
 - `list_issues`, `create_issue`, `git_diff`, `get_current_repo`, etc.
