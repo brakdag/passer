@@ -1,3 +1,5 @@
+import shlex
+from itertools import islice
 import json
 import tempfile
 import logging
@@ -17,6 +19,7 @@ from .schemas import (
 logger = logging.getLogger('tools')
 FILE_SIZE_LIMIT = 5 * 1024 * 1024
 MAX_LIST_RESULTS = 100
+MAX_SEARCH_RESULTS = 10
 READ_PREVIEW_LIMIT = 20 * 1024
 
 def is_binary_file(path: Path) -> bool:
@@ -146,9 +149,8 @@ def search_files_pattern(pattern: str) -> str:
     try:
         root = Path(context.get_safe_path('.'))
         # Limit recursion depth to 3 levels
-        results = [str(p.relative_to(root)) for p in root.rglob(pattern) if len(p.relative_to(root).parts) <= 3]
-        if len(results) > MAX_LIST_RESULTS:
-            return json.dumps({"results": results[:MAX_LIST_RESULTS], "total": len(results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
+        results_gen = (str(p.relative_to(root)) for p in root.rglob(pattern) if len(p.relative_to(root).parts) <= 3)
+        results = list(islice(results_gen, MAX_SEARCH_RESULTS))
         return json.dumps(results)
     except Exception:
         raise ToolError('Search error')
@@ -157,8 +159,11 @@ def search_text_global(query: str) -> str:
     import subprocess
     root_path = context.get_safe_path(".")
     try:
+        # Use shell=True to allow piping to head for early termination
+        cmd = f"grep -rIn --exclude-dir=.git --exclude-dir=venv --exclude-dir=__pycache__ --exclude-dir=node_modules -- {shlex.quote(query)} {shlex.quote(root_path)} | head -n {MAX_SEARCH_RESULTS}"
         result = subprocess.run(
-            ['grep', '-rIn', '--exclude-dir={.git,venv,__pycache__,node_modules}', '--', query, root_path], 
+            cmd, 
+            shell=True, 
             capture_output=True, 
             text=True, 
             encoding='utf-8', 
@@ -179,8 +184,6 @@ def search_text_global(query: str) -> str:
                     "line": int(line_num),
                     "text": text.strip()
                 })
-        if len(parsed_results) > MAX_LIST_RESULTS:
-            return json.dumps({"results": parsed_results[:MAX_LIST_RESULTS], "total": len(parsed_results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
         return json.dumps(parsed_results)
     except subprocess.TimeoutExpired:
         raise ToolError('Search timed out after 30 seconds')

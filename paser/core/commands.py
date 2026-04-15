@@ -8,6 +8,55 @@ from rich.table import Table
 from paser.core.ui import get_input, console, print_panel, LATEX_TO_UNICODE, SpinnerContext, print_model_response
 from paser.tools import core_tools
 
+COMMAND_DOCS = {
+    "/cd": "Cambiar el directorio de trabajo.",
+    "/history": "Mostrar el historial de herramientas.",
+    "/latex": "Mostrar símbolos LaTeX soportados.",
+    "/clear": "Limpiar la terminal.",
+    "/save": "Guardar la sesión actual.",
+    "/session": "Listar y cargar sesiones.",
+    "/rm": "Eliminar una sesión.",
+    "/thinking": "Alternar modo de pensamiento.",
+    "/new": "Resumir, guardar snapshot y reiniciar.",
+    "/models": "Cambiar modelo y temperatura.",
+    "/max_turns": "Ajustar límite de turnos.",
+    "/repeat": "Configurar una tarea recurrente.",
+    "/stop_repeat": "Detener tareas recurrentes.",
+    "/t": "Ver tokens del contexto.",
+    "/quota": "Ver consumo de la API.",
+    "/close_issue": "Cerrar un issue de GitHub.",
+    "/save_langchain": "Alternar guardado de LangChain.",
+    "/snapshot": "Capturar y analizar pantalla.",
+    "/help": "Mostrar esta ayuda."
+}
+
+COMMAND_MAP = {
+    "/cd": "/cd",
+    "/history": "/history",
+    "/latex": "/latex",
+    "/clear": "/clear",
+    "/cls": "/clear",
+    "/save": "/save",
+    "/s": "/save",
+    "/session": "/session",
+    "/ls": "/session",
+    "/rm": "/rm",
+    "/rm_session": "/rm",
+    "/thinking": "/thinking",
+    "/new": "/new",
+    "/n": "/new",
+    "/models": "/models",
+    "/max_turns": "/max_turns",
+    "/repeat": "/repeat",
+    "/stop_repeat": "/stop_repeat",
+    "/t": "/t",
+    "/quota": "/quota",
+    "/close_issue": "/close_issue",
+    "/save_langchain": "/save_langchain",
+    "/snapshot": "/snapshot",
+    "/help": "/help"
+}
+
 class CommandHandler:
     def __init__(self, chat_manager):
         self.chat_manager = chat_manager
@@ -47,6 +96,15 @@ class CommandHandler:
             table.add_column("Unicode", style="green")
             for latex, unicode_char in sorted(LATEX_TO_UNICODE.items()):
                 table.add_row(latex, unicode_char)
+            console.print(table)
+            return True
+
+        elif input_stripped == '/help':
+            table = Table(title="Comandos Disponibles")
+            table.add_column("Comando", style="cyan")
+            table.add_column("Descripción", style="green")
+            for cmd in sorted(COMMAND_DOCS.keys()):
+                table.add_row(cmd, COMMAND_DOCS[cmd])
             console.print(table)
             return True
 
@@ -274,7 +332,11 @@ class CommandHandler:
                 return True
 
         if input_stripped.startswith('/') or input_stripped.startswith(':'):
-            console.print("Comando no válido", style="red")
+            cmd_part = input_stripped.split()[0]
+            if cmd_part in COMMAND_MAP:
+                console.print(f"Comando '{cmd_part}' no reconocido o con argumentos incorrectos.", style="red")
+            else:
+                console.print("Comando no válido", style="red")
             return True
 
         return False
