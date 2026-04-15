@@ -39,7 +39,7 @@ paser
 ## Main Features
 
 1. **Local Function Calling**: Uses a custom middleware to intercept `<TOOL_CALL>` and return `<TOOL_RESPONSE>`.
-2. **Staff & Citizens System**: Paser acts as an **Orchestrator** that can spawn specialized **Citizens** (mini-agents). 
+2. **Staff & Citizens System**: Paser acts as a **Pure Orchestrator (CEO)** that is strictly forbidden from editing code, delegating all technical implementations to specialized **Citizens** (mini-agents). 
     - **Roles**: Defined in `staff/*.md`.
     - **Isolation**: Each citizen has its own independent history.
     - **Efficiency**: Citizens use a fast model and limited execution turns to avoid blocking the main agent.

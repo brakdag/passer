@@ -101,7 +101,7 @@ with open(_registry_path, "r") as f:
 BASIC_TOOLS = {
     "read_file", "write_file", "replace_string", 
     "list_dir", "create_dir", "rename_path", "remove_file", "get_cwd",
-    "discover_capabilities"
+    "discover_capabilities", "chat_with_paser_mini"
 }
 
 filtered_catalog = [tool for tool in full_catalog if tool[0] in BASIC_TOOLS]
