@@ -3,6 +3,7 @@ import tempfile
 import logging
 import ast
 import hashlib
+import subprocess
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 from .core_tools import context, ToolError
@@ -144,7 +145,8 @@ def create_dir(path: str) -> str:
 def search_files_pattern(pattern: str) -> str:
     try:
         root = Path(context.get_safe_path('.'))
-        results = [str(p.relative_to(root)) for p in root.rglob(pattern)]
+        # Limit recursion depth to 3 levels
+        results = [str(p.relative_to(root)) for p in root.rglob(pattern) if len(p.relative_to(root).parts) <= 3]
         if len(results) > MAX_LIST_RESULTS:
             return json.dumps({"results": results[:MAX_LIST_RESULTS], "total": len(results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
         return json.dumps(results)
@@ -156,19 +158,17 @@ def search_text_global(query: str) -> str:
     root_path = context.get_safe_path(".")
     try:
         result = subprocess.run(
-            ['grep', '-rIn', '--', query, root_path], 
+            ['grep', '-rIn', '--exclude-dir={.git,venv,__pycache__,node_modules}', '--', query, root_path], 
             capture_output=True, 
             text=True, 
             encoding='utf-8', 
-            errors='replace'
+            errors='replace',
+            timeout=30
         )
-        
         if result.returncode > 1:
             raise ToolError('Grep failed')
-            
         if not result.stdout:
             return json.dumps([])
-            
         parsed_results = []
         for line in result.stdout.splitlines():
             parts = line.split(':', 2)
@@ -179,21 +179,20 @@ def search_text_global(query: str) -> str:
                     "line": int(line_num),
                     "text": text.strip()
                 })
-        
         if len(parsed_results) > MAX_LIST_RESULTS:
             return json.dumps({"results": parsed_results[:MAX_LIST_RESULTS], "total": len(parsed_results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
         return json.dumps(parsed_results)
-    except ToolError:
-        raise
-    except Exception:
-        raise ToolError('Search failed')
+    except subprocess.TimeoutExpired:
+        raise ToolError('Search timed out after 30 seconds')
+    except Exception as e:
+        raise ToolError(f'Search failed: {str(e)}')
 
 def format_code(path: str) -> str:
     import subprocess
     subprocess.run(['black', '--', context.get_safe_path(path)], check=True)
     return 'OK'
 
-def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns: Optional[List[str]] = None) -> str:
+def get_tree(path: str = '.', max_depth: Optional[int] = 3, exclude_patterns: Optional[List[str]] = None) -> str:
     safe_root = Path(context.get_safe_path(path))
     if not safe_root.exists():
         raise ToolError('Path not found')
@@ -201,7 +200,7 @@ def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns:
     exclude_patterns = exclude_patterns or []
     
     def _build_tree(current_dir: Path, depth: int, prefix: str = "") -> str:
-        if max_depth is not None and depth > max_depth:
+        if max_depth is not None and depth >= max_depth:
             return ""
         
         lines = []
@@ -331,4 +330,4 @@ def verify_file_hash(path: str, expected_hash: str) -> str:
     actual_hash = _calculate_hash(content)
     if actual_hash == expected_hash:
         return 'OK: File unchanged'
-    return f'ERR: File changed. Hash mismatch'\n
+    return f'ERR: File changed. Hash mismatch'
