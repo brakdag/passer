@@ -32,13 +32,13 @@ def _calculate_hash(content: str) -> str:
 def read_file(path: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     if not safe_path.is_file():
-        raise ToolError(f'Not found: {path}')
+        raise ToolError('Not found')
     
     size = safe_path.stat().st_size
     if size > FILE_SIZE_LIMIT:
-        raise ToolError(f'Too large: {path}')
+        raise ToolError('File too large')
     if is_binary_file(safe_path):
-        raise ToolError(f'Binary: {path}')
+        raise ToolError('Binary file')
     
     content = safe_path.read_text(encoding='utf-8')
     file_hash = _calculate_hash(content)
@@ -48,7 +48,7 @@ def read_file(path: str) -> str:
         preview = "\n".join(lines[:100])
         return f"--- HASH: {file_hash} ---\n[PREVIEW - First 100 lines of {size} bytes]\n{preview}\n\n[TRUNCATED - Use read_lines for more]"
     
-    return f"--- HASH: {file_hash} ---\n{content}" if content else f"--- HASH: {file_hash} ---\nERR: Empty: {path}"
+    return f"--- HASH: {file_hash} ---\n{content}" if content else f"--- HASH: {file_hash} ---\nERR: Empty file"
 
 @validate_args(ReadFilesSchema)
 def read_files(paths: List[str]) -> str:
@@ -78,7 +78,7 @@ def remove_file(path: str) -> str:
         safe_path.unlink()
         return 'OK'
     except FileNotFoundError:
-        raise ToolError(f'Not found: {path}')
+        raise ToolError('Not found')
 
 def list_dir(path: str = '.') -> str:
     safe_path = Path(context.get_safe_path(path))
@@ -99,7 +99,7 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= line_number <= len(lines)):
-        raise ToolError(f'Line {line_number} out of range')
+        raise ToolError('Line out of range')
     lines[line_number-1] = new_content + '\n'
     safe_path.write_text(''.join(lines), encoding='utf-8')
     return 'OK'
@@ -108,9 +108,12 @@ def update_line(path: str, line_number: int, new_content: str) -> str:
 def replace_string(path: str, search_text: str, replace_text: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     content = safe_path.read_text(encoding='utf-8')
-    if search_text not in content:
-        raise ToolError(f'Not found in {path}')
-    safe_path.write_text(content.replace(search_text, replace_text, 1), encoding='utf-8')
+    count = content.count(search_text)
+    if count == 0:
+        raise ToolError('String not found')
+    if count > 1:
+        raise ToolError('Multiple matches found')
+    safe_path.write_text(content.replace(search_text, replace_text), encoding='utf-8')
     return 'OK'
 
 @validate_args(ReplaceStringAtLineSchema)
@@ -118,10 +121,10 @@ def replace_string_at_line(path: str, line_number: int, search_text: str, replac
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= line_number <= len(lines)):
-        raise ToolError(f'Line {line_number} out of range')
+        raise ToolError('Line out of range')
     target_line = lines[line_number-1]
     if search_text not in target_line:
-        raise ToolError(f'Not found in line {line_number}')
+        raise ToolError('String not found in line')
     lines[line_number-1] = target_line.replace(search_text, replace_text)
     safe_path.write_text(''.join(lines), encoding='utf-8')
     return 'OK'
@@ -131,7 +134,7 @@ def rename_path(origen: str, destino: str) -> str:
         Path(context.get_safe_path(origen)).rename(context.get_safe_path(destino))
         return 'OK'
     except FileNotFoundError:
-        raise ToolError(f'Origin not found: {origen}')
+        raise ToolError('Origin not found')
 
 @validate_args(CreateDirSchema)
 def create_dir(path: str) -> str:
@@ -145,8 +148,8 @@ def search_files_pattern(pattern: str) -> str:
         if len(results) > MAX_LIST_RESULTS:
             return json.dumps({"results": results[:MAX_LIST_RESULTS], "total": len(results), "warning": f"Truncated to {MAX_LIST_RESULTS} items"})
         return json.dumps(results)
-    except Exception as e:
-        raise ToolError(f"Error searching files with pattern '{pattern}': {str(e)}")
+    except Exception:
+        raise ToolError('Search error')
 
 def search_text_global(query: str) -> str:
     import subprocess
@@ -161,7 +164,7 @@ def search_text_global(query: str) -> str:
         )
         
         if result.returncode > 1:
-            raise ToolError(f"Grep failed with return code {result.returncode}: {result.stderr}")
+            raise ToolError('Grep failed')
             
         if not result.stdout:
             return json.dumps([])
@@ -182,8 +185,8 @@ def search_text_global(query: str) -> str:
         return json.dumps(parsed_results)
     except ToolError:
         raise
-    except Exception as e:
-        raise ToolError(f"Search failed: {str(e)}")
+    except Exception:
+        raise ToolError('Search failed')
 
 def format_code(path: str) -> str:
     import subprocess
@@ -193,7 +196,7 @@ def format_code(path: str) -> str:
 def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns: Optional[List[str]] = None) -> str:
     safe_root = Path(context.get_safe_path(path))
     if not safe_root.exists():
-        raise ToolError(f'Path not found: {path}')
+        raise ToolError('Path not found')
     
     exclude_patterns = exclude_patterns or []
     
@@ -203,12 +206,10 @@ def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns:
         
         lines = []
         try:
-            # Sort entries: directories first, then files
             entries = sorted(list(current_dir.iterdir()), key=lambda x: (x.is_file(), x.name.lower()))
-        except OSError as e:
-            return f"{prefix}└── [Error: {e.strerror or str(e)}]"
+        except OSError:
+            return f"{prefix}└── [Error]"
 
-        # Filter excluded patterns
         entries = [e for e in entries if not any(p in e.name for p in exclude_patterns)]
         
         for i, entry in enumerate(entries):
@@ -232,7 +233,7 @@ def get_tree(path: str = '.', max_depth: Optional[int] = None, exclude_patterns:
 def read_file_with_lines(path: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     if not safe_path.is_file():
-        raise ToolError(f'Not found: {path}')
+        raise ToolError('Not found')
     lines = safe_path.read_text(encoding='utf-8').splitlines()
     return ''.join([f'{i+1}: {line}\n' for i, line in enumerate(lines)])
 
@@ -241,7 +242,7 @@ def copy_lines(path: str, start_line: int, end_line: int) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= start_line <= end_line <= len(lines)):
-        raise ToolError(f'Range {start_line}-{end_line} out of bounds')
+        raise ToolError('Range out of bounds')
     context.clipboard = ''.join(lines[start_line-1:end_line])
     return 'OK'
 
@@ -250,7 +251,7 @@ def cut_lines(path: str, start_line: int, end_line: int) -> str:
     safe_path = Path(context.get_safe_path(path))
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= start_line <= end_line <= len(lines)):
-        raise ToolError(f'Range {start_line}-{end_line} out of bounds')
+        raise ToolError('Range out of bounds')
     context.clipboard = ''.join(lines[start_line-1:end_line])
     remaining = lines[:start_line-1] + lines[end_line:]
     safe_path.write_text(''.join(remaining), encoding='utf-8')
@@ -269,7 +270,7 @@ def paste_lines(path: str, line_number: int) -> str:
         return 'OK'
     lines = safe_path.read_text(encoding='utf-8').splitlines(keepends=True)
     if not (1 <= line_number <= len(lines) + 1):
-        raise ToolError(f'Line {line_number} out of range')
+        raise ToolError('Line out of range')
     lines.insert(line_number-1, content)
     safe_path.write_text(''.join(lines), encoding='utf-8')
     return 'OK'
@@ -280,8 +281,8 @@ def manage_imports(path: str, add_imports: List[str] = [], remove_imports: List[
     source = ''.join(lines)
     try:
         ast.parse(source)
-    except SyntaxError as e:
-        raise ToolError(f'Syntax error: {e}')
+    except SyntaxError:
+        raise ToolError('Syntax error')
     new_lines = [line for line in lines if not any(
         (line.strip().startswith('import ') or line.strip().startswith('from ')) and rem in line 
         for rem in remove_imports
@@ -325,9 +326,9 @@ def insert_before(path: str, search_text: str, content: str) -> str:
 def verify_file_hash(path: str, expected_hash: str) -> str:
     safe_path = Path(context.get_safe_path(path))
     if not safe_path.is_file():
-        raise ToolError(f'Not found: {path}')
+        raise ToolError('Not found')
     content = safe_path.read_text(encoding='utf-8')
     actual_hash = _calculate_hash(content)
     if actual_hash == expected_hash:
         return 'OK: File unchanged'
-    return f'ERR: File changed. Actual hash: {actual_hash}'
+    return f'ERR: File changed. Hash mismatch'\n

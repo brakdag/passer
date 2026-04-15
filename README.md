@@ -38,6 +38,9 @@ paser
 
 ## Main Features
 
+### Communication Protocol
+- **Brevity & Productivity**: The agent is committed to providing concise, direct, and highly productive responses. Every interaction is designed to minimize noise and maximize actionable output.
+
 1. **Local Function Calling**: Uses a custom middleware to intercept `<TOOL_CALL>` and return `<TOOL_RESPONSE>`.
 2. **Staff & Citizens System**: Paser acts as a **Pure Orchestrator (CEO)** that is strictly forbidden from editing code, delegating all technical implementations to specialized **Citizens** (mini-agents). 
     - **Roles**: Defined in `staff/*.md`.
