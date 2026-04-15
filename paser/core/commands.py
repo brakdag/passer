@@ -54,7 +54,7 @@ class CommandHandler:
             console.clear()
             return True
             
-        elif input_stripped.startswith(('/save', '/s')):
+        elif input_stripped in ('/save', '/s') or input_stripped.startswith(('/save ', '/s ')):
             # Normalizar el comando para extraer el nombre
             cmd = '/save' if input_stripped.startswith('/save') else '/s'
             parts = input_stripped[len(cmd):].strip().split(maxsplit=1)

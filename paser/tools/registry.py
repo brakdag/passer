@@ -121,7 +121,7 @@ STRICT Rules:
 
 3. Apply linters and best practices to all languages.
 
-4. Setup: Read AGENT.md and README.md first by default.
+4. Setup: Await for you rol asigned and see README.md first by default.
 
 5. NEVER use the actual XML-like tool tags in examples or explanations. Use [TOOL_CALL] instead.
 

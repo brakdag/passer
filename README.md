@@ -1,3 +1,4 @@
+--- HASH: 07b927d11b0a16dddddeb3eec01c7deb56a738e4cddf827e14591b81da88328e ---
 # Paser (Autonomous Function Calling System - ReAct Pattern)
 
 <div align="center">
@@ -47,6 +48,12 @@ paser
     - **Isolation**: Each citizen has its own independent history.
     - **Efficiency**: Citizens use a fast model and limited execution turns to avoid blocking the main agent.
 3. **Security**: All file operations are restricted to the `PROJECT_ROOT` via `get_safe_path`.
+
+## Protocolo de Delegación
+1. Ciudadanos son responsables de integridad, calidad y pruebas.
+2. El CEO NO lee código. El CEO recibe resumen ejecutivo y reporte de pruebas.
+3. Si un ciudadano no garantiza calidad, solicita revisión de pares (otro ciudadano).
+4. Prohibido al CEO realizar auditorías de código manuales.
 
 ## User Commands
 - `/models`: Change AI model.
