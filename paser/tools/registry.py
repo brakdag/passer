@@ -9,7 +9,6 @@ from paser.tools import (
     system_tools as st,
     util_tools as ut,
     mqtt_tools as mt,
-    discovery as disc,
     code_navigator as cn,
     wasm_tools as wt_wasm,
     vision as vt,
@@ -25,7 +24,6 @@ nav = cn.CodeNavigator()
 # Mapping of tool names to their executable Python functions
 AVAILABLE_TOOLS = {
     "get_utc_time": ut.get_utc_time,
-    "discover_capabilities": disc.discover_capabilities,
     "read_file": ft.read_file,
     "read_files": ft.read_files,
     "write_file": ft.write_file,
@@ -96,16 +94,7 @@ _registry_path = os.path.join(os.path.dirname(__file__), "registry_positional.js
 with open(_registry_path, "r") as f:
     full_catalog = json.load(f)
 
-# Hybrid Tooling: Only inject basic tools into the system prompt to save tokens
-# The rest are discoverable via 'discover_capabilities'
-BASIC_TOOLS = {
-    "read_file", "write_file", "replace_string", 
-    "list_dir", "create_dir", "rename_path", "remove_file", "get_cwd",
-    "discover_capabilities", "chat_with_paser_mini"
-}
-
-filtered_catalog = [tool for tool in full_catalog if tool[0] in BASIC_TOOLS]
-TOOL_CATALOG = json.dumps(filtered_catalog, indent=2)
+TOOL_CATALOG = json.dumps([tool for tool in full_catalog if tool[0] != "discover_capabilities"], indent=2)
 
 # Bypassing interceptor by fragmenting the forbidden strings
 _S = chr(60) + "TOOL" + "_CALL" + chr(62)
