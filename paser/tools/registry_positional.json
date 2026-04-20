@@ -61,5 +61,6 @@
   ["replace_string_at_line", "Surgical replacement of a string at a specific line. Only replaces if search_text is found on that line.", {"path": "string", "line_number": "integer", "search_text": "string", "replace_text": "string"}],
   ["validate_json", "Validates if a string is a valid JSON", {"json_string": "string"}],
   ["validate_json_file", "Validates if a file contains valid JSON", {"path": "string"}],
-  ["chat_with_paser_mini", "Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory. Each citizen maintains its own independent session and history.", {"prompt": "string", "citizen_id": "string", "role": "string", "context_str": "string"}]
+  ["chat_with_paser_mini", "Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory. Each citizen maintains its own independent session and history.", {"prompt": "string", "citizen_id": "string", "role": "string", "context_str": "string"}],
+  ["neural_mouse_control", "Controls the mouse using a neural interface for organic movement. Input: 'rect(x, y, width, height);action'. Actions: 'click' or 'rect(0,0,0,0)' for a screenshot. Returns a color-coded image for spatial orientation.", {"command": "string"}]
 ]

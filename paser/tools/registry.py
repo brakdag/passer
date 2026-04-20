@@ -15,7 +15,8 @@ from paser.tools import (
     git_tools as gt,
     github_tools as gh,
     api_tools as at,
-    lsp_tools as lsp
+    lsp_tools as lsp,
+    mouse_tools as mt_mouse
 )
 
 # Initialize specialized navigators
@@ -86,7 +87,8 @@ AVAILABLE_TOOLS = {
     "get_object_methods": lsp.lsp_nav.get_object_methods,
     "validate_json": ut.validate_json,
     "validate_json_file": ut.validate_json_file,
-    "chat_with_paser_mini": ut.chat_with_paser_mini
+    "chat_with_paser_mini": ut.chat_with_paser_mini,
+    "neural_mouse_control": mt_mouse.neural_mouse_control
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt
