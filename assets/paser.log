@@ -4,3 +4,4 @@
 {"timestamp": "2026-04-05T22:56:04.164851", "level": "WARNING", "logger": "tools", "message": "Path traversal attempt: /paser"}
 {"timestamp": "2026-04-05T22:56:04.165382", "level": "ERROR", "logger": "tools", "message": "Error al listar archivos en /paser: Acceso fuera del directorio permitido."}
 {"timestamp": "2026-04-05T22:57:25.376162", "level": "INFO", "logger": "tools", "message": "Archivo 'TODO_NOTIFY.md' escrito exitosamente."}
+{"timestamp": "2026-04-20T13:02:09.005308", "level": "INFO", "logger": "tools", "message": "WASM Python runtime (Wasmer CLI) is available."}

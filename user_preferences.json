@@ -1,3 +1,18 @@
 {
-  "favorite_color": "Azul Cobalto"
+  "favorite_color": "Azul Cobalto",
+  "neural_mouse_calibration": {
+    "screen_resolution": {
+      "width": 1366,
+      "height": 768
+    },
+    "tool_resolution": {
+      "width": 199,
+      "height": 112
+    },
+    "conversion_factors": {
+      "x": 0.14568081252562225,
+      "y": 0.14583333333333334
+    },
+    "formula": "X_tool = X_real * (199/1366), Y_tool = Y_real * (112/768)"
+  }
 }

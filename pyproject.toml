@@ -27,6 +27,10 @@ dependencies = [
     "numpy",
     "gTTS",
     "jedi",
+    "onnxruntime",
+    "opencv-python",
+    "pygame",
+    "mss",
 ]
 
 [project.scripts]
