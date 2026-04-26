@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calibración Neural Mouse</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #121212;
+            color: #00ff00;
+            font-family: 'JetBrainsMono Nerd Font', monospace;
+            overflow: hidden;
+            user-select: none;
+            cursor: crosshair;
+        }
+        #coords {
+            font-size: 15vw;
+            font-weight: bold;
+            text-align: center;
+        }
+        .label {
+            font-size: 3vw;
+            display: block;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div id="coords">
+        <span class="label">Haz clic en cualquier lugar</span>
+        <span id="val">X: 0, Y: 0</span>
+    </div>
+    <script>
+        document.addEventListener('mousedown', function(e) {
+            var x = e.clientX;
+            var y = e.clientY;
+            document.getElementById('val').innerText = 'X: ' + x + ', Y: ' + y;
+            console.log('Click at: ' + x + ', ' + y);
+        });
+    </script>
+</body>
+</html>
