@@ -1,5 +1,6 @@
 import urllib.request
 import urllib.parse
+import urllib.error
 import re
 import logging
 import json
@@ -114,3 +115,53 @@ def render_web_page(url: str) -> str:
     except Exception as e:
         logger.error(f"Unexpected error rendering page {url}: {str(e)}")
         raise ToolError(f"Error rendering page: {str(e)}")
+
+def download_file(url: str, path: str, headers: dict = None, cookies: dict = None) -> str:
+    """
+    Downloads a file from a URL and saves it to the local filesystem.
+    Supports streaming to handle large files.
+    """
+    try:
+        if not is_safe_url(url):
+            return f"ERR: Unsafe or invalid URL: {url}"
+
+        # Prepare headers
+        request_headers = {'User-Agent': 'Mozilla/5.0'}
+        if headers:
+            request_headers.update(headers)
+        
+        if cookies:
+            cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
+            request_headers['Cookie'] = cookie_str
+
+        # Ensure directory exists
+        dest_dir = os.path.dirname(path)
+        if dest_dir and not os.path.exists(dest_dir):
+            os.makedirs(dest_dir, exist_ok=True)
+
+        req = urllib.request.Request(url, headers=request_headers)
+        
+        with urllib.request.urlopen(req, timeout=30) as response:
+            with open(path, 'wb') as f:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+        
+        # Verify file exists and has size > 0 (or at least was written)
+        if os.path.exists(path):
+            return "OK"
+        else:
+            return "ERR: File was not saved to disk."
+
+    except urllib.error.HTTPError as e:
+        return f"ERR: HTTP Error {e.code}: {e.reason}"
+    except urllib.error.URLError as e:
+        return f"ERR: URL Error: {str(e.reason)}"
+    except socket.timeout:
+        return "ERR: Connection timed out"
+    except OSError as e:
+        return f"ERR: Filesystem error: {str(e)}"
+    except Exception as e:
+        return f"ERR: Unexpected error: {str(e)}"

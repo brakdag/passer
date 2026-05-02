@@ -33,6 +33,7 @@ AVAILABLE_TOOLS = {
     "web_search": wt.web_search,
     "fetch_url": wt.fetch_url,
     "render_web_page": wt.render_web_page,
+    "download_file": wt.download_file,
     "get_cwd": ut.get_cwd,
     "read_lines": ft.read_lines,
     "read_head": ft.read_head,
