@@ -64,3 +64,17 @@ class ValidateJsonSchema(BaseModel):
 
 class ValidateJsonFileSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo JSON a validar")
+
+
+class BrowserExecuteSchema(BaseModel):
+    action: str = Field(..., description="Acción a ejecutar (ej: 'goto', 'click', 'fill', 'evaluate', 'screenshot', 'get_content', 'wait_for')")
+    params: dict = Field(..., description="Diccionario de parámetros necesarios para la acción")
+    session_id: Optional[str] = Field(None, description="ID de sesión para persistencia de cookies y estado")
+    
+    
+    class NetworkInterceptSchema(BaseModel):
+        pattern: str = Field(..., description="Patrón de URL para filtrar las respuestas capturadas")
+        url: str = Field(..., description="URL a visitar para iniciar la captura")
+    
+    class ProxyRotateSchema(BaseModel):
+        proxy_url: str = Field(..., description="URL del proxy a configurar")

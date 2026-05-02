@@ -1,1 +1,12 @@
-import json\n\ndef test_playwright_execute_noop():\n    \"\"\"Validate that playwright_execute_sync returns a JSON‑serializable dict for a no‑op action.\"\"\"\n    from paser.tools.ghost_browser import playwright_execute_sync\n\n    result = playwright_execute_sync(action=\"noop\", params={}, session_id=None)\n    # Should be a dict with status \"ok\"\n    assert isinstance(result, dict), \"Result must be a dict\"\n    assert result.get(\"status\") == \"ok\", f\"Unexpected status: {result}\"\n    # Ensure it can be JSON‑encoded without error\n    json.dumps(result)\n
+import json
+
+def test_playwright_execute_noop():
+    """Validate that playwright_execute_sync returns a JSON-serializable dict for a no-op action."""
+    from paser.tools.ghost_browser import playwright_execute_sync
+
+    result = playwright_execute_sync(action="noop", params={}, session_id=None)
+    # Should be a dict with status "success"
+    assert isinstance(result, dict), "Result must be a dict"
+    assert result.get("status") == "success", f"Unexpected status: {result}"
+    # Ensure it can be JSON-encoded without error
+    json.dumps(result)

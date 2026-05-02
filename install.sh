@@ -63,9 +63,7 @@ else
     echo "[OK] Wasmer ya está instalado. Saltando..."
 fi
 
-# 7. Instalar binarios de Playwright
-echo "Instalando binarios de Playwright (Chromium)..."
-"$PROJECT_ROOT/venv/bin/python" -m playwright install chromium
+
 
 # 8. Crear enlace simbólico
 echo "Configurando comando 'paser'..."

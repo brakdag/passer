@@ -31,8 +31,7 @@ dependencies = [
     "opencv-python",
     "pygame",
     "mss",
-    "playwright",
-    "playwright-stealth",
+    "DrissionPage",
 ]
 
 [project.scripts]
