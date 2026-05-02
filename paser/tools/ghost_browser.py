@@ -113,19 +113,7 @@ def playwright_execute_sync(action: str, params: dict, session_id: str = None):
     
     return loop.run_until_complete(gb.execute_action(action, params, session_id))
 
-def playwright_execute_sync(action: str, params: dict, session_id: str = None):
-    """
-    Synchronous wrapper to prevent coroutine serialization errors.
-    """
-    import asyncio
-    gb = GhostBrowser()
-    try
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-    
-    return loop.run_until_complete(gb.execute_action(action, params, session_id))
+
 
 async def network_intercept(pattern: str, url: str):
     gb = GhostBrowser()
