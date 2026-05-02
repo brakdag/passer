@@ -31,6 +31,8 @@ dependencies = [
     "opencv-python",
     "pygame",
     "mss",
+    "playwright",
+    "playwright-stealth",
 ]
 
 [project.scripts]

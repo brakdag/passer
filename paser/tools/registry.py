@@ -16,7 +16,8 @@ from paser.tools import (
     github_tools as gh,
     api_tools as at,
     lsp_tools as lsp,
-    mouse_tools as mt_mouse
+    mouse_tools as mt_mouse,
+    ghost_browser as gb
 )
 
 # Initialize specialized navigators
@@ -89,7 +90,10 @@ AVAILABLE_TOOLS = {
     "validate_json": ut.validate_json,
     "validate_json_file": ut.validate_json_file,
     "chat_with_paser_mini": ut.chat_with_paser_mini,
-    "neural_mouse_control": mt_mouse.neural_mouse_control
+    "neural_mouse_control": mt_mouse.neural_mouse_control,
+    "playwright_execute": gb.playwright_execute,
+    "network_intercept": gb.network_intercept,
+    "proxy_rotate": gb.proxy_rotate
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt
