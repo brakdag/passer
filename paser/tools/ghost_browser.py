@@ -94,12 +94,28 @@ class GhostBrowser:
 
 # Tool wrappers to be called by registry.py
 
-async def playwright_execute(action: str, params: dict, session_id: str = None):
-    gb = GhostBrowser()
-    res = await gb.execute_action(action, params, session_id)
-    return res
+def playwright_execute(action: str, params: dict, session_id: str = None):
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+
+    def run_async():
+        gb = GhostBrowser()
+        return asyncio.run(gb.execute_action(action, params, session_id))
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(run_async).result()
 
 def playwright_execute_sync(action: str, params: dict, session_id: str = None):
+    \"\"\"\n    Synchronous wrapper that always creates a fresh event loop to avoid \"This event loop is already running\" errors.
+    \"\"\"
+    import asyncio
+    gb = GhostBrowser()
+    new_loop = asyncio.new_event_loop()
+    try:
+        asyncio.set_event_loop(new_loop)
+        return new_loop.run_until_complete(gb.execute_action(action, params, session_id))
+    finally:
+        new_loop.close()
     """
     Synchronous wrapper to prevent coroutine serialization errors.
     """
@@ -115,40 +131,54 @@ def playwright_execute_sync(action: str, params: dict, session_id: str = None):
 
 
 
-async def network_intercept(pattern: str, url: str):
-    gb = GhostBrowser()
-    # We use a simplified approach: navigate to URL and capture
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context()
-        page = await context.new_page()
-        
-        # Apply stealth here too
-        await stealth(page)
+def network_intercept(pattern: str, url: str):
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
 
-        captured = []
-        async def handle_response(response):
-            if pattern in response.url:
-                try:
-                    data = await response.json()
-                    captured.append({"url": response.url, "data": data})
-                except:
+    async def _intercept():
+        gb = GhostBrowser()
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context()
+            page = await context.new_page()
+            await stealth(page)
+            captured = []
+            async def handle_response(response):
+                if pattern in response.url:
                     try:
-                        text = await response.text()
-                        captured.append({"url": response.url, "data": text})
+                        data = await response.json()
+                        captured.append({"url": response.url, "data": data})
                     except:
-                        pass
+                        try:
+                            text = await response.text()
+                            captured.append({"url": response.url, "data": text})
+                        except:
+                            pass
+            page.on("response", handle_response)
+            try:
+                await page.goto(url, wait_until="networkidle")
+                await asyncio.sleep(2)
+            except Exception as e:
+                return [{"error": str(e)}]
+            finally:
+                await browser.close()
+            return captured
 
-        page.on("response", handle_response)
-        try:
-            await page.goto(url, wait_until="networkidle")
-            await asyncio.sleep(2) # Wait for async responses
-        except Exception as e:
-            return [{"error": str(e)}]
-        finally:
-            await browser.close()
-        return captured
+    def run_async():
+        return asyncio.run(_intercept())
 
-async def proxy_rotate(proxy_url: str):
-    # Placeholder for proxy rotation logic
-    return {"status": "success", "proxy": proxy_url}
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(run_async).result()
+
+def proxy_rotate(proxy_url: str):
+    import asyncio
+    from concurrent.futures import ThreadPoolExecutor
+
+    async def _rotate():
+        return {"status": "success", "proxy": proxy_url}
+
+    def run_async():
+        return asyncio.run(_rotate())
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        return executor.submit(run_async).result()
