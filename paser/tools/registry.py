@@ -91,7 +91,7 @@ AVAILABLE_TOOLS = {
     "validate_json_file": ut.validate_json_file,
     "chat_with_paser_mini": ut.chat_with_paser_mini,
     "neural_mouse_control": mt_mouse.neural_mouse_control,
-    "playwright_execute": gb.playwright_execute,
+    "playwright_execute": gb.playwright_execute_sync,
     "network_intercept": gb.network_intercept,
     "proxy_rotate": gb.proxy_rotate
 }
