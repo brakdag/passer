@@ -8,6 +8,7 @@ from .core_tools import context, ToolError
 from ..core.validation import BaseValidator, ValidationError
 
 logger = logging.getLogger("tools")
+MIN_VISUAL_RESOLUTION = 512
 
 class SeeImageArgs(BaseValidator):
     path: str
@@ -42,11 +43,11 @@ def see_image(path: str, crop: Optional[List[int]] = None) -> dict:
             width, height = img.size
             aspect_ratio = width / height
             if width < height:
-                new_width = 112
-                new_height = int(112 / aspect_ratio)
+                new_width = MIN_VISUAL_RESOLUTION
+                new_height = int(MIN_VISUAL_RESOLUTION / aspect_ratio)
             else:
-                new_height = 112
-                new_width = int(112 * aspect_ratio)
+                new_height = MIN_VISUAL_RESOLUTION
+                new_width = int(MIN_VISUAL_RESOLUTION * aspect_ratio)
             img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
             if img.mode != 'RGB':
