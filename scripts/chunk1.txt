@@ -1,0 +1,17 @@
+import pytest
+import asyncio
+from paser.core.executor import AutonomousExecutor
+
+class MockAssistant:
+    current_model = "mock-model"
+    def __init__(self, responses=None):
+        self.responses = responses or []
+        self.call_count = 0
+
+    def send_message(self, text):
+        if self.call_count < len(self.responses):
+            res = self.responses[self.call_count]
+            self.call_count += 1
+            return res
+        return "No more responses configured."
+

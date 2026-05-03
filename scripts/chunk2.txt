@@ -1,0 +1,9 @@
+def test_deeply_nested_json():
+    """Test if the fallback JSON regex can handle deeply nested structures."""
+    nested_json = '{"name": "test", "args": {"a": {"b": {"c": {"d": 1}}}}}'
+    tools = {"test": lambda **kwargs: "success"}
+    assistant = MockAssistant(responses=[f'Here is the call: {nested_json}'])
+    executor = AutonomousExecutor(assistant=assistant, tools=tools)
+    result = asyncio.run(executor.execute("start"))
+    assert "No more responses configured." in result
+

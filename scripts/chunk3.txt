@@ -1,0 +1,9 @@
+def test_malformed_json_single_quotes():
+    """Test if _parse_call_content handles single quotes correctly."""
+    single_quote_json = "{'name': 'test', 'args': {'val': 1}}"
+    assistant = MockAssistant(responses=[single_quote_json])
+    tools = {"test": lambda **kwargs: "success"}
+    executor = AutonomousExecutor(assistant=assistant, tools=tools)
+    result = asyncio.run(executor.execute("start"))
+    assert "No more responses configured." in result
+
