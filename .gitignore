@@ -17,3 +17,4 @@ save_langchain/
 sessions/
 paser-mini/
 agent_memory.db
+browser_profile_default/
