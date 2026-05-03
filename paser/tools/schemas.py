@@ -18,7 +18,7 @@ class ReplaceStringSchema(BaseModel):
 
 class ReplaceStringAtLineSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo")
-    line_number: int = Field(..., description="Línea donde debe encontrarse el texto (1-indexed)")
+    line_number: int = Field(..., gt=0, description="Línea donde debe encontrarse el texto (1-indexed)")
     search_text: str = Field(..., description="Texto exacto a buscar en esa línea")
     replace_text: str = Field(..., description="Texto de reemplazo")
 
@@ -33,17 +33,17 @@ class ReadFileWithLinesSchema(BaseModel):
 
 class CopyLinesSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo origen")
-    start_line: int = Field(..., description="Línea de inicio (1-indexed)")
-    end_line: int = Field(..., description="Línea de fin (inclusive)")
+    start_line: int = Field(..., gt=0, description="Línea de inicio (1-indexed)")
+    end_line: int = Field(..., gt=0, description="Línea de fin (inclusive)")
 
 class CutLinesSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo origen")
-    start_line: int = Field(..., description="Línea de inicio (1-indexed)")
-    end_line: int = Field(..., description="Línea de fin (inclusive)")
+    start_line: int = Field(..., gt=0, description="Línea de inicio (1-indexed)")
+    end_line: int = Field(..., gt=0, description="Línea de fin (inclusive)")
 
 class PasteLinesSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo destino")
-    line_number: int = Field(..., description="Línea donde insertar el contenido (1-indexed)")
+    line_number: int = Field(..., gt=0, description="Línea donde insertar el contenido (1-indexed)")
 
 class InsertAfterSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo")
@@ -57,24 +57,10 @@ class InsertBeforeSchema(BaseModel):
 
 class VerifyFileHashSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo a verificar")
-    expected_hash: str = Field(..., description="Hash SHA-256 esperado")
+    expected_hash: str = Field(..., min_length=64, max_length=64, description="Hash SHA-256 esperado")
 
 class ValidateJsonSchema(BaseModel):
     json_string: str = Field(..., description="Cadena JSON a validar")
 
 class ValidateJsonFileSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo JSON a validar")
-
-
-class BrowserExecuteSchema(BaseModel):
-    action: str = Field(..., description="Acción a ejecutar (ej: 'goto', 'click', 'fill', 'evaluate', 'screenshot', 'get_content', 'wait_for')")
-    params: dict = Field(..., description="Diccionario de parámetros necesarios para la acción")
-    session_id: Optional[str] = Field(None, description="ID de sesión para persistencia de cookies y estado")
-    
-    
-    class NetworkInterceptSchema(BaseModel):
-        pattern: str = Field(..., description="Patrón de URL para filtrar las respuestas capturadas")
-        url: str = Field(..., description="URL a visitar para iniciar la captura")
-    
-    class ProxyRotateSchema(BaseModel):
-        proxy_url: str = Field(..., description="URL del proxy a configurar")

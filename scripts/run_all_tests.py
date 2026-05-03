@@ -1,16 +1,17 @@
 import sys
+import subprocess
 import os
-import unittest
 
-# Resolve the project root (parent of the scripts directory)
+# Resolve the project root
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, root_dir)
 
 if __name__ == '__main__':
-    loader = unittest.TestLoader()
-    # Discover tests starting from the project root, looking into the 'tests' directory
-    suite = loader.discover(start_dir=root_dir, pattern='test_*.py')
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    if not result.wasSuccessful():
-        sys.exit(1)
+    print(f"Running all tests using pytest from {root_dir}...\n")
+    # Use sys.executable -m pytest to ensure we use the pytest installed in the current environment
+    result = subprocess.run([sys.executable, '-m', 'pytest', 'tests'], cwd=root_dir)
+    
+    if result.returncode != 0:
+        print("\nTests failed!")
+        sys.exit(result.returncode)
+    else:
+        print("\nAll tests passed successfully!")

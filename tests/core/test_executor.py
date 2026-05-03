@@ -5,6 +5,7 @@ from paser.core.executor import AutonomousExecutor
 def test_executor_multiple_tool_calls():
     """Test multiple tool calls in one response."""
     class MockAssistant:
+        current_model = "mock-model"
         def send_message(self, text):
             if "TOOL_RESPONSE" in text:
                 return text
@@ -27,6 +28,7 @@ def test_executor_multiple_tool_calls():
 def test_executor_max_turns():
     """Test termination when max_turns is exceeded."""
     class MockAssistant:
+        current_model = "mock-model"
         def send_message(self, _):
             return "<TOOL_CALL>{\"name\": \"dummy\", \"args\": {}}</TOOL_CALL>"
 
@@ -39,6 +41,7 @@ def test_executor_max_turns():
 def test_executor_tool_error_handling():
     """Test proper error propagation from tools."""
     class MockAssistant:
+        current_model = "mock-model"
         def send_message(self, text):
             if "TOOL_RESPONSE" in text:
                 return text

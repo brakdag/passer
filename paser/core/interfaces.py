@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Generator, Any, Optional, Union
 
+class QuotaExceededError(Exception):
+    """Excepción lanzada cuando se agota la cuota de la API."""
+    pass
+
 class IAIAssistant(ABC):
     @property
     @abstractmethod

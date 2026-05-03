@@ -14,7 +14,7 @@ def validate_args(schema):
             try:
                 # Validar usando el esquema de Pydantic
                 validated_data = schema(**bound_args.arguments)
-                return func(**validated_data.dict())
+                return func(**validated_data.model_dump())
             except ValidationError as e:
                 return f"Error de validación: {str(e)}"
         return wrapper

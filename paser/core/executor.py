@@ -47,6 +47,45 @@ class AutonomousExecutor:
             
         return data
 
+    def _find_balanced_braces(self, text: str) -> list[str]:
+        """Finds all top-level balanced curly brace structures, ignoring those inside strings."""
+        results = []
+        stack = []
+        start_index = -1
+        in_string = False
+        quote_char = None
+        escaped = False
+
+        for i, char in enumerate(text):
+            if escaped:
+                escaped = False
+                continue
+            
+            if char == '\\':
+                escaped = True
+                continue
+            
+            if char in ('"', "'"):
+                if not in_string:
+                    in_string = True
+                    quote_char = char
+                elif char == quote_char:
+                    in_string = False
+                    quote_char = None
+                continue
+            
+            if not in_string:
+                if char == '{':
+                    if not stack:
+                        start_index = i
+                    stack.append('{')
+                elif char == '}':
+                    if stack:
+                        stack.pop()
+                        if not stack:
+                            results.append(text[start_index:i+1])
+        return results
+
     def _extract_tool_calls(self, text: str) -> list[tuple[Optional[dict[str, Any]], str]]:
         calls = []
         md_pattern = r'```(?:json)?\s*(.*?)\s*```'
@@ -59,9 +98,7 @@ class AutonomousExecutor:
             raw = match.group(1).strip()
             calls.append((self._parse_call_content(raw), raw))
         if not calls:
-            json_pattern = r'\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}'
-            for match in re.finditer(json_pattern, text, re.DOTALL):
-                raw = match.group(0).strip()
+            for raw in self._find_balanced_braces(text):
                 data = self._parse_call_content(raw)
                 if data and 'name' in data: calls.append((data, raw))
         return calls

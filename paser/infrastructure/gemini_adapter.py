@@ -8,7 +8,7 @@ from typing import Generator, Optional, Any, Union
 from google import genai
 from google.genai import types
 from google.genai.errors import ClientError
-from paser.core.interfaces import IAIAssistant
+from paser.core.interfaces import IAIAssistant, QuotaExceededError
 
 logger = logging.getLogger(__name__)
 
@@ -320,6 +320,8 @@ class GeminiAdapter(IAIAssistant):
                     if retries > self.max_retries:
                         formatted_error = self._format_api_error(e)
                         logger.error(f"API Error: Max retries reached. {formatted_error}")
+                        if '429' in str(e).lower() or 'quota' in str(e).lower():
+                            raise QuotaExceededError(formatted_error)
                         raise Exception(formatted_error)
                     
                     delay = self._get_retry_delay(e, retries - 1)
