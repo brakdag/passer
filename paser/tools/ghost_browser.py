@@ -3,13 +3,16 @@ import os
 import time
 import random
 
+# Almacen global para mantener sesiones de navegador activas
+BROWSER_SESSIONS = {}
+
 class GhostBrowser:
     def __init__(self, session_id=None, headless=True):
+        self.session_id = session_id
         self.options = ChromiumOptions()
         if headless:
             self.options.headless()
         
-        # Manejo de sesiones mediante perfiles de usuario de Chrome
         if session_id:
             user_data_path = os.path.join(os.getcwd(), f"browser_profile_{session_id}")
             self.options.set_user_data_path(user_data_path)
@@ -60,23 +63,39 @@ class GhostBrowser:
                 selector = params["selector"]
                 self.page.ele(selector, timeout=10)
                 
+            elif action_type == "close_session":
+                self.page.quit()
+                result["data"] = "Session closed"
+                
             return result
         except Exception as e:
             return {"status": "error", "message": str(e)}
-        finally:
-            # No cerramos la página aquí si queremos mantener la sesión
-            # pero para herramientas stateless, es mejor cerrar.
-            if params.get("close_browser", True):
-                self.page.quit()
 
 # Tool wrappers sincrónicos
 
-def browser_execute(action: str, params: dict, session_id: str = None):
+def browser_execute(action: str, params: dict, session_id: str = "default"):
     """
-    Wrapper sincrónico que utiliza DrissionPage.
+    Wrapper que gestiona sesiones persistentes de DrissionPage.
     """
-    gb = GhostBrowser(session_id=session_id, headless=params.get("headless", True))
-    return gb.execute_action(action, params)
+    # Si no hay sesión, usamos una por defecto
+    if session_id is None:
+        session_id = "default"
+
+    # Recuperar sesión existente o crear una nueva
+    if session_id not in BROWSER_SESSIONS:
+        BROWSER_SESSIONS[session_id] = GhostBrowser(
+            session_id=session_id, 
+            headless=params.get("headless", True)
+        )
+    
+    gb = BROWSER_SESSIONS[session_id]
+    result = gb.execute_action(action, params)
+    
+    # Si la acción fue cerrar la sesión, la eliminamos del almacén
+    if action == "close_session":
+        BROWSER_SESSIONS.pop(session_id, None)
+        
+    return result
 
 def network_intercept(pattern: str, url: str):
     """
@@ -86,11 +105,9 @@ def network_intercept(pattern: str, url: str):
         options = ChromiumOptions().headless()
         page = ChromiumPage(options)
         
-        # Iniciar escucha de paquetes
         page.listen.start(pattern)
         page.get(url)
         
-        # Esperar la respuesta que coincida con el patrón
         res = page.listen.wait()
         data = res.response.body
         
@@ -104,9 +121,6 @@ def proxy_rotate(proxy_url: str):
     Configures the proxy for the current session using DrissionPage options.
     """
     try:
-        # In a real scenario, this would update the ChromiumOptions of the active session
-        # Since proxy is set at startup in DrissionPage, we return the configuration
-        # and the agent must restart the session with these options.
         return {"status": "success", "proxy": proxy_url, "action": "RESTART_REQUIRED"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

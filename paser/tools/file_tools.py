@@ -21,6 +21,7 @@ FILE_SIZE_LIMIT = 5 * 1024 * 1024
 MAX_LIST_RESULTS = 100
 MAX_SEARCH_RESULTS = 10
 READ_PREVIEW_LIMIT = 20 * 1024
+MAX_PREVIEW_SIZE = 10 * 1024
 
 def is_binary_file(path: Path) -> bool:
     try:
@@ -50,6 +51,8 @@ def read_file(path: str) -> str:
     if size > READ_PREVIEW_LIMIT:
         lines = content.splitlines()
         preview = "\n".join(lines[:100])
+        if len(preview) > MAX_PREVIEW_SIZE:
+            preview = preview[:MAX_PREVIEW_SIZE] + "\n[PREVIEW FURTHER TRUNCATED DUE TO SIZE]"
         return f"--- HASH: {file_hash} ---\n[PREVIEW - First 100 lines of {size} bytes]\n{preview}\n\n[TRUNCATED - Use read_lines for more]"
     
     return f"--- HASH: {file_hash} ---\n{content}" if content else f"--- HASH: {file_hash} ---\nERR: Empty file"
