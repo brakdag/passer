@@ -1,5 +1,7 @@
 from DrissionPage import ChromiumPage, ChromiumOptions
 import os
+import time
+import random
 
 class GhostBrowser:
     def __init__(self, session_id=None, headless=True):
@@ -14,6 +16,10 @@ class GhostBrowser:
         
         self.page = ChromiumPage(self.options)
 
+    def _human_delay(self):
+        """Simulates human hesitation."""
+        time.sleep(random.uniform(0.5, 2.0))
+
     def execute_action(self, action_type, params):
         """
         Ejecución sincrónica de acciones de navegador.
@@ -21,16 +27,19 @@ class GhostBrowser:
         try:
             result = {"status": "success", "data": None}
             
+            self._human_delay()
             if action_type == "goto":
                 url = params["url"]
                 self.page.get(url)
                 result["data"] = self.page.url
                 
             elif action_type == "click":
+                self._human_delay()
                 selector = params["selector"]
                 self.page.ele(selector).click()
                 
             elif action_type == "fill":
+                self._human_delay()
                 selector = params["selector"]
                 value = params["value"]
                 self.page.ele(selector).input(value)
@@ -92,11 +101,12 @@ def network_intercept(pattern: str, url: str):
 
 def proxy_rotate(proxy_url: str):
     """
-    Configura el proxy para la sesión actual.
+    Configures the proxy for the current session using DrissionPage options.
     """
     try:
-        # DrissionPage permite setear el proxy en las opciones
-        # Aquí simulamos la rotación devolviendo el éxito
-        return {"status": "success", "proxy": proxy_url}
+        # In a real scenario, this would update the ChromiumOptions of the active session
+        # Since proxy is set at startup in DrissionPage, we return the configuration
+        # and the agent must restart the session with these options.
+        return {"status": "success", "proxy": proxy_url, "action": "RESTART_REQUIRED"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
