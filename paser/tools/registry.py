@@ -20,6 +20,8 @@ from paser.tools import (
     ghost_browser as gb
 )
 
+from paser.tools.ghost_browser import browser_execute, network_intercept, proxy_rotate
+
 # Initialize specialized navigators
 nav = cn.CodeNavigator()
 
@@ -91,9 +93,9 @@ AVAILABLE_TOOLS = {
     "validate_json_file": ut.validate_json_file,
     "chat_with_paser_mini": ut.chat_with_paser_mini,
     "neural_mouse_control": mt_mouse.neural_mouse_control,
-    "playwright_execute": gb.browser_execute,
-    "network_intercept": gb.network_intercept,
-    "proxy_rotate": gb.proxy_rotate
+    "playwright_execute": browser_execute,
+    "network_intercept": network_intercept,
+    "proxy_rotate": proxy_rotate
 }
 
 # Load tool definitions (descriptions and params) for the LLM prompt
