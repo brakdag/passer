@@ -97,10 +97,12 @@ def browser_execute(action: str, params: dict, session_id: str = "default"):
         
     return result
 
-def network_intercept(pattern: str, url: str):
+def network_intercept(pattern: str, url: str, timeout: int = 120):
     """
     Captura de red sincrónica usando el modo listen de DrissionPage.
+    Incluye un timeout para evitar bloqueos infinitos.
     """
+    page = None
     try:
         options = ChromiumOptions().headless()
         page = ChromiumPage(options)
@@ -108,13 +110,19 @@ def network_intercept(pattern: str, url: str):
         page.listen.start(pattern)
         page.get(url)
         
-        res = page.listen.wait()
-        data = res.response.body
+        # DrissionPage's wait() accepts a timeout parameter
+        res = page.listen.wait(timeout=timeout)
         
-        page.quit()
+        if not res:
+            return [{"error": f"Timeout: No request matching pattern '{pattern}' was intercepted within {timeout}s"}]
+            
+        data = res.response.body
         return [{"url": res.url, "data": data}]
     except Exception as e:
         return [{"error": str(e)}]
+    finally:
+        if page:
+            page.quit()
 
 def proxy_rotate(proxy_url: str):
     """

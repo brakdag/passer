@@ -320,7 +320,7 @@ class GeminiAdapter(IAIAssistant):
                     if retries > self.max_retries:
                         formatted_error = self._format_api_error(e)
                         logger.error(f"API Error: Max retries reached. {formatted_error}")
-                        return f"⚠️ Error: {formatted_error}"
+                        raise Exception(formatted_error)
                     
                     delay = self._get_retry_delay(e, retries - 1)
                     if isinstance(e, ClientError) or getattr(e, 'status_code', None) == 429 or '429' in str(e).lower():
