@@ -6,8 +6,8 @@
   ["remove_file", "Delete file. Returns 'OK' on success. Throws ERR if not found.", {"path": "string"}],
   ["list_dir", "List directory contents", {"path": "string"}],
   ["web_search", "Search the web", {"query": "string"}],
-  ["fetch_url", "Get URL content", {"url": "string"}],
-  ["render_web_page", "Render a web page as clean text using ELinks", {"url": "string"}],
+  ["fetch_url", "Fetch raw HTML/content. Fast, but does NOT render JavaScript and is easily detected by bot protections. Use only for simple, static pages.", {"url": "string"}],
+  ["render_web_page", "Render a web page as clean, human-readable text using ELinks. Ideal for quick content extraction from static or semi-static pages without JS interaction.", {"url": "string"}],
   ["get_cwd", "Get current working directory", {}],
   ["read_lines", "Read specific file lines", {"path": "string", "inicio": "integer", "fin": "integer"}],
   ["read_head", "Read first N file lines", {"path": "string", "cantidad_lineas": "integer"}],
@@ -63,7 +63,7 @@
   ["validate_json_file", "Validates if a file contains valid JSON", {"path": "string"}],
   ["chat_with_paser_mini", "Chats with a specialized Citizen (mini-agent) using a specific role from the staff directory. Each citizen maintains its own independent session and history.", {"prompt": "string", "citizen_id": "string", "role": "string", "context_str": "string"}],
   ["neural_mouse_control", "Controls the mouse using a neural interface for organic movement. Input: 'rect(x, y, width, height);action'. Actions: 'click' or 'rect(0,0,0,0)' for a screenshot. Returns a color-coded image for spatial orientation.", {"command": "string"}],
-  ["playwright_execute", "Execute a sequence of playwright actions with stealth integration", {"action": "string", "params": "object", "session_id": "string"}],
-  ["network_intercept", "Capture and filter network requests/responses matching a pattern", {"pattern": "string", "url": "string"}],
-  ["proxy_rotate", "Rotate proxy IP for a session", {"proxy_url": "string"}]
+  ["browser_execute", "High-level stealth browser for complex scraping and interaction. Use this to bypass bot detection, render JavaScript, or interact with elements. Supported actions: 'goto' (url), 'click' (selector), 'fill' (selector, value), 'evaluate' (script), 'screenshot' (path), 'get_content' (html), 'wait_for' (selector). Essential for SPAs and protected sites.", {"action": "string", "params": "object", "session_id": "string"}],
+  ["network_intercept", "Advanced network analysis. Captures background HTTP requests/responses matching a pattern. Use this to discover hidden APIs, XHR requests, and JSON data streams not visible in the HTML.", {"pattern": "string", "url": "string"}],
+  ["proxy_rotate", "Rotate proxy IP to avoid rate-limiting and IP bans during intensive scraping. Requires session restart.", {"proxy_url": "string"}]
 ] 

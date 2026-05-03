@@ -47,7 +47,7 @@ class ChatManager:
         self.recurring_tasks = {}
         self.should_exit = False
         
-        self._initialized_event = threading.Event()
+        self._initialized_event = asyncio.Event()
         self._init_error = None
 
     def _on_thought(self, thought_text):
@@ -107,11 +107,16 @@ class ChatManager:
 
     async def run(self):
         loop = asyncio.get_running_loop()
-        asyncio.create_task(asyncio.to_thread(self._initialize_chat))
+        asyncio.create_task(asyncio.to_thread(self._initialize_chat, loop))
         asyncio.create_task(self.event_monitor.monitor_loop(self.thinking_enabled))
         
         # Ensure the assistant is initialized before accepting input
         await self._initialized_event.wait()
+        
+        if self._init_error:
+            self.ui.display_error(f"Initialization Failed: {self._init_error}")
+            self.should_exit = True
+            return
         
         from paser.core.audio_manager import AudioManager
         self.audio_manager = AudioManager()
@@ -172,11 +177,13 @@ class ChatManager:
             except Exception as e: 
                 self.ui.display_error(f"Error: {e}")
 
-    def _initialize_chat(self):
+    def _initialize_chat(self, loop):
         try:
             self.assistant.start_chat(self.config_manager.get("model_name", "models/gemma-2-27B-it"), self.system_instruction, self.temperature)
-            self._initialized_event.set()
-        except Exception as e: self._init_error = e
+        except Exception as e:
+            self._init_error = e
+        finally:
+            loop.call_soon_threadsafe(self._initialized_event.set)
 
     def save_session(self, name):
         session_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'sessions')
