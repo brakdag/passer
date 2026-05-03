@@ -3,7 +3,7 @@
 **Atención Agente:** El sistema de navegación ha sido migrado de **Playwright** $\rightarrow$ **DrissionPage**. 
 
 ### ⚠️ La Regla de Oro del Reinicio
-Si al ejecutar `playwright_execute` recibes el error: 
+Si al ejecutar `browser_execute` recibes el error: 
 `"Sync loop error: Cannot run the event loop while another loop is running"` 
 
 **EL REINICIO FALLÓ.** 

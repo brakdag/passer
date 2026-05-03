@@ -110,6 +110,9 @@ class ChatManager:
         asyncio.create_task(asyncio.to_thread(self._initialize_chat))
         asyncio.create_task(self.event_monitor.monitor_loop(self.thinking_enabled))
         
+        # Ensure the assistant is initialized before accepting input
+        await self._initialized_event.wait()
+        
         from paser.core.audio_manager import AudioManager
         self.audio_manager = AudioManager()
         self.is_recording = False

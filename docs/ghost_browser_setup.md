@@ -1,6 +1,6 @@
 # Guía de Configuración: Ghost-Browser Toolset
 
-Este documento explica cómo configurar las dependencias necesarias para que las herramientas de navegación de alta fidelidad (`playwright_execute`, `network_intercept`) funcionen correctamente.
+Este documento explica cómo configurar las dependencias necesarias para que las herramientas de navegación de alta fidelidad (`browser_execute`, `network_intercept`) funcionen correctamente.
 
 ## Requisitos Previos
 

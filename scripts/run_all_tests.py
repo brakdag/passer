@@ -2,12 +2,14 @@ import sys
 import os
 import unittest
 
-# Ensure the project root is in the python path
-sys.path.insert(0, os.path.abspath(os.getcwd()))
+# Resolve the project root (parent of the scripts directory)
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, root_dir)
 
 if __name__ == '__main__':
     loader = unittest.TestLoader()
-    suite = loader.discover('tests')
+    # Discover tests starting from the project root, looking into the 'tests' directory
+    suite = loader.discover(start_dir=root_dir, pattern='test_*.py')
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     if not result.wasSuccessful():

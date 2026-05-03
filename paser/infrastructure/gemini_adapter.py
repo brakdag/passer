@@ -247,8 +247,7 @@ class GeminiAdapter(IAIAssistant):
 
     def send_message_stream(self, message: str) -> Generator[str, None, None]:
         if not self.chat:
-            yield ""
-            return
+            raise RuntimeError("GeminiAdapter: Attempted to stream message before chat was initialized. Call start_chat() first.")
 
         self._save_payload(message)
 
@@ -292,7 +291,7 @@ class GeminiAdapter(IAIAssistant):
 
     def send_message(self, message: Union[str, bytes]) -> Any:
         if not self.chat:
-            return None
+            raise RuntimeError("GeminiAdapter: Attempted to send message before chat was initialized. Call start_chat() first.")
 
         self._save_payload(message)
 

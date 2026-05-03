@@ -5,7 +5,7 @@ print('Checking AVAILABLE_TOOLS...')
 print(f'Total tools: {len(AVAILABLE_TOOLS)}')
 
 for name, func in AVAILABLE_TOOLS.items():
-    if name in ['playwright_execute', 'network_intercept', 'proxy_rotate']:
+    if name in ['browser_execute', 'network_intercept', 'proxy_rotate']:
         print(f'{name}: {type(func)}')
 
 print('Done.')

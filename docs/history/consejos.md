@@ -1,6 +1,6 @@
 # 🛡️ Protocolo de Verificación: Playwright Execute
 
-Para que la herramienta `playwright_execute` funcione, no basta con "intentarlo". Se requiere precisión quirúrgica en los parámetros. Si la herramienta falla, es probable que se esté violando uno de los siguientes puntos de integridad.
+Para que la herramienta `browser_execute` funcione, no basta con "intentarlo". Se requiere precisión quirúrgica en los parámetros. Si la herramienta falla, es probable que se esté violando uno de los siguientes puntos de integridad.
 
 ## 1. Anatomía Correcta de la Llamada
 La herramienta espera una estructura estrictamente definida. Un error en la clave del diccionario resultará en un fallo.
