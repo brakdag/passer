@@ -64,5 +64,32 @@ class TestFileMutation(unittest.TestCase):
             update_line(self.test_file, 0, "Out of range")
         self.assertEqual(str(cm.exception), 'Line out of range')
 
+
+    def test_split_file_success(self):
+        # Setup file for splitting
+        split_content = "Part A: Header\n---SPLIT---\nPart B: Body"
+        split_file_name = "test_split.txt"
+        write_file(split_file_name, split_content)
+        
+        from paser.tools.file_tools import split_file
+        result = split_file(split_file_name, "---SPLIT---")
+        self.assertEqual(result, 'OK')
+        
+        with open("test_split_part1.txt", 'r') as f1:
+            self.assertEqual(f1.read(), "Part A: Header\n")
+        with open("test_split_part2.txt", 'r') as f2:
+            self.assertEqual(f2.read(), "---SPLIT---\nPart B: Body")
+        
+        os.remove("test_split.txt")
+        os.remove("test_split_part1.txt")
+        os.remove("test_split_part2.txt")
+
+    def test_split_file_not_found(self):
+        write_file("test_split_fail.txt", "Hello World")
+        from paser.tools.file_tools import split_file
+        with self.assertRaises(ToolError) as cm:
+            split_file("test_split_fail.txt", "NONEXISTENT")
+        self.assertEqual(str(cm.exception), 'Search text not found')
+        os.remove("test_split_fail.txt")
 if __name__ == '__main__':
     unittest.main()

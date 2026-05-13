@@ -28,6 +28,8 @@ FILE_TOOLS = {
     "replace_string_at_line": ("Reemplazó en línea", "󰑐"),
     "validate_json": ("Validó JSON", "󰈚"),
     "validate_json_file": ("Validó archivo JSON", "󰈚"),
+    
+        "split_file": ("Dividió", "󰑐"),
 }
 
 NOTIFICATION_TOOLS = {
