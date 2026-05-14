@@ -29,6 +29,7 @@ nav = cn.CodeNavigator()
 AVAILABLE_TOOLS = {
     "get_utc_time": ut.get_utc_time,
     "read_file": ft.read_file,
+        "split_file": ft.split_file,
     "read_files": ft.read_files,
     "write_file": ft.write_file,
     "remove_file": ft.remove_file,

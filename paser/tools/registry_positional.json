@@ -65,5 +65,6 @@
   ["neural_mouse_control", "Controls the mouse using a neural interface for organic movement. Input: 'rect(x, y, width, height);action'. Actions: 'click' or 'rect(0,0,0,0)' for a screenshot. Returns a color-coded image for spatial orientation.", {"command": "string"}],
   ["browser_execute", "High-level stealth browser for complex scraping and interaction. Use this to bypass bot detection, render JavaScript, or interact with elements. Supported actions: 'goto' (url), 'click' (selector), 'fill' (selector, value), 'evaluate' (script), 'screenshot' (path), 'get_content' (html), 'wait_for' (selector). Essential for SPAs and protected sites.", {"action": "string", "params": "object", "session_id": "string"}],
   ["network_intercept", "Advanced network analysis. Captures background HTTP requests/responses matching a pattern. Use this to discover hidden APIs, XHR requests, and JSON data streams not visible in the HTML.", {"pattern": "string", "url": "string"}],
-  ["proxy_rotate", "Rotate proxy IP to avoid rate-limiting and IP bans during intensive scraping. Requires session restart.", {"proxy_url": "string"}]
-] 
+  ["proxy_rotate", "Rotate proxy IP to avoid rate-limiting and IP bans during intensive scraping. Requires session restart.", {"proxy_url": "string"}],
+  ["split_file", "Splits a file into two parts based on a search string", {"path": "string", "search_text": "string"}]
+]

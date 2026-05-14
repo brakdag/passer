@@ -337,29 +337,28 @@ def verify_file_hash(path: str, expected_hash: str) -> str:
     if actual_hash == expected_hash:
         return 'OK: File unchanged'
     return f'ERR: File changed. Hash mismatch'
+
+@validate_args(SplitFileSchema)
+def split_file(path: str, search_text: str) -> str:
+    safe_path = Path(context.get_safe_path(path))
+    if not safe_path.is_file():
+        raise ToolError('Not found')
     
+    content = safe_path.read_text(encoding='utf-8')
+    index = content.find(search_text)
     
-    @validate_args(SplitFileSchema)
-    def split_file(path: str, search_text: str) -> str:
-        safe_path = Path(context.get_safe_path(path))
-        if not safe_path.is_file():
-            raise ToolError('Not found')
-        
-        content = safe_path.read_text(encoding='utf-8')
-        index = content.find(search_text)
-        
-        if index == -1:
-            raise ToolError('Search text not found')
-        
-        part1_content = content[:index]
-        part2_content = content[index:]
-        
-        stem = safe_path.stem
-        suffix = safe_path.suffix
-        path1 = safe_path.with_name(f"{stem}_part1{suffix}")
-        path2 = safe_path.with_name(f"{stem}_part2{suffix}")
-        
-        path1.write_text(part1_content, encoding='utf-8')
-        path2.write_text(part2_content, encoding='utf-8')
-        
-        return 'OK'
+    if index == -1:
+        raise ToolError('Search text not found')
+    
+    part1_content = content[:index]
+    part2_content = content[index:]
+    
+    stem = safe_path.stem
+    suffix = safe_path.suffix
+    path1 = safe_path.with_name(f"{stem}_part1{suffix}")
+    path2 = safe_path.with_name(f"{stem}_part2{suffix}")
+    
+    path1.write_text(part1_content, encoding='utf-8')
+    path2.write_text(part2_content, encoding='utf-8')
+    
+    return 'OK'

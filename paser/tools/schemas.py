@@ -63,9 +63,8 @@ class ValidateJsonSchema(BaseModel):
     json_string: str = Field(..., description="Cadena JSON a validar")
 
 class ValidateJsonFileSchema(BaseModel):
-
+    path: str = Field(..., description="Ruta del archivo JSON a validar")
 
 class SplitFileSchema(BaseModel):
     path: str = Field(..., description="Ruta del archivo a dividir")
     search_text: str = Field(..., description="Cadena de búsqueda para el punto de corte")
-    path: str = Field(..., description="Ruta del archivo JSON a validar")
